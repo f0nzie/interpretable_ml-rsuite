@@ -4,3 +4,7 @@
 .Rbuildignore
 .Ruserdata
 config.txt
+
+*.gz
+
+packages/interpretable\.ml\.Rcheck/
