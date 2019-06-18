@@ -1,10 +1,53 @@
 Package: interpretable.ml
 Type: Package
-Title: What the package does (short line)
+Title: Interpretable machine learning
 Version: 0.1
 Date: 2019-06-14
 Author: msfz751
 Maintainer: Who to complain to <yourfault@somewhere.net>
 Description: More about what it does (maybe more than one line)
 License: What license is it under?
-Imports: logging
+Depends:
+  knitr
+Imports: logging,
+  bookdown,
+  ggplot2,
+  mlbench,
+  dplyr,
+  tidyr,
+  data.table,
+  mlr,
+  rpart,
+  party,
+  partykit,
+  randomForest,
+  gridExtra,
+  grid,
+  jpeg,
+  caret,
+  e1071,
+  tm,
+  svglite,
+  mmpf,
+  numDeriv,
+  DT,
+  xgboost,
+  lubridate,
+  pre,
+  shiny,
+  roxygen2,
+  memoise, 
+  gridExtra,
+  OneR, 
+  RWeka,
+  sbrl,
+  iml,
+  jtools,
+  mgcv,
+  devtools,
+  readr, 
+  Cairo,
+  viridis,
+  interactions
+Remotes: christophM/interpretable-ml-book
+RoxygenNote: 6.1.1

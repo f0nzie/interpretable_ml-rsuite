@@ -5,4 +5,7 @@
 #----------------------------------------------------------------------------
 
 #' @import logging
+#' @import rpart
+#' @import viridis
+#' @import ggplot2
 NULL
