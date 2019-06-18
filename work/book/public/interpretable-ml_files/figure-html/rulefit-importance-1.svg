@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 504.00 360.00'>
+<defs>
+  <style type='text/css'><![CDATA[
+    line, polyline, polygon, path, rect, circle {
+      fill: none;
+      stroke: #000000;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-miterlimit: 10.00;
+    }
+  ]]></style>
+</defs>
+<rect width='100%' height='100%' style='stroke: none; fill: #FFFFFF;'/>
+<rect x='92.98' y='78.72' width='37.92' height='181.54' style='stroke-width: 0.75; fill: #BEBEBE;' />
+<rect x='138.48' y='122.53' width='37.92' height='137.74' style='stroke-width: 0.75; fill: #BEBEBE;' />
+<rect x='183.98' y='203.12' width='37.92' height='57.14' style='stroke-width: 0.75; fill: #BEBEBE;' />
+<rect x='229.49' y='219.19' width='37.92' height='41.07' style='stroke-width: 0.75; fill: #BEBEBE;' />
+<rect x='274.99' y='224.90' width='37.92' height='35.36' style='stroke-width: 0.75; fill: #BEBEBE;' />
+<rect x='320.50' y='234.04' width='37.92' height='26.23' style='stroke-width: 0.75; fill: #BEBEBE;' />
+<rect x='366.00' y='253.86' width='37.92' height='6.40' style='stroke-width: 0.75; fill: #BEBEBE;' />
+<rect x='411.50' y='253.88' width='37.92' height='6.39' style='stroke-width: 0.75; fill: #BEBEBE;' />
+<text x='174.09' y='45.96' style='font-size: 19.20px; font-weight: bold; font-family: Arimo;' textLength='194.21px' lengthAdjust='spacingAndGlyphs'>Variable importances</text>
+<text transform='translate(17.28,210.42) rotate(-90)' style='font-size: 16.00px; font-family: Arimo;' textLength='80.04px' lengthAdjust='spacingAndGlyphs'>Importance</text>
+<line x1='78.72' y1='260.26' x2='78.72' y2='104.29' style='stroke-width: 0.75;' />
+<line x1='78.72' y1='260.26' x2='69.12' y2='260.26' style='stroke-width: 0.75;' />
+<line x1='78.72' y1='234.27' x2='69.12' y2='234.27' style='stroke-width: 0.75;' />
+<line x1='78.72' y1='208.27' x2='69.12' y2='208.27' style='stroke-width: 0.75;' />
+<line x1='78.72' y1='182.28' x2='69.12' y2='182.28' style='stroke-width: 0.75;' />
+<line x1='78.72' y1='156.28' x2='69.12' y2='156.28' style='stroke-width: 0.75;' />
+<line x1='78.72' y1='130.29' x2='69.12' y2='130.29' style='stroke-width: 0.75;' />
+<line x1='78.72' y1='104.29' x2='69.12' y2='104.29' style='stroke-width: 0.75;' />
+<text transform='translate(55.68,264.71) rotate(-90)' style='font-size: 16.00px; font-family: Arimo;' textLength='8.90px' lengthAdjust='spacingAndGlyphs'>0</text>
+<text transform='translate(55.68,221.62) rotate(-90)' style='font-size: 16.00px; font-family: Arimo;' textLength='26.70px' lengthAdjust='spacingAndGlyphs'>400</text>
+<text transform='translate(55.68,169.63) rotate(-90)' style='font-size: 16.00px; font-family: Arimo;' textLength='26.70px' lengthAdjust='spacingAndGlyphs'>800</text>
+<text transform='translate(55.68,122.09) rotate(-90)' style='font-size: 16.00px; font-family: Arimo;' textLength='35.59px' lengthAdjust='spacingAndGlyphs'>1200</text>
+<text transform='translate(82.98,296.00) rotate(-45)' style='font-size: 16.00px; font-family: Arimo;' textLength='44.46px' lengthAdjust='spacingAndGlyphs'>temp  </text>
+<text transform='translate(93.06,332.31) rotate(-45)' style='font-size: 16.00px; font-family: Arimo;' textLength='95.18px' lengthAdjust='spacingAndGlyphs'>dys_s_2011  </text>
+<text transform='translate(149.14,323.97) rotate(-45)' style='font-size: 16.00px; font-family: Arimo;' textLength='81.81px' lengthAdjust='spacingAndGlyphs'>weathersit  </text>
+<text transform='translate(208.67,307.84) rotate(-45)' style='font-size: 16.00px; font-family: Arimo;' textLength='60.48px' lengthAdjust='spacingAndGlyphs'>season  </text>
+<text transform='translate(269.70,294.42) rotate(-45)' style='font-size: 16.00px; font-family: Arimo;' textLength='40.02px' lengthAdjust='spacingAndGlyphs'>hum  </text>
+<text transform='translate(282.00,325.39) rotate(-45)' style='font-size: 16.00px; font-family: Arimo;' textLength='85.39px' lengthAdjust='spacingAndGlyphs'>windspeed  </text>
+<text transform='translate(324.37,328.52) rotate(-45)' style='font-size: 16.00px; font-family: Arimo;' textLength='89.82px' lengthAdjust='spacingAndGlyphs'>workingday  </text>
+<text transform='translate(391.25,307.14) rotate(-45)' style='font-size: 16.00px; font-family: Arimo;' textLength='59.59px' lengthAdjust='spacingAndGlyphs'>holiday  </text>
+</svg>

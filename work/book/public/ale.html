@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>5.3 Accumulated Local Effects (ALE) Plot | Interpretable Machine Learning</title>
+  <meta name="description" content="Machine learning algorithms usually operate as black boxes and it is unclear how they derived a certain decision. This book is a guide for practitioners to make machine learning decisions interpretable." />
+  <meta name="generator" content="bookdown 0.11 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="5.3 Accumulated Local Effects (ALE) Plot | Interpretable Machine Learning" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="Machine learning algorithms usually operate as black boxes and it is unclear how they derived a certain decision. This book is a guide for practitioners to make machine learning decisions interpretable." />
+  <meta name="github-repo" content="christophM/interpretable-ml-book" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="5.3 Accumulated Local Effects (ALE) Plot | Interpretable Machine Learning" />
+  
+  <meta name="twitter:description" content="Machine learning algorithms usually operate as black boxes and it is unclear how they derived a certain decision. This book is a guide for practitioners to make machine learning decisions interpretable." />
+  
+
+<meta name="author" content="Christoph Molnar" />
+
+
+<meta name="date" content="2019-06-17" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="ice.html">
+<link rel="next" href="interaction.html">
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-110543840-1', 'https://christophm.github.io/interpretable-ml-book/', {
+  'anonymizeIp': true
+  , 'storage': 'none'
+  , 'clientId': window.localStorage.getItem('ga_clientId')
+});
+ga(function(tracker) {
+  window.localStorage.setItem('ga_clientId', tracker.get('clientId'));
+});
+ga('send', 'pageview');
+</script>
+
+<link rel="stylesheet" type="text/css" href="css/cookieconsent.min.css" />
+<script src="javascript/cookieconsent.min.js"></script>
+<script>
+window.addEventListener("load", function(){
+window.cookieconsent.initialise({
+  "palette": {
+    "popup": {
+      "background": "#000"
+    },
+    "button": {
+      "background": "#f1d600"
+    }
+  },
+  "position": "bottom-right",
+  "content": {
+    "message": "This website uses cookies for Google Analytics so that I know how many people are reading the book and which chapters are the most popular. The book website doesn't collect any personal data."
+  }
+})});
+</script>
+
+
+<style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<link rel="stylesheet" href="css/style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Interpretable machine learning</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Preface</a></li>
+<li class="chapter" data-level="1" data-path="intro.html"><a href="intro.html"><i class="fa fa-check"></i><b>1</b> Introduction</a><ul>
+<li class="chapter" data-level="1.1" data-path="storytime.html"><a href="storytime.html"><i class="fa fa-check"></i><b>1.1</b> Story Time</a><ul>
+<li class="chapter" data-level="" data-path="storytime.html"><a href="storytime.html#lightning-never-strikes-twice"><i class="fa fa-check"></i>Lightning Never Strikes Twice</a></li>
+<li class="chapter" data-level="" data-path="storytime.html"><a href="storytime.html#trust-fall"><i class="fa fa-check"></i>Trust Fall</a></li>
+<li class="chapter" data-level="" data-path="storytime.html"><a href="storytime.html#fermis-paperclips"><i class="fa fa-check"></i>Fermi’s Paperclips</a></li>
+</ul></li>
+<li class="chapter" data-level="1.2" data-path="what-is-machine-learning.html"><a href="what-is-machine-learning.html"><i class="fa fa-check"></i><b>1.2</b> What Is Machine Learning?</a></li>
+<li class="chapter" data-level="1.3" data-path="terminology.html"><a href="terminology.html"><i class="fa fa-check"></i><b>1.3</b> Terminology</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="interpretability.html"><a href="interpretability.html"><i class="fa fa-check"></i><b>2</b> Interpretability</a><ul>
+<li class="chapter" data-level="2.1" data-path="interpretability-importance.html"><a href="interpretability-importance.html"><i class="fa fa-check"></i><b>2.1</b> Importance of Interpretability</a></li>
+<li class="chapter" data-level="2.2" data-path="taxonomy-of-interpretability-methods.html"><a href="taxonomy-of-interpretability-methods.html"><i class="fa fa-check"></i><b>2.2</b> Taxonomy of Interpretability Methods</a></li>
+<li class="chapter" data-level="2.3" data-path="scope-of-interpretability.html"><a href="scope-of-interpretability.html"><i class="fa fa-check"></i><b>2.3</b> Scope of Interpretability</a><ul>
+<li class="chapter" data-level="2.3.1" data-path="scope-of-interpretability.html"><a href="scope-of-interpretability.html#algorithm-transparency"><i class="fa fa-check"></i><b>2.3.1</b> Algorithm Transparency</a></li>
+<li class="chapter" data-level="2.3.2" data-path="scope-of-interpretability.html"><a href="scope-of-interpretability.html#global-holistic-model-interpretability"><i class="fa fa-check"></i><b>2.3.2</b> Global, Holistic Model Interpretability</a></li>
+<li class="chapter" data-level="2.3.3" data-path="scope-of-interpretability.html"><a href="scope-of-interpretability.html#global-model-interpretability-on-a-modular-level"><i class="fa fa-check"></i><b>2.3.3</b> Global Model Interpretability on a Modular Level</a></li>
+<li class="chapter" data-level="2.3.4" data-path="scope-of-interpretability.html"><a href="scope-of-interpretability.html#local-interpretability-for-a-single-prediction"><i class="fa fa-check"></i><b>2.3.4</b> Local Interpretability for a Single Prediction</a></li>
+<li class="chapter" data-level="2.3.5" data-path="scope-of-interpretability.html"><a href="scope-of-interpretability.html#local-interpretability-for-a-group-of-predictions"><i class="fa fa-check"></i><b>2.3.5</b> Local Interpretability for a Group of Predictions</a></li>
+</ul></li>
+<li class="chapter" data-level="2.4" data-path="evaluation-of-interpretability.html"><a href="evaluation-of-interpretability.html"><i class="fa fa-check"></i><b>2.4</b> Evaluation of Interpretability</a></li>
+<li class="chapter" data-level="2.5" data-path="properties.html"><a href="properties.html"><i class="fa fa-check"></i><b>2.5</b> Properties of Explanations</a></li>
+<li class="chapter" data-level="2.6" data-path="explanation.html"><a href="explanation.html"><i class="fa fa-check"></i><b>2.6</b> Human-friendly Explanations</a><ul>
+<li class="chapter" data-level="2.6.1" data-path="explanation.html"><a href="explanation.html#what-is-an-explanation"><i class="fa fa-check"></i><b>2.6.1</b> What Is an Explanation?</a></li>
+<li class="chapter" data-level="2.6.2" data-path="explanation.html"><a href="explanation.html#good-explanation"><i class="fa fa-check"></i><b>2.6.2</b> What Is a Good Explanation?</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="data.html"><a href="data.html"><i class="fa fa-check"></i><b>3</b> Datasets</a><ul>
+<li class="chapter" data-level="3.1" data-path="bike-data.html"><a href="bike-data.html"><i class="fa fa-check"></i><b>3.1</b> Bike Rentals (Regression)</a></li>
+<li class="chapter" data-level="3.2" data-path="spam-data.html"><a href="spam-data.html"><i class="fa fa-check"></i><b>3.2</b> YouTube Spam Comments (Text Classification)</a></li>
+<li class="chapter" data-level="3.3" data-path="cervical.html"><a href="cervical.html"><i class="fa fa-check"></i><b>3.3</b> Risk Factors for Cervical Cancer (Classification)</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="simple.html"><a href="simple.html"><i class="fa fa-check"></i><b>4</b> Interpretable Models</a><ul>
+<li class="chapter" data-level="4.1" data-path="limo.html"><a href="limo.html"><i class="fa fa-check"></i><b>4.1</b> Linear Regression</a><ul>
+<li class="chapter" data-level="4.1.1" data-path="limo.html"><a href="limo.html#interpretation"><i class="fa fa-check"></i><b>4.1.1</b> Interpretation</a></li>
+<li class="chapter" data-level="4.1.2" data-path="limo.html"><a href="limo.html#example"><i class="fa fa-check"></i><b>4.1.2</b> Example</a></li>
+<li class="chapter" data-level="4.1.3" data-path="limo.html"><a href="limo.html#visual-interpretation"><i class="fa fa-check"></i><b>4.1.3</b> Visual Interpretation</a></li>
+<li class="chapter" data-level="4.1.4" data-path="limo.html"><a href="limo.html#explain-individual-predictions"><i class="fa fa-check"></i><b>4.1.4</b> Explain Individual Predictions</a></li>
+<li class="chapter" data-level="4.1.5" data-path="limo.html"><a href="limo.html#cat-code"><i class="fa fa-check"></i><b>4.1.5</b> Encoding of Categorical Features</a></li>
+<li class="chapter" data-level="4.1.6" data-path="limo.html"><a href="limo.html#do-linear-models-create-good-explanations"><i class="fa fa-check"></i><b>4.1.6</b> Do Linear Models Create Good Explanations?</a></li>
+<li class="chapter" data-level="4.1.7" data-path="limo.html"><a href="limo.html#sparse-linear"><i class="fa fa-check"></i><b>4.1.7</b> Sparse Linear Models</a></li>
+<li class="chapter" data-level="4.1.8" data-path="limo.html"><a href="limo.html#advantages"><i class="fa fa-check"></i><b>4.1.8</b> Advantages</a></li>
+<li class="chapter" data-level="4.1.9" data-path="limo.html"><a href="limo.html#disadvantages"><i class="fa fa-check"></i><b>4.1.9</b> Disadvantages</a></li>
+</ul></li>
+<li class="chapter" data-level="4.2" data-path="logistic.html"><a href="logistic.html"><i class="fa fa-check"></i><b>4.2</b> Logistic Regression</a><ul>
+<li class="chapter" data-level="4.2.1" data-path="logistic.html"><a href="logistic.html#what-is-wrong-with-linear-regression-for-classification"><i class="fa fa-check"></i><b>4.2.1</b> What is Wrong with Linear Regression for Classification?</a></li>
+<li class="chapter" data-level="4.2.2" data-path="logistic.html"><a href="logistic.html#theory"><i class="fa fa-check"></i><b>4.2.2</b> Theory</a></li>
+<li class="chapter" data-level="4.2.3" data-path="logistic.html"><a href="logistic.html#interpretation-1"><i class="fa fa-check"></i><b>4.2.3</b> Interpretation</a></li>
+<li class="chapter" data-level="4.2.4" data-path="logistic.html"><a href="logistic.html#example-1"><i class="fa fa-check"></i><b>4.2.4</b> Example</a></li>
+<li class="chapter" data-level="4.2.5" data-path="logistic.html"><a href="logistic.html#advantages-and-disadvantages"><i class="fa fa-check"></i><b>4.2.5</b> Advantages and Disadvantages</a></li>
+<li class="chapter" data-level="4.2.6" data-path="logistic.html"><a href="logistic.html#software"><i class="fa fa-check"></i><b>4.2.6</b> Software</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="extend-lm.html"><a href="extend-lm.html"><i class="fa fa-check"></i><b>4.3</b> GLM, GAM and more</a><ul>
+<li class="chapter" data-level="4.3.1" data-path="extend-lm.html"><a href="extend-lm.html#glm"><i class="fa fa-check"></i><b>4.3.1</b> Non-Gaussian Outcomes - GLMs</a></li>
+<li class="chapter" data-level="4.3.2" data-path="extend-lm.html"><a href="extend-lm.html#lm-interact"><i class="fa fa-check"></i><b>4.3.2</b> Interactions</a></li>
+<li class="chapter" data-level="4.3.3" data-path="extend-lm.html"><a href="extend-lm.html#gam"><i class="fa fa-check"></i><b>4.3.3</b> Nonlinear Effects - GAMs</a></li>
+<li class="chapter" data-level="4.3.4" data-path="extend-lm.html"><a href="extend-lm.html#advantages-1"><i class="fa fa-check"></i><b>4.3.4</b> Advantages</a></li>
+<li class="chapter" data-level="4.3.5" data-path="extend-lm.html"><a href="extend-lm.html#disadvantages-1"><i class="fa fa-check"></i><b>4.3.5</b> Disadvantages</a></li>
+<li class="chapter" data-level="4.3.6" data-path="extend-lm.html"><a href="extend-lm.html#software-1"><i class="fa fa-check"></i><b>4.3.6</b> Software</a></li>
+<li class="chapter" data-level="4.3.7" data-path="extend-lm.html"><a href="extend-lm.html#more-lm-extension"><i class="fa fa-check"></i><b>4.3.7</b> Further Extensions</a></li>
+</ul></li>
+<li class="chapter" data-level="4.4" data-path="tree.html"><a href="tree.html"><i class="fa fa-check"></i><b>4.4</b> Decision Tree</a><ul>
+<li class="chapter" data-level="4.4.1" data-path="tree.html"><a href="tree.html#interpretation-2"><i class="fa fa-check"></i><b>4.4.1</b> Interpretation</a></li>
+<li class="chapter" data-level="4.4.2" data-path="tree.html"><a href="tree.html#example-2"><i class="fa fa-check"></i><b>4.4.2</b> Example</a></li>
+<li class="chapter" data-level="4.4.3" data-path="tree.html"><a href="tree.html#advantages-2"><i class="fa fa-check"></i><b>4.4.3</b> Advantages</a></li>
+<li class="chapter" data-level="4.4.4" data-path="tree.html"><a href="tree.html#disadvantages-2"><i class="fa fa-check"></i><b>4.4.4</b> Disadvantages</a></li>
+<li class="chapter" data-level="4.4.5" data-path="tree.html"><a href="tree.html#software-2"><i class="fa fa-check"></i><b>4.4.5</b> Software</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="rules.html"><a href="rules.html"><i class="fa fa-check"></i><b>4.5</b> Decision Rules</a><ul>
+<li class="chapter" data-level="4.5.1" data-path="rules.html"><a href="rules.html#learn-rules-from-a-single-feature-oner"><i class="fa fa-check"></i><b>4.5.1</b> Learn Rules from a Single Feature (OneR)</a></li>
+<li class="chapter" data-level="4.5.2" data-path="rules.html"><a href="rules.html#sequential-covering"><i class="fa fa-check"></i><b>4.5.2</b> Sequential Covering</a></li>
+<li class="chapter" data-level="4.5.3" data-path="rules.html"><a href="rules.html#bayesian-rule-lists"><i class="fa fa-check"></i><b>4.5.3</b> Bayesian Rule Lists</a></li>
+<li class="chapter" data-level="4.5.4" data-path="rules.html"><a href="rules.html#advantages-3"><i class="fa fa-check"></i><b>4.5.4</b> Advantages</a></li>
+<li class="chapter" data-level="4.5.5" data-path="rules.html"><a href="rules.html#disadvantages-3"><i class="fa fa-check"></i><b>4.5.5</b> Disadvantages</a></li>
+<li class="chapter" data-level="4.5.6" data-path="rules.html"><a href="rules.html#software-and-alternatives"><i class="fa fa-check"></i><b>4.5.6</b> Software and Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="4.6" data-path="rulefit.html"><a href="rulefit.html"><i class="fa fa-check"></i><b>4.6</b> RuleFit</a><ul>
+<li class="chapter" data-level="4.6.1" data-path="rulefit.html"><a href="rulefit.html#interpretation-and-example"><i class="fa fa-check"></i><b>4.6.1</b> Interpretation and Example</a></li>
+<li class="chapter" data-level="4.6.2" data-path="rulefit.html"><a href="rulefit.html#theory-1"><i class="fa fa-check"></i><b>4.6.2</b> Theory</a></li>
+<li class="chapter" data-level="4.6.3" data-path="rulefit.html"><a href="rulefit.html#advantages-4"><i class="fa fa-check"></i><b>4.6.3</b> Advantages</a></li>
+<li class="chapter" data-level="4.6.4" data-path="rulefit.html"><a href="rulefit.html#disadvantages-4"><i class="fa fa-check"></i><b>4.6.4</b> Disadvantages</a></li>
+<li class="chapter" data-level="4.6.5" data-path="rulefit.html"><a href="rulefit.html#software-and-alternative"><i class="fa fa-check"></i><b>4.6.5</b> Software and Alternative</a></li>
+</ul></li>
+<li class="chapter" data-level="4.7" data-path="other-interpretable.html"><a href="other-interpretable.html"><i class="fa fa-check"></i><b>4.7</b> Other Interpretable Models</a><ul>
+<li class="chapter" data-level="4.7.1" data-path="other-interpretable.html"><a href="other-interpretable.html#naive-bayes-classifier"><i class="fa fa-check"></i><b>4.7.1</b> Naive Bayes Classifier</a></li>
+<li class="chapter" data-level="4.7.2" data-path="other-interpretable.html"><a href="other-interpretable.html#k-nearest-neighbors"><i class="fa fa-check"></i><b>4.7.2</b> K-Nearest Neighbors</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="agnostic.html"><a href="agnostic.html"><i class="fa fa-check"></i><b>5</b> Model-Agnostic Methods</a><ul>
+<li class="chapter" data-level="5.1" data-path="pdp.html"><a href="pdp.html"><i class="fa fa-check"></i><b>5.1</b> Partial Dependence Plot (PDP)</a><ul>
+<li class="chapter" data-level="5.1.1" data-path="pdp.html"><a href="pdp.html#examples"><i class="fa fa-check"></i><b>5.1.1</b> Examples</a></li>
+<li class="chapter" data-level="5.1.2" data-path="pdp.html"><a href="pdp.html#advantages-5"><i class="fa fa-check"></i><b>5.1.2</b> Advantages</a></li>
+<li class="chapter" data-level="5.1.3" data-path="pdp.html"><a href="pdp.html#disadvantages-5"><i class="fa fa-check"></i><b>5.1.3</b> Disadvantages</a></li>
+<li class="chapter" data-level="5.1.4" data-path="pdp.html"><a href="pdp.html#software-and-alternatives-1"><i class="fa fa-check"></i><b>5.1.4</b> Software and Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="5.2" data-path="ice.html"><a href="ice.html"><i class="fa fa-check"></i><b>5.2</b> Individual Conditional Expectation (ICE)</a><ul>
+<li class="chapter" data-level="5.2.1" data-path="ice.html"><a href="ice.html#examples-1"><i class="fa fa-check"></i><b>5.2.1</b> Examples</a></li>
+<li class="chapter" data-level="5.2.2" data-path="ice.html"><a href="ice.html#advantages-6"><i class="fa fa-check"></i><b>5.2.2</b> Advantages</a></li>
+<li class="chapter" data-level="5.2.3" data-path="ice.html"><a href="ice.html#disadvantages-6"><i class="fa fa-check"></i><b>5.2.3</b> Disadvantages</a></li>
+<li class="chapter" data-level="5.2.4" data-path="ice.html"><a href="ice.html#software-and-alternatives-2"><i class="fa fa-check"></i><b>5.2.4</b> Software and Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="ale.html"><a href="ale.html"><i class="fa fa-check"></i><b>5.3</b> Accumulated Local Effects (ALE) Plot</a><ul>
+<li class="chapter" data-level="5.3.1" data-path="ale.html"><a href="ale.html#motivation-and-intuition"><i class="fa fa-check"></i><b>5.3.1</b> Motivation and Intuition</a></li>
+<li class="chapter" data-level="5.3.2" data-path="ale.html"><a href="ale.html#theory-2"><i class="fa fa-check"></i><b>5.3.2</b> Theory</a></li>
+<li class="chapter" data-level="5.3.3" data-path="ale.html"><a href="ale.html#estimation"><i class="fa fa-check"></i><b>5.3.3</b> Estimation</a></li>
+<li class="chapter" data-level="5.3.4" data-path="ale.html"><a href="ale.html#examples-2"><i class="fa fa-check"></i><b>5.3.4</b> Examples</a></li>
+<li class="chapter" data-level="5.3.5" data-path="ale.html"><a href="ale.html#advantages-7"><i class="fa fa-check"></i><b>5.3.5</b> Advantages</a></li>
+<li class="chapter" data-level="5.3.6" data-path="ale.html"><a href="ale.html#disadvantages-7"><i class="fa fa-check"></i><b>5.3.6</b> Disadvantages</a></li>
+<li class="chapter" data-level="5.3.7" data-path="ale.html"><a href="ale.html#implementation-and-alternatives"><i class="fa fa-check"></i><b>5.3.7</b> Implementation and Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="5.4" data-path="interaction.html"><a href="interaction.html"><i class="fa fa-check"></i><b>5.4</b> Feature Interaction</a><ul>
+<li class="chapter" data-level="5.4.1" data-path="interaction.html"><a href="interaction.html#feature-interaction"><i class="fa fa-check"></i><b>5.4.1</b> Feature Interaction?</a></li>
+<li class="chapter" data-level="5.4.2" data-path="interaction.html"><a href="interaction.html#theory-friedmans-h-statistic"><i class="fa fa-check"></i><b>5.4.2</b> Theory: Friedman’s H-statistic</a></li>
+<li class="chapter" data-level="5.4.3" data-path="interaction.html"><a href="interaction.html#examples-3"><i class="fa fa-check"></i><b>5.4.3</b> Examples</a></li>
+<li class="chapter" data-level="5.4.4" data-path="interaction.html"><a href="interaction.html#advantages-8"><i class="fa fa-check"></i><b>5.4.4</b> Advantages</a></li>
+<li class="chapter" data-level="5.4.5" data-path="interaction.html"><a href="interaction.html#disadvantages-8"><i class="fa fa-check"></i><b>5.4.5</b> Disadvantages</a></li>
+<li class="chapter" data-level="5.4.6" data-path="interaction.html"><a href="interaction.html#implementations"><i class="fa fa-check"></i><b>5.4.6</b> Implementations</a></li>
+<li class="chapter" data-level="5.4.7" data-path="interaction.html"><a href="interaction.html#alternatives"><i class="fa fa-check"></i><b>5.4.7</b> Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="5.5" data-path="feature-importance.html"><a href="feature-importance.html"><i class="fa fa-check"></i><b>5.5</b> Feature Importance</a><ul>
+<li class="chapter" data-level="5.5.1" data-path="feature-importance.html"><a href="feature-importance.html#theory-3"><i class="fa fa-check"></i><b>5.5.1</b> Theory</a></li>
+<li class="chapter" data-level="5.5.2" data-path="feature-importance.html"><a href="feature-importance.html#feature-importance-data"><i class="fa fa-check"></i><b>5.5.2</b> Should I Compute Importance on Training or Test Data?</a></li>
+<li class="chapter" data-level="5.5.3" data-path="feature-importance.html"><a href="feature-importance.html#example-and-interpretation"><i class="fa fa-check"></i><b>5.5.3</b> Example and Interpretation</a></li>
+<li class="chapter" data-level="5.5.4" data-path="feature-importance.html"><a href="feature-importance.html#advantages-9"><i class="fa fa-check"></i><b>5.5.4</b> Advantages</a></li>
+<li class="chapter" data-level="5.5.5" data-path="feature-importance.html"><a href="feature-importance.html#disadvantages-9"><i class="fa fa-check"></i><b>5.5.5</b> Disadvantages</a></li>
+<li class="chapter" data-level="5.5.6" data-path="feature-importance.html"><a href="feature-importance.html#software-and-alternatives-3"><i class="fa fa-check"></i><b>5.5.6</b> Software and Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="5.6" data-path="global.html"><a href="global.html"><i class="fa fa-check"></i><b>5.6</b> Global Surrogate</a><ul>
+<li class="chapter" data-level="5.6.1" data-path="global.html"><a href="global.html#theory-4"><i class="fa fa-check"></i><b>5.6.1</b> Theory</a></li>
+<li class="chapter" data-level="5.6.2" data-path="global.html"><a href="global.html#example-4"><i class="fa fa-check"></i><b>5.6.2</b> Example</a></li>
+<li class="chapter" data-level="5.6.3" data-path="global.html"><a href="global.html#advantages-10"><i class="fa fa-check"></i><b>5.6.3</b> Advantages</a></li>
+<li class="chapter" data-level="5.6.4" data-path="global.html"><a href="global.html#disadvantages-10"><i class="fa fa-check"></i><b>5.6.4</b> Disadvantages</a></li>
+<li class="chapter" data-level="5.6.5" data-path="global.html"><a href="global.html#software-3"><i class="fa fa-check"></i><b>5.6.5</b> Software</a></li>
+</ul></li>
+<li class="chapter" data-level="5.7" data-path="lime.html"><a href="lime.html"><i class="fa fa-check"></i><b>5.7</b> Local Surrogate (LIME)</a><ul>
+<li class="chapter" data-level="5.7.1" data-path="lime.html"><a href="lime.html#lime-for-tabular-data"><i class="fa fa-check"></i><b>5.7.1</b> LIME for Tabular Data</a></li>
+<li class="chapter" data-level="5.7.2" data-path="lime.html"><a href="lime.html#lime-for-text"><i class="fa fa-check"></i><b>5.7.2</b> LIME for Text</a></li>
+<li class="chapter" data-level="5.7.3" data-path="lime.html"><a href="lime.html#images-lime"><i class="fa fa-check"></i><b>5.7.3</b> LIME for Images</a></li>
+<li class="chapter" data-level="5.7.4" data-path="lime.html"><a href="lime.html#advantages-11"><i class="fa fa-check"></i><b>5.7.4</b> Advantages</a></li>
+<li class="chapter" data-level="5.7.5" data-path="lime.html"><a href="lime.html#disadvantages-11"><i class="fa fa-check"></i><b>5.7.5</b> Disadvantages</a></li>
+</ul></li>
+<li class="chapter" data-level="5.8" data-path="shapley.html"><a href="shapley.html"><i class="fa fa-check"></i><b>5.8</b> Shapley Values</a><ul>
+<li class="chapter" data-level="5.8.1" data-path="shapley.html"><a href="shapley.html#general-idea"><i class="fa fa-check"></i><b>5.8.1</b> General Idea</a></li>
+<li class="chapter" data-level="5.8.2" data-path="shapley.html"><a href="shapley.html#examples-and-interpretation"><i class="fa fa-check"></i><b>5.8.2</b> Examples and Interpretation</a></li>
+<li class="chapter" data-level="5.8.3" data-path="shapley.html"><a href="shapley.html#the-shapley-value-in-detail"><i class="fa fa-check"></i><b>5.8.3</b> The Shapley Value in Detail</a></li>
+<li class="chapter" data-level="5.8.4" data-path="shapley.html"><a href="shapley.html#advantages-12"><i class="fa fa-check"></i><b>5.8.4</b> Advantages</a></li>
+<li class="chapter" data-level="5.8.5" data-path="shapley.html"><a href="shapley.html#disadvantages-12"><i class="fa fa-check"></i><b>5.8.5</b> Disadvantages</a></li>
+<li class="chapter" data-level="5.8.6" data-path="shapley.html"><a href="shapley.html#software-and-alternatives-4"><i class="fa fa-check"></i><b>5.8.6</b> Software and Alternatives</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="example-based.html"><a href="example-based.html"><i class="fa fa-check"></i><b>6</b> Example-Based Explanations</a><ul>
+<li class="chapter" data-level="6.1" data-path="counterfactual.html"><a href="counterfactual.html"><i class="fa fa-check"></i><b>6.1</b> Counterfactual Explanations</a><ul>
+<li class="chapter" data-level="6.1.1" data-path="counterfactual.html"><a href="counterfactual.html#generating-counterfactual-explanations"><i class="fa fa-check"></i><b>6.1.1</b> Generating Counterfactual Explanations</a></li>
+<li class="chapter" data-level="6.1.2" data-path="counterfactual.html"><a href="counterfactual.html#examples-4"><i class="fa fa-check"></i><b>6.1.2</b> Examples</a></li>
+<li class="chapter" data-level="6.1.3" data-path="counterfactual.html"><a href="counterfactual.html#advantages-13"><i class="fa fa-check"></i><b>6.1.3</b> Advantages</a></li>
+<li class="chapter" data-level="6.1.4" data-path="counterfactual.html"><a href="counterfactual.html#disadvantages-13"><i class="fa fa-check"></i><b>6.1.4</b> Disadvantages</a></li>
+<li class="chapter" data-level="6.1.5" data-path="counterfactual.html"><a href="counterfactual.html#example-software"><i class="fa fa-check"></i><b>6.1.5</b> Software and Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="6.2" data-path="adversarial.html"><a href="adversarial.html"><i class="fa fa-check"></i><b>6.2</b> Adversarial Examples</a><ul>
+<li class="chapter" data-level="6.2.1" data-path="adversarial.html"><a href="adversarial.html#methods-and-examples"><i class="fa fa-check"></i><b>6.2.1</b> Methods and Examples</a></li>
+<li class="chapter" data-level="6.2.2" data-path="adversarial.html"><a href="adversarial.html#the-cybersecurity-perspective"><i class="fa fa-check"></i><b>6.2.2</b> The Cybersecurity Perspective</a></li>
+</ul></li>
+<li class="chapter" data-level="6.3" data-path="proto.html"><a href="proto.html"><i class="fa fa-check"></i><b>6.3</b> Prototypes and Criticisms</a><ul>
+<li class="chapter" data-level="6.3.1" data-path="proto.html"><a href="proto.html#theory-5"><i class="fa fa-check"></i><b>6.3.1</b> Theory</a></li>
+<li class="chapter" data-level="6.3.2" data-path="proto.html"><a href="proto.html#examples-5"><i class="fa fa-check"></i><b>6.3.2</b> Examples</a></li>
+<li class="chapter" data-level="6.3.3" data-path="proto.html"><a href="proto.html#advantages-14"><i class="fa fa-check"></i><b>6.3.3</b> Advantages</a></li>
+<li class="chapter" data-level="6.3.4" data-path="proto.html"><a href="proto.html#disadvantages-14"><i class="fa fa-check"></i><b>6.3.4</b> Disadvantages</a></li>
+<li class="chapter" data-level="6.3.5" data-path="proto.html"><a href="proto.html#code-and-alternatives"><i class="fa fa-check"></i><b>6.3.5</b> Code and Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="6.4" data-path="influential.html"><a href="influential.html"><i class="fa fa-check"></i><b>6.4</b> Influential Instances</a><ul>
+<li class="chapter" data-level="6.4.1" data-path="influential.html"><a href="influential.html#deletion-diagnostics"><i class="fa fa-check"></i><b>6.4.1</b> Deletion Diagnostics</a></li>
+<li class="chapter" data-level="6.4.2" data-path="influential.html"><a href="influential.html#influence-functions"><i class="fa fa-check"></i><b>6.4.2</b> Influence Functions</a></li>
+<li class="chapter" data-level="6.4.3" data-path="influential.html"><a href="influential.html#advantages-of-identifying-influential-instances"><i class="fa fa-check"></i><b>6.4.3</b> Advantages of Identifying Influential Instances</a></li>
+<li class="chapter" data-level="6.4.4" data-path="influential.html"><a href="influential.html#disadvantages-of-identifying-influential-instances"><i class="fa fa-check"></i><b>6.4.4</b> Disadvantages of Identifying Influential Instances</a></li>
+<li class="chapter" data-level="6.4.5" data-path="influential.html"><a href="influential.html#software-and-alternatives-5"><i class="fa fa-check"></i><b>6.4.5</b> Software and Alternatives</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="future.html"><a href="future.html"><i class="fa fa-check"></i><b>7</b> A Look into the Crystal Ball</a><ul>
+<li class="chapter" data-level="7.1" data-path="the-future-of-machine-learning.html"><a href="the-future-of-machine-learning.html"><i class="fa fa-check"></i><b>7.1</b> The Future of Machine Learning</a></li>
+<li class="chapter" data-level="7.2" data-path="the-future-of-interpretability.html"><a href="the-future-of-interpretability.html"><i class="fa fa-check"></i><b>7.2</b> The Future of Interpretability</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="contribute.html"><a href="contribute.html"><i class="fa fa-check"></i><b>8</b> Contribute to the Book</a></li>
+<li class="chapter" data-level="9" data-path="cite.html"><a href="cite.html"><i class="fa fa-check"></i><b>9</b> Citing this Book</a></li>
+<li class="chapter" data-level="10" data-path="acknowledgements.html"><a href="acknowledgements.html"><i class="fa fa-check"></i><b>10</b> Acknowledgements</a></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="divider"></li>
+<li><a href="https://bookdown.org" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Interpretable Machine Learning</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="ale" class="section level2">
+<h2><span class="header-section-number">5.3</span> Accumulated Local Effects (ALE) Plot</h2>
+<p>Accumulated local effects<a href="#fn31" class="footnote-ref" id="fnref31"><sup>31</sup></a> describe how features influence the prediction of a machine learning model on average.
+ALE plots are a faster and unbiased alternative to partial dependence plots (PDPs).</p>
+<!-- *Keywords: ALE plots, partial dependence plots, marginal means, predictive margins, marginal effects* -->
+<p>I recommend reading the <a href="pdp.html#pdp">chapter on partial dependence plots</a> first, as they are easier to understand and both methods share the same goal:
+Both describe how a feature affects the prediction on average.
+In the following section, I want to convince you that partial dependence plots have a serious problem when the features are correlated.</p>
+<div id="motivation-and-intuition" class="section level3">
+<h3><span class="header-section-number">5.3.1</span> Motivation and Intuition</h3>
+<p>If features of a machine learning model are correlated, the partial dependence plot cannot be trusted.
+The computation of a partial dependence plot for a feature that is strongly correlated with other features involves averaging predictions of artificial data instances that are unlikely in reality.
+This can greatly bias the estimated feature effect.
+Imagine calculating partial dependence plots for a machine learning model that predicts the value of a house depending on the number of rooms and the size of the living area.
+We are interested in the effect of the living area on the predicted value.
+As a reminder, the recipe for partial dependence plots is: 1) Select feature. 2) Define grid. 3) Per grid value: a) Replace feature with grid value and b) average predictions. 4) Draw curve.
+For the calculation of the first grid value of the PDP – say 30 m<sup>2</sup> – we replace the living area for <strong>all</strong> instances by 30 m<sup>2</sup>, even for houses with 10 rooms.
+Sounds to me like a very unusual house.
+The partial dependence plot includes these unrealistic houses in the feature effect estimation and pretends that everything is fine.
+The following figure illustrates two correlated features and how it comes that the partial dependence plot method averages predictions of unlikely instances.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">1</span>)
+n =<span class="st"> </span><span class="dv">100</span>
+intercept =<span class="st"> </span><span class="fl">0.75</span>
+
+x1 =<span class="st"> </span><span class="kw">runif</span>(n)
+x2 =<span class="st"> </span>x1 <span class="op">+</span><span class="st"> </span><span class="kw">rnorm</span>(n, <span class="dt">sd =</span> <span class="fl">0.1</span>)
+df =<span class="st"> </span><span class="kw">data.frame</span>(x1, x2)  
+
+p =<span class="st"> </span><span class="kw">ggplot</span>(df) <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">x =</span> x1, <span class="dt">y =</span> x2)) <span class="op">+</span><span class="st">  </span>
+<span class="st">  </span><span class="kw">theme</span>(<span class="dt">panel.grid.major.y =</span> <span class="kw">element_blank</span>(), 
+    <span class="dt">panel.grid.minor.y =</span> <span class="kw">element_blank</span>(), 
+    <span class="dt">panel.grid.major.x =</span> <span class="kw">element_blank</span>(), 
+    <span class="dt">panel.grid.minor.x =</span> <span class="kw">element_blank</span>())
+
+p.int =<span class="st"> </span>p <span class="op">+</span><span class="st"> </span><span class="kw">geom_vline</span>(<span class="dt">xintercept =</span> intercept)
+x1.dens =<span class="st"> </span><span class="kw">density</span>(x1)
+x1.dens.df =<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">dens =</span> x1.dens<span class="op">$</span>y, <span class="dt">x =</span> x1.dens<span class="op">$</span>x)
+
+
+p1 =<span class="st"> </span>p.int <span class="op">+</span><span class="st"> </span><span class="kw">geom_path</span>(<span class="dt">data =</span> x1.dens.df, <span class="kw">aes</span>(<span class="dt">x =</span> intercept <span class="op">-</span><span class="st"> </span>dens<span class="op">/</span><span class="dv">10</span>, <span class="dt">y =</span> x)) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggtitle</span>(<span class="kw">sprintf</span>(<span class="st">&quot;Marginal distribution P(x2)&quot;</span>, intercept)) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="dt">limits =</span> <span class="kw">c</span>(<span class="op">-</span><span class="fl">0.2</span>, <span class="fl">1.2</span>))
+p1</code></pre>
+<pre><code>## Warning: Removed 52 rows containing missing values (geom_path).</code></pre>
+<div class="figure"><span id="fig:aleplot-motivation1"></span>
+<img src="interpretable-ml_files/figure-html/aleplot-motivation1-1.svg" alt="Strongly correlated features x1 and x2. To calculate the feature effect of x1 at 0.75, the PDP replaces x1 of all instances with 0.75, falsely assuming that the distribution of x2 at x1 = 0.75 is the same as the marginal distribution of x2 (vertical line). This results in unlikely combinations of x1 and x2 (e.g. x2=0.2 at x1=0.75), which the PDP uses for the calculation of the average effect." width="672" />
+<p class="caption">
+FIGURE 5.10: Strongly correlated features x1 and x2. To calculate the feature effect of x1 at 0.75, the PDP replaces x1 of all instances with 0.75, falsely assuming that the distribution of x2 at x1 = 0.75 is the same as the marginal distribution of x2 (vertical line). This results in unlikely combinations of x1 and x2 (e.g. x2=0.2 at x1=0.75), which the PDP uses for the calculation of the average effect.
+</p>
+</div>
+<p>What can we do to get a feature effect estimate that respects the correlation of the features?
+We could average over the conditional distribution of the feature, meaning at a grid value of x1, we average the predictions of instances with a similar x1 value.
+The solution for calculating feature effects using the conditional distribution is called Marginal Plots, or M-Plots (confusing name, since they are based on the conditional, not the marginal distribution).
+Wait, did I not promise you to talk about ALE plots?
+M-Plots are not the solution we are looking for.
+Why do M-Plots not solve our problem?
+If we average the predictions of all houses of about 30 m<sup>2</sup>, we estimate the <strong>combined</strong> effect of living area and of number of rooms, because of their correlation.
+Suppose that the living area has no effect on the predicted value of a house, only the number of rooms has.
+The M-Plot would still show that the size of the living area increases the predicted value, since the number of rooms increases with the living area.
+The following plot shows for two correlated features how M-Plots work.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">1</span>)
+n =<span class="st"> </span><span class="dv">100</span>
+intercept =<span class="st"> </span><span class="fl">0.75</span>
+
+x1 =<span class="st"> </span><span class="kw">runif</span>(n)
+x2 =<span class="st"> </span>x1 <span class="op">+</span><span class="st"> </span><span class="kw">rnorm</span>(n, <span class="dt">sd =</span> <span class="fl">0.1</span>)
+df =<span class="st"> </span><span class="kw">data.frame</span>(x1, x2)  
+
+p =<span class="st"> </span><span class="kw">ggplot</span>(df) <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">x =</span> x1, <span class="dt">y =</span> x2)) <span class="op">+</span><span class="st">  </span>
+<span class="st">  </span><span class="kw">theme</span>(<span class="dt">panel.grid.major.y =</span> <span class="kw">element_blank</span>(), 
+    <span class="dt">panel.grid.minor.y =</span> <span class="kw">element_blank</span>(), 
+    <span class="dt">panel.grid.major.x =</span> <span class="kw">element_blank</span>(), 
+    <span class="dt">panel.grid.minor.x =</span> <span class="kw">element_blank</span>())
+
+p.int =<span class="st"> </span>p <span class="op">+</span><span class="st"> </span><span class="kw">geom_vline</span>(<span class="dt">xintercept =</span> intercept)
+x1.dens =<span class="st"> </span><span class="kw">density</span>(x1)
+x1.dens.df =<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">dens =</span> x1.dens<span class="op">$</span>y, <span class="dt">x =</span> x1.dens<span class="op">$</span>x)
+
+
+p1 =<span class="st"> </span>p.int <span class="op">+</span><span class="st"> </span><span class="kw">geom_path</span>(<span class="dt">data =</span> x1.dens.df, <span class="kw">aes</span>(<span class="dt">x =</span> intercept <span class="op">-</span><span class="st"> </span>dens<span class="op">/</span><span class="dv">10</span>, <span class="dt">y =</span> x)) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggtitle</span>(<span class="kw">sprintf</span>(<span class="st">&quot;Marginal distribution p(x2)&quot;</span>, intercept)) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="dt">limits =</span> <span class="kw">c</span>(<span class="op">-</span><span class="fl">0.2</span>, <span class="fl">1.2</span>))
+
+x1.dens.ale =<span class="st"> </span><span class="kw">density</span>(x1[(x1 <span class="op">&gt;</span><span class="st"> </span>(intercept <span class="op">-</span><span class="st"> </span><span class="fl">0.1</span>)) <span class="op">&amp;</span><span class="st"> </span>(x1 <span class="op">&lt;</span><span class="st"> </span>(intercept <span class="op">+</span><span class="st"> </span><span class="fl">0.1</span>))])
+x1.dens.ale.df =<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">dens =</span> x1.dens.ale<span class="op">$</span>y, <span class="dt">x =</span> x1.dens.ale<span class="op">$</span>x)
+
+p2 =<span class="st"> </span>p.int <span class="op">+</span><span class="st"> </span><span class="kw">geom_path</span>(<span class="dt">data =</span> x1.dens.ale.df, <span class="kw">aes</span>(<span class="dt">x =</span> intercept <span class="op">-</span><span class="st"> </span>dens<span class="op">/</span><span class="dv">20</span>, <span class="dt">y =</span> x)) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggtitle</span>(<span class="kw">sprintf</span>(<span class="st">&quot;Conditional distribution P(x2|x1=%.2f)&quot;</span>, intercept)) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="dt">limits =</span> <span class="kw">c</span>(<span class="op">-</span><span class="fl">0.2</span>, <span class="fl">1.2</span>))
+p2</code></pre>
+<div class="figure"><span id="fig:aleplot-motivation2"></span>
+<img src="interpretable-ml_files/figure-html/aleplot-motivation2-1.svg" alt="Strongly correlated features x1 and x2. M-Plots average over the conditional distribution. Here the conditional distribution of x2 at x1 = 0.75. Averaging the local predictions leads to mixing the effects of both features." width="672" />
+<p class="caption">
+FIGURE 5.11: Strongly correlated features x1 and x2. M-Plots average over the conditional distribution. Here the conditional distribution of x2 at x1 = 0.75. Averaging the local predictions leads to mixing the effects of both features.
+</p>
+</div>
+<p>M-Plots avoid averaging predictions of unlikely data instances, but they mix the effect of a feature with the effects of all correlated features.
+ALE plots solve this problem by calculating – also based on the conditional distribution of the features – <strong>differences in predictions instead of averages</strong>.
+For the effect of living area at 30 m<sup>2</sup>, the ALE method uses all houses with about 30 m<sup>2</sup>, gets the model predictions pretending these houses were 31 m<sup>2</sup> minus the prediction pretending they were 29 m<sup>2</sup>.
+This gives us the pure effect of the living area and is not mixing the effect with the effects of correlated features.
+The use of differences blocks the effect of other features.
+The following graphic provides intuition how ALE plots are calculated.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">12</span>)
+n =<span class="st"> </span><span class="dv">25</span>
+
+x1 =<span class="st"> </span><span class="kw">runif</span>(n)
+x2 =<span class="st"> </span>x1 <span class="op">+</span><span class="st"> </span><span class="kw">rnorm</span>(n, <span class="dt">sd =</span> <span class="fl">0.1</span>)
+df =<span class="st"> </span><span class="kw">data.frame</span>(x1, x2)  
+
+p =<span class="st"> </span><span class="kw">ggplot</span>(df) <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">x =</span> x1, <span class="dt">y =</span> x2)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">theme</span>(<span class="dt">panel.grid.major.y =</span> <span class="kw">element_blank</span>(), 
+    <span class="dt">panel.grid.minor.y =</span> <span class="kw">element_blank</span>(), 
+    <span class="dt">panel.grid.major.x =</span> <span class="kw">element_blank</span>(), 
+    <span class="dt">panel.grid.minor.x =</span> <span class="kw">element_blank</span>()) 
+
+
+grid.df =<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">x1 =</span> <span class="kw">seq</span>(<span class="dt">from =</span> <span class="dv">0</span>,  <span class="dt">to =</span> <span class="dv">1</span>, <span class="dt">length.out =</span> <span class="dv">6</span>)[<span class="dv">1</span><span class="op">:</span><span class="dv">6</span>], <span class="dt">x2 =</span> <span class="ot">NA</span>)
+label.df =<span class="st"> </span>grid.df[<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>,]
+label.df<span class="op">$</span>x1 =<span class="st"> </span>label.df<span class="op">$</span>x1 <span class="op">+</span><span class="st"> </span><span class="fl">0.1</span>
+label.df<span class="op">$</span>x2 =<span class="st"> </span><span class="fl">0.95</span>
+label.df<span class="op">$</span>label =<span class="st"> </span><span class="kw">sprintf</span>(<span class="st">&quot;N1(%i)&quot;</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">5</span>)
+
+break.labels =<span class="st"> </span><span class="kw">c</span>(<span class="kw">expression</span>(z[<span class="dv">0</span><span class="op">~</span><span class="st">&quot;,&quot;</span><span class="op">~</span><span class="dv">1</span>]),  <span class="kw">expression</span>(z[<span class="dv">1</span><span class="op">~</span><span class="st">&quot;,&quot;</span><span class="op">~</span><span class="dv">1</span>]), <span class="kw">expression</span>(z[<span class="dv">2</span><span class="op">~</span><span class="st">&quot;,&quot;</span><span class="op">~</span><span class="dv">1</span>]), <span class="kw">expression</span>(z[<span class="dv">3</span><span class="op">~</span><span class="st">&quot;,&quot;</span><span class="op">~</span><span class="dv">1</span>]),
+  <span class="kw">expression</span>(z[<span class="dv">4</span><span class="op">~</span><span class="st">&quot;,&quot;</span><span class="op">~</span><span class="dv">1</span>]), <span class="kw">expression</span>(z[<span class="dv">5</span><span class="op">~</span><span class="st">&quot;,&quot;</span><span class="op">~</span><span class="dv">1</span>]))
+
+diff.df =<span class="st"> </span>df[df<span class="op">$</span>x1 <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.8</span> <span class="op">&amp;</span><span class="st"> </span>df<span class="op">$</span>x1 <span class="op">&gt;</span><span class="st"> </span><span class="fl">0.6</span>, ]
+
+p <span class="op">+</span><span class="st"> </span><span class="kw">geom_vline</span>(<span class="dt">data =</span> grid.df, <span class="kw">aes</span>(<span class="dt">xintercept =</span> x1), <span class="dt">linetype =</span> <span class="dv">3</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">breaks =</span> <span class="kw">seq</span>(<span class="dt">from =</span> <span class="dv">0</span>,  <span class="dt">to =</span> <span class="dv">1</span>, <span class="dt">length.out =</span> <span class="dv">6</span>), <span class="dt">limits =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="dt">labels =</span> break.labels) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_label</span>(<span class="dt">data =</span> label.df, <span class="kw">aes</span>(<span class="dt">x =</span> x1, <span class="dt">y =</span> x2, <span class="dt">label =</span> label)) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_segment</span>(<span class="dt">data =</span> diff.df, <span class="kw">aes</span>(<span class="dt">x =</span> <span class="fl">0.6</span>, <span class="dt">xend =</span> <span class="fl">0.8</span>, <span class="dt">y =</span> x2, <span class="dt">yend  =</span> x2), <span class="dt">arrow =</span> <span class="kw">arrow</span>(<span class="dt">ends =</span> <span class="st">&quot;both&quot;</span>, <span class="dt">angle =</span> <span class="dv">90</span>, <span class="dt">length =</span> <span class="kw">unit</span>(<span class="fl">0.07</span>, <span class="st">&quot;inches&quot;</span>)))</code></pre>
+<div class="figure"><span id="fig:aleplot-computation"></span>
+<img src="interpretable-ml_files/figure-html/aleplot-computation-1.svg" alt="Calculation of ALE for feature x1, which is correlated with x2. First, we divide the feature into intervals (vertical lines). For the data instances (points) in an interval, we calculate the difference in the prediction when we replace the feature with the upper and lower limit of the interval (horizontal lines). These differences are later accumulated and centered, resulting in the ALE curve." width="672" />
+<p class="caption">
+FIGURE 5.12: Calculation of ALE for feature x1, which is correlated with x2. First, we divide the feature into intervals (vertical lines). For the data instances (points) in an interval, we calculate the difference in the prediction when we replace the feature with the upper and lower limit of the interval (horizontal lines). These differences are later accumulated and centered, resulting in the ALE curve.
+</p>
+</div>
+<p>To summarize how each type of plot (PDP, M, ALE) calculates the effect of a feature at a certain grid value v:<br />
+<strong>Partial Dependence Plots</strong>: “Let me show you what the model predicts on average when each data instance has the value v for that feature.
+I ignore whether the value v makes sense for all data instances.”<br />
+<strong>M-Plots</strong>: “Let me show you what the model predicts on average for data instances that have values close to v for that feature.
+The effect could be due to that feature, but also due to correlated features.”<br />
+<strong>ALE plots</strong>: “Let me show you how the model predictions change in a small”window&quot; of the feature around v for data instances in that window.&quot;</p>
+</div>
+<div id="theory-2" class="section level3">
+<h3><span class="header-section-number">5.3.2</span> Theory</h3>
+<p>How do PD, M and ALE plots differ mathematically?
+Common to all three methods is that they reduce the complex prediction function f to a function that depends on only one (or two) features.
+All three methods reduce the function by averaging the effects of the other features, but they differ in whether averages of predictions or of <strong>differences in predictions</strong> are calculated and whether averaging is done over the marginal or conditional distribution.</p>
+<p>Partial dependence plots average the predictions over the marginal distribution.</p>
+<p><span class="math display">\[\begin{align*}\hat{f}_{x_S,PDP}(x_S)&amp;=E_{X_C}\left[\hat{f}(x_S,X_C)\right]\\&amp;=\int_{x_C}\hat{f}(x_S,x_C)\mathbb{P}(x_C)d{}x_C\end{align*}\]</span></p>
+<p>This is the value of the prediction function f, at feature value(s) <span class="math inline">\(x_S\)</span>, averaged over all features in <span class="math inline">\(x_C\)</span>.
+Averaging means calculating the marginal expectation E over the features in set C, which is the integral over the predictions weighted by the probability distribution.
+Sounds fancy, but to calculate the expected value over the marginal distribution, we simply take all our data instances, force them to have a certain grid value for the features in set S, and average the predictions for this manipulated dataset.
+This procedure ensures that we average over the marginal distribution of the features.</p>
+<p>M-plots average the predictions over the conditional distribution.</p>
+<p><span class="math display">\[\begin{align*}\hat{f}_{x_S,M}(x_S)&amp;=E_{X_C|X_S}\left[\hat{f}(X_S,X_C)|X_S=x_s\right]\\&amp;=\int_{x_C}\hat{f}(x_S,x_C)\mathbb{P}(x_C|x_S)d{}x_C\end{align*}\]</span></p>
+<p>The only thing that changes compared to PDPs is that we average the predictions conditional on each grid value of the feature of interest, instead of assuming the marginal distribution at each grid value.
+In practice, this means that we have to define a neighborhood, for example for the calculation of the effect of 30 m<sup>2</sup> on the predicted house value, we could average the predictions of all houses between 28 and 32 m<sup>2</sup>.</p>
+<p>ALE plots average the changes in the predictions and accumulate them over the grid (more on the calculation later).</p>
+<p><span class="math display">\[\begin{align*}\hat{f}_{x_S,ALE}(x_S)=&amp;\int_{z_{0,1}}^{x_S}E_{X_C|X_S}\left[\hat{f}^S(X_s,X_c)|X_S=z_S\right]dz_S-\text{constant}\\=&amp;\int_{z_{0,1}}^{x_S}\int_{x_C}\hat{f}^S(z_s,x_c)\mathbb{P}(x_C|z_S)d{}x_C{}dz_S-\text{constant}\end{align*}\]</span></p>
+<p>The formula reveals three differences to M-Plots.
+First, we average the changes of predictions, not the predictions itself.
+The change is defined as the gradient (but later, for the actual computation, replaced by the differences in the predictions over an interval).</p>
+<p><span class="math display">\[\hat{f}^S(x_s,x_c)=\frac{\delta\hat{f}(x_S,x_C)}{\delta{}x_S}\]</span></p>
+<p>The second difference is the additional integral over z.
+We accumulate the local gradients over the range of features in set S, which gives us the effect of the feature on the prediction.
+For the actual computation, the z’s are replaced by a grid of intervals over which we compute the changes in the prediction.
+Instead of directly averaging the predictions, the ALE method calculates the prediction differences conditional on features S and integrates the derivative over features S to estimate the effect.
+Well, that sounds stupid.
+Derivation and integration usually cancel each other out, like first subtracting, then adding the same number.
+Why does it make sense here?
+The derivative (or interval difference) isolates the effect of the feature of interest and blocks the effect of correlated features.</p>
+<p>The third difference of ALE plots to M-plots is that we subtract a constant from the results.
+This step centers the ALE plot so that the average effect over the data is zero.</p>
+<p>One problem remains:
+Not all models come with a gradient, for example random forests have no gradient.
+But as you will see, the actual computation works without gradients and uses intervals.
+Let us delve a little deeper into the estimation of ALE plots.</p>
+</div>
+<div id="estimation" class="section level3">
+<h3><span class="header-section-number">5.3.3</span> Estimation</h3>
+<p>First I will describe how ALE plots are estimated for a single numerical feature, later for two numerical features and for a single categorical feature.
+To estimate local effects, we divide the feature into many intervals and compute the differences in the predictions.
+This procedure approximates the gradients and also works for models without gradients.</p>
+<p>First we estimate the uncentered effect:</p>
+<p><span class="math display">\[\hat{\tilde{f}}_{j,ALE}(x)=\sum_{k=1}^{k_j(x)}\frac{1}{n_j(k)}\sum_{i:x_{j}^{(i)}\in{}N_j(k)}\left[f(z_{k,j},x^{(i)}_{\setminus{}j})-f(z_{k-1,j},x^{(i)}_{\setminus{}j})\right]\]</span></p>
+<p>Let us break this formula down, starting from the right side.
+The name <strong>Accumulated Local Effects</strong> nicely reflects all the individual components of this formula.
+At its core, the ALE method calculates the differences in predictions, whereby we replace the feature of interest with grid values z.
+The difference in prediction is the <strong>Effect</strong> the feature has for an individual instance in a certain interval.
+The sum on the right adds up the effects of all instances within an interval which appears in the formula as neighborhood <span class="math inline">\(N_j(k)\)</span>.
+We divide this sum by the number of instances in this interval to obtain the average difference of the predictions for this interval.
+This average in the interval is covered by the term <strong>Local</strong> in the name ALE.
+The left sum symbol means that we accumulate the average effects across all intervals.
+The (uncentered) ALE of a feature value that lies, for example, in the third interval is the sum of the effects of the first, second and third intervals.
+The word <strong>Accumulated</strong> in ALE reflects this.</p>
+<p>This effect is centered so that the mean effect is zero.</p>
+<p><span class="math display">\[\hat{f}_{j,ALE}(x)=\hat{\tilde{f}}_{j,ALE}(x)-\frac{1}{n}\sum_{i=1}^{n}\hat{\tilde{f}}_{j,ALE}(x^{(i)}_{j})\]</span></p>
+<p>The value of the ALE can be interpreted as the main effect of the feature at a certain value compared to the average prediction of the data.
+For example, an ALE estimate of -2 at <span class="math inline">\(x_j=3\)</span> means that when the j-th feature has value 3, then the prediction is lower by 2 compared to the average prediction.</p>
+<p>The quantiles of the distribution of the feature are used as the grid that defines the intervals.
+Using the quantiles ensures that there is the same number of data instances in each of the intervals.
+Quantiles have the disadvantage that the intervals can have very different lengths.
+This can lead to some weird ALE plots if the feature of interest is very skewed, for example many low values and only a few very high values.</p>
+<p><strong>ALE plots for the interaction of two features</strong></p>
+<p>ALE plots can also show the interaction effect of two features.
+The calculation principles are the same as for a single feature, but we work with rectangular cells instead of intervals, because we have to accumulate the effects in two dimensions.
+In addition to adjusting for the overall mean effect, we also adjust for the main effects of both features.
+This means that ALE for two features estimate the second-order effect, which does not include the main effects of the features.
+In other words, ALE for two features only shows the additional interaction effect of the two features.
+I spare you the formulas for 2D ALE plots because they are long and unpleasant to read.
+If you are interested in the calculation, I refer you to the paper, formulas (13) – (16).
+I will rely on visualizations to develop intuition about the second-order ALE calculation.</p>
+<pre class="sourceCode r"><code class="sourceCode r">p =<span class="st"> </span><span class="kw">ggplot</span>(df) <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">x =</span> x1, <span class="dt">y =</span> x2)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">theme</span>(<span class="dt">panel.grid.major.y =</span> <span class="kw">element_blank</span>(), 
+    <span class="dt">panel.grid.minor.y =</span> <span class="kw">element_blank</span>(), 
+    <span class="dt">panel.grid.major.x =</span> <span class="kw">element_blank</span>(), 
+    <span class="dt">panel.grid.minor.x =</span> <span class="kw">element_blank</span>()) 
+
+
+grid.df1 =<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">x1 =</span> <span class="kw">seq</span>(<span class="dt">from =</span> <span class="kw">min</span>(df<span class="op">$</span>x1),  <span class="dt">to =</span> <span class="kw">max</span>(df<span class="op">$</span>x1), <span class="dt">length.out =</span> <span class="dv">6</span>)[<span class="dv">1</span><span class="op">:</span><span class="dv">6</span>], <span class="dt">x2 =</span> <span class="ot">NA</span>)
+grid.df2 =<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">x2 =</span> <span class="kw">seq</span>(<span class="dt">from =</span> <span class="kw">min</span>(df<span class="op">$</span>x2),  <span class="dt">to =</span> <span class="kw">max</span>(df<span class="op">$</span>x2), <span class="dt">length.out =</span> <span class="dv">6</span>)[<span class="dv">1</span><span class="op">:</span><span class="dv">6</span>], <span class="dt">x1 =</span> <span class="ot">NA</span>)
+
+chosen.tile =<span class="st"> </span><span class="kw">expand.grid</span>(<span class="dt">x1 =</span> grid.df1<span class="op">$</span>x1[<span class="dv">4</span><span class="op">:</span><span class="dv">5</span>], <span class="dt">x2 =</span> grid.df2<span class="op">$</span>x2[<span class="dv">4</span><span class="op">:</span><span class="dv">5</span>])
+chosen.tile2 =<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">x =</span> grid.df1<span class="op">$</span>x1[<span class="dv">4</span>], <span class="dt">xend =</span> grid.df1<span class="op">$</span>x1[<span class="dv">5</span>], <span class="dt">y =</span> grid.df2<span class="op">$</span>x2[<span class="dv">4</span>], <span class="dt">yend =</span> grid.df2<span class="op">$</span>x2[<span class="dv">5</span>])
+
+points.df =<span class="st">  </span>df[df<span class="op">$</span>x1 <span class="op">&lt;</span><span class="st"> </span>grid.df1<span class="op">$</span>x1[<span class="dv">5</span>] <span class="op">&amp;</span><span class="st"> </span>df<span class="op">$</span>x1 <span class="op">&gt;</span><span class="st"> </span>grid.df1<span class="op">$</span>x1[<span class="dv">4</span>] <span class="op">&amp;</span><span class="st"> </span>df<span class="op">$</span>x2 <span class="op">&lt;</span><span class="st"> </span>grid.df2<span class="op">$</span>x2[<span class="dv">5</span>] <span class="op">&amp;</span><span class="st"> </span>df<span class="op">$</span>x2 <span class="op">&gt;</span><span class="st"> </span>grid.df2<span class="op">$</span>x2[<span class="dv">4</span>], ]
+mv.arr =<span class="st"> </span><span class="fl">0.02</span>
+p <span class="op">+</span><span class="st"> </span><span class="kw">geom_vline</span>(<span class="dt">data =</span> grid.df1, <span class="kw">aes</span>(<span class="dt">xintercept =</span> x1), <span class="dt">linetype =</span> <span class="dv">3</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_hline</span>(<span class="dt">data =</span> grid.df2, <span class="kw">aes</span>(<span class="dt">yintercept =</span> x2), <span class="dt">linetype =</span> <span class="dv">3</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_rect</span>(<span class="kw">aes</span>(<span class="dt">xmin =</span> x, <span class="dt">xmax =</span> xend,  <span class="dt">ymin =</span> y, <span class="dt">ymax =</span> yend), <span class="dt">data =</span> chosen.tile2, <span class="dt">alpha =</span> <span class="dv">0</span>, <span class="dt">color =</span> <span class="st">&quot;black&quot;</span>, <span class="dt">size =</span> <span class="fl">1.1</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_label</span>(<span class="dt">data =</span> chosen.tile, <span class="kw">aes</span>(<span class="dt">x =</span> x1, <span class="dt">y =</span> x2), <span class="dt">label =</span> letters[<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>]) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">x =</span> x1, <span class="dt">y =</span> x2), <span class="dt">data =</span> points.df, <span class="dt">size =</span> <span class="dv">3</span>)</code></pre>
+<div class="figure"><span id="fig:aleplot-computation-2d"></span>
+<img src="interpretable-ml_files/figure-html/aleplot-computation-2d-1.svg" alt="Calculation of 2D-ALE. We place a grid over the two features. In each grid cell we calculate the 2nd-order differences for all instance within. We first replace values of x1 and x2 with the values from the cell corners. If a, b, c and d represent the &quot;corner&quot;-predictions of a manipulated instance (as labeled in the graphic), then the 2nd-order difference is (d - c) - (b - a). The mean 2nd-order difference in each cell is accumulated over the grid and centered." width="672" />
+<p class="caption">
+FIGURE 5.13: Calculation of 2D-ALE. We place a grid over the two features. In each grid cell we calculate the 2nd-order differences for all instance within. We first replace values of x1 and x2 with the values from the cell corners. If a, b, c and d represent the “corner”-predictions of a manipulated instance (as labeled in the graphic), then the 2nd-order difference is (d - c) - (b - a). The mean 2nd-order difference in each cell is accumulated over the grid and centered.
+</p>
+</div>
+<p>In the previous figure, many cells are empty due to the correlation.
+In the ALE plot this can be visualized with a grayed out or darkened box.
+Alternatively, you can replace the missing ALE estimate of an empty cell with the ALE estimate of the nearest non-empty cell.</p>
+<p>Since the ALE estimates for two features only show the second-order effect of the features, the interpretation requires special attention.
+The second-order effect is the additional interaction effect of the features after we have accounted for the main effects of the features.
+Suppose two features do not interact, but each has a linear effect on the predicted outcome.
+In the 1D ALE plot for each feature, we would see a straight line as the estimated ALE curve.
+But when we plot the 2D ALE estimates, they should be close to zero, because the second-order effect is only the additional effect of the interaction.
+ALE plots and PD plots differ in this regard:
+PDPs always show the total effect, ALE plots show the first- or second-order effect.
+These are design decisions that do not depend on the underlying math.
+You can subtract the lower-order effects in a partial dependence plot to get the pure main or second-order effects or, you can get an estimate of the total ALE plots by refraining from subtracting the lower-order effects.</p>
+<p>The accumulated local effects could also be calculated for arbitrarily higher orders (interactions of three or more features), but as argued in the <a href="pdp.html#pdp">PDP chapter</a>, only up to two features makes sense, because higher interactions cannot be visualized or even interpreted meaningfully.</p>
+<p><strong>ALE for categorical features</strong></p>
+<p>The accumulated local effects method needs – by definition – the feature values to have an order, because the method accumulates effects in a certain direction.
+Categorical features do not have any natural order.
+To compute an ALE plot for a categorical feature we have to somehow create or find an order.
+The order of the categories influences the calculation and interpretation of the accumulated local effects.</p>
+<p>One solution is to order the categories according to their similarity based on the other features.
+The distance between two categories is the sum over the distances of each feature.
+The feature-wise distance compares either the cumulative distribution in both categories, also called Kolmogorov-Smirnov distance (for numerical features) or the relative frequency tables (for categorical features).
+Once we have the distances between all categories, we use multi-dimensional scaling to reduce the distance matrix to a one-dimensional distance measure.
+This gives us a similarity-based order of the categories.</p>
+<p>To make this a little bit clearer, here is one example:
+Let us assume we have the two categorical features “season” and “weather” and a numerical feature “temperature”.
+For the first categorical feature (season) we want to calculate the ALEs.
+The feature has the categories “spring”, “summer”, “fall”, “winter”.
+We start to calculate the distance between categories “spring” and “summer”.
+The distance is the sum of distances over the features temperature and weather.
+For the temperature, we take all instances with season “spring”, calculate the empirical cumulative distribution function and do the same for instances with season “summer” and measure their distance with the Kolmogorov-Smirnov statistic.
+For the weather feature we calculate for all “spring” instances the probabilities for each weather type, do the same for the “summer” instances and sum up the absolute distances in the probability distribution.
+If “spring” and “summer” have very different temperatures and weather, the total category-distance is large.
+We repeat the procedure with the other seasonal pairs and reduce the resulting distance matrix to a single dimension by multi-dimensional scaling.</p>
+</div>
+<div id="examples-2" class="section level3">
+<h3><span class="header-section-number">5.3.4</span> Examples</h3>
+<p>Let us see ALE plots in action.
+I have constructed a scenario in which partial dependence plots fail.
+The scenario consists of a prediction model and two strongly correlated features.
+The prediction model is mostly a linear regression model, but does something weird at a combination of the two features for which we have never observed instances.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">1</span>)
+n =<span class="st"> </span><span class="dv">25</span>
+
+x1 =<span class="st"> </span><span class="kw">runif</span>(n)
+x2 =<span class="st"> </span>x1 <span class="op">+</span><span class="st"> </span><span class="kw">rnorm</span>(n, <span class="dt">sd =</span> <span class="fl">0.1</span>)
+df =<span class="st"> </span><span class="kw">data.frame</span>(x1, x2)  
+df<span class="op">$</span>y =<span class="st"> </span>x1 <span class="op">+</span><span class="st"> </span>x2
+
+mod  =<span class="st"> </span><span class="kw">lm</span>(y <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> df)
+
+y.fun =<span class="st"> </span><span class="cf">function</span>(X.model, newdata) {
+  pred =<span class="st"> </span><span class="kw">predict</span>(X.model, newdata)
+  pred[newdata<span class="op">$</span>x1 <span class="op">&gt;</span><span class="st"> </span><span class="fl">0.7</span> <span class="op">&amp;</span><span class="st"> </span>newdata<span class="op">$</span>x2 <span class="op">&lt;</span><span class="st"> </span><span class="fl">0.3</span>] =<span class="st"> </span><span class="dv">2</span>
+  pred
+}
+
+grid.dat =<span class="st"> </span><span class="kw">expand.grid</span>(<span class="dt">x1 =</span> <span class="kw">seq</span>(<span class="dt">from =</span> <span class="dv">0</span>, <span class="dt">to =</span> <span class="dv">1</span>, <span class="dt">length.out =</span> <span class="dv">20</span>), <span class="dt">x2 =</span> <span class="kw">seq</span>(<span class="dt">from =</span> <span class="dv">0</span>, <span class="dt">to =</span> <span class="dv">1</span>, <span class="dt">length.out =</span> <span class="dv">20</span>))
+grid.dat<span class="op">$</span>predicted =<span class="st"> </span><span class="kw">y.fun</span>(mod, grid.dat)
+
+<span class="kw">ggplot</span>(df) <span class="op">+</span><span class="st"> </span><span class="kw">geom_tile</span>(<span class="dt">data =</span> grid.dat, <span class="kw">aes</span>(<span class="dt">x =</span> x1, <span class="dt">y =</span> x2, <span class="dt">fill =</span> predicted)) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">x =</span> x1, <span class="dt">y =</span> x2), <span class="dt">size =</span> <span class="dv">3</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span>viridis<span class="op">::</span><span class="kw">scale_fill_viridis</span>(<span class="st">&quot;Model</span><span class="ch">\n</span><span class="st">prediction&quot;</span>, <span class="dt">option =</span> <span class="st">&quot;D&quot;</span>)</code></pre>
+<div class="figure"><span id="fig:correlation-problem"></span>
+<img src="interpretable-ml_files/figure-html/correlation-problem-1.svg" alt="Two features and the predicted outcome. The model predicts the sum of the two features (shaded background), with the exception that if x1 is greater than 0.7 and x2 less than 0.3, the model always predicts 2. This area is far from the distribution of data (point cloud) and does not affect the performance of the model and also should not affect its interpretation." width="672" />
+<p class="caption">
+FIGURE 5.14: Two features and the predicted outcome. The model predicts the sum of the two features (shaded background), with the exception that if x1 is greater than 0.7 and x2 less than 0.3, the model always predicts 2. This area is far from the distribution of data (point cloud) and does not affect the performance of the model and also should not affect its interpretation.
+</p>
+</div>
+<p>Is this a realistic, relevant scenario at all?
+When you train a model, the learning algorithm minimizes the loss for the existing training data instances.
+Weird stuff can happen outside the distribution of training data, because the model is not penalized for doing weird stuff in these areas.
+Leaving the data distribution is called extrapolation, which can also be used to fool machine learning models, described in the <a href="adversarial.html#adversarial">chapter on adversarial examples</a>.
+See in our little example how the partial dependence plots behave compared to ALE plots.</p>
+<pre class="sourceCode r"><code class="sourceCode r">pred =<span class="st"> </span>Predictor<span class="op">$</span><span class="kw">new</span>(mod, <span class="dt">data =</span> df, <span class="dt">predict.fun =</span> y.fun)
+pdp =<span class="st"> </span>FeatureEffect<span class="op">$</span><span class="kw">new</span>(pred, <span class="dt">feature =</span> <span class="st">&quot;x1&quot;</span>, <span class="dt">method =</span> <span class="st">&quot;pdp&quot;</span>)
+pdp1 =<span class="st"> </span>pdp<span class="op">$</span><span class="kw">plot</span>() <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">&quot;PDP&quot;</span>)
+pdp =<span class="st"> </span>FeatureEffect<span class="op">$</span><span class="kw">new</span>(pred, <span class="dt">feature =</span> <span class="st">&quot;x2&quot;</span>, <span class="dt">method =</span> <span class="st">&quot;pdp&quot;</span>)
+pdp2 =<span class="st"> </span>pdp<span class="op">$</span><span class="kw">plot</span>() <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">&quot;PDP&quot;</span>)
+
+ale1 =<span class="st"> </span>FeatureEffect<span class="op">$</span><span class="kw">new</span>(pred, <span class="dt">feature =</span> <span class="st">&quot;x1&quot;</span>, <span class="dt">method =</span> <span class="st">&quot;ale&quot;</span>)<span class="op">$</span><span class="kw">plot</span>() <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">&quot;ALE&quot;</span>)
+ale2 =<span class="st"> </span>FeatureEffect<span class="op">$</span><span class="kw">new</span>(pred, <span class="dt">feature =</span> <span class="st">&quot;x2&quot;</span>, <span class="dt">method =</span> <span class="st">&quot;ale&quot;</span>)<span class="op">$</span><span class="kw">plot</span>() <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">&quot;ALE&quot;</span>)
+gridExtra<span class="op">::</span><span class="kw">grid.arrange</span>(pdp1, pdp2, ale1, ale2)</code></pre>
+<div class="figure"><span id="fig:correlation-pdp-ale-plot"></span>
+<img src="interpretable-ml_files/figure-html/correlation-pdp-ale-plot-1.svg" alt="Comparison of the feature effects computed with PDP (upper row) and ALE (lower row). The PDP estimates are influenced by the odd behavior of the model outside the data distribution (steep jumps in the plots). The ALE plots correctly identify that the machine learning model has a linear relationship between features and prediction, ignoring areas without data." width="672" />
+<p class="caption">
+FIGURE 5.15: Comparison of the feature effects computed with PDP (upper row) and ALE (lower row). The PDP estimates are influenced by the odd behavior of the model outside the data distribution (steep jumps in the plots). The ALE plots correctly identify that the machine learning model has a linear relationship between features and prediction, ignoring areas without data.
+</p>
+</div>
+<p>But is it not interesting to see that our model behaves oddly at x1 &gt; 0.7 and x2 &lt; 0.3?
+Well, yes and no.
+Since these are data instances that might be physically impossible or at least extremely unlikely, it is usually irrelevant to look into these instances.
+But if you suspect that your test distribution might be slightly different and some instances are actually in that range, then it would be interesting to include this area in the calculation of feature effects.
+But it has to be a conscious decision to include areas where we have not observed data yet and it should not be a side-effect of the method of choice like PDP.
+If you suspect that the model will later be used with differently distributed data, I recommend to use ALE plots and simulate the distribution of data you are expecting.</p>
+<p>Turning to a real dataset, let us predict the <a href="bike-data.html#bike-data">number of rented bikes</a> based on weather and day and check if the ALE plots really work as well as promised.
+We train a regression tree to predict the number of rented bicycles on a given day and use ALE plots to analyze how temperature, relative humidity and wind speed influence the predictions.
+Let us look at what the ALE plots say:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(bike)
+<span class="kw">library</span>(<span class="st">&quot;mlr&quot;</span>)
+<span class="kw">library</span>(<span class="st">&quot;ggplot2&quot;</span>)
+
+<span class="kw">set.seed</span>(<span class="dv">42</span>)
+bike.task =<span class="st"> </span><span class="kw">makeRegrTask</span>(<span class="dt">data =</span> bike, <span class="dt">target =</span> <span class="st">&quot;cnt&quot;</span>)
+mod.bike =<span class="st"> </span>mlr<span class="op">::</span><span class="kw">train</span>(mlr<span class="op">::</span><span class="kw">makeLearner</span>(<span class="dt">cl =</span> <span class="st">&#39;regr.ctree&#39;</span>), bike.task)<span class="op">$</span>learner.model
+
+pred.bike =<span class="st"> </span>Predictor<span class="op">$</span><span class="kw">new</span>(mod.bike, <span class="dt">data =</span> bike, <span class="dt">y =</span> <span class="st">&quot;cnt&quot;</span>)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">limits =<span class="st"> </span><span class="kw">c</span>(<span class="op">-</span><span class="dv">1500</span>, <span class="dv">800</span>)
+
+ale1 =<span class="st"> </span>FeatureEffect<span class="op">$</span><span class="kw">new</span>(pred.bike, <span class="st">&quot;temp&quot;</span>, <span class="dt">method =</span> <span class="st">&quot;ale&quot;</span>)<span class="op">$</span><span class="kw">plot</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="st">&quot;Temperature&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">scale_y_continuous</span>(<span class="st">&quot;ALE&quot;</span>, <span class="dt">limits =</span> limits)</code></pre>
+<pre><code>## Scale for &#39;y&#39; is already present. Adding another scale for &#39;y&#39;, which
+## will replace the existing scale.</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">ale2 =<span class="st"> </span>FeatureEffect<span class="op">$</span><span class="kw">new</span>(pred.bike, <span class="st">&quot;hum&quot;</span>, <span class="dt">method =</span> <span class="st">&quot;ale&quot;</span>)<span class="op">$</span><span class="kw">plot</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="st">&quot;Humidity&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">scale_y_continuous</span>(<span class="st">&quot;&quot;</span>, <span class="dt">limits =</span> limits)</code></pre>
+<pre><code>## Scale for &#39;y&#39; is already present. Adding another scale for &#39;y&#39;, which
+## will replace the existing scale.</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">ale3 =<span class="st"> </span>FeatureEffect<span class="op">$</span><span class="kw">new</span>(pred.bike, <span class="st">&quot;windspeed&quot;</span>, <span class="dt">method =</span> <span class="st">&quot;ale&quot;</span>)<span class="op">$</span><span class="kw">plot</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="st">&quot;Wind speed&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">scale_y_continuous</span>(<span class="st">&quot;&quot;</span>, <span class="dt">limits =</span> limits)</code></pre>
+<pre><code>## Scale for &#39;y&#39; is already present. Adding another scale for &#39;y&#39;, which
+## will replace the existing scale.</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">gridExtra<span class="op">::</span><span class="kw">grid.arrange</span>(ale1, ale2, ale3, <span class="dt">ncol =</span> <span class="dv">3</span>)</code></pre>
+<div class="figure"><span id="fig:ale-bike"></span>
+<img src="interpretable-ml_files/figure-html/ale-bike-1.svg" alt="ALE plots for the bike prediction model by temperature, humidity and wind speed. The temperature has a strong effect on the prediction. The average prediction rises with increasing temperature, but falls again above 25 degrees Celsius. Humidity has a negative effect: When above 60%, the higher the relative humidity, the lower the prediction. The wind speed does not affect the predictions much." width="672" />
+<p class="caption">
+FIGURE 5.16: ALE plots for the bike prediction model by temperature, humidity and wind speed. The temperature has a strong effect on the prediction. The average prediction rises with increasing temperature, but falls again above 25 degrees Celsius. Humidity has a negative effect: When above 60%, the higher the relative humidity, the lower the prediction. The wind speed does not affect the predictions much.
+</p>
+</div>
+<p>Let us look at the correlation between temperature, humidity and wind speed and all other features.
+Since the data also contains categorical features, we cannot only use the Pearson correlation coefficient, which only works if both features are numerical.
+Instead, I train a linear model to predict, for example, temperature based on one of the other features as input.
+Then I measure how much variance the other feature in the linear model explains and take the square root.
+If the other feature was numerical, then the result is equal to the absolute value of the standard Pearson correlation coefficient.
+But this model-based approach of “variance-explained” (also called ANOVA, which stands for ANalysis Of VAriance) works even if the other feature is categorical.
+The “variance-explained” measure lies always between 0 (no association) and 1 (temperature can be perfectly predicted from the other feature).
+We calculate the explained variance of temperature, humidity and wind speed with all the other features.
+The higher the explained variance (correlation), the more (potential) problems with PD plots.
+The following figure visualizes how strongly the weather features are correlated with other features.</p>
+<pre class="sourceCode r"><code class="sourceCode r">mycor =<span class="st"> </span><span class="cf">function</span>(cnames, dat) {
+  x.num =<span class="st"> </span>dat[cnames[<span class="dv">1</span>]][[<span class="dv">1</span>]]
+  x.cat =<span class="st"> </span>dat[cnames[<span class="dv">2</span>]][[<span class="dv">1</span>]]
+  av =<span class="st"> </span><span class="kw">anova</span>(<span class="kw">lm</span>(x.num <span class="op">~</span><span class="st"> </span>x.cat))
+  <span class="kw">sqrt</span>(av<span class="op">$</span><span class="st">`</span><span class="dt">Sum Sq</span><span class="st">`</span>[<span class="dv">1</span>] <span class="op">/</span><span class="st"> </span><span class="kw">sum</span>(av<span class="op">$</span><span class="st">`</span><span class="dt">Sum Sq</span><span class="st">`</span>))
+}
+
+cnames =<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;temp&quot;</span>, <span class="st">&quot;hum&quot;</span>, <span class="st">&quot;windspeed&quot;</span>)
+combs =<span class="st"> </span><span class="kw">expand.grid</span>(<span class="dt">y =</span> cnames, <span class="dt">x =</span> <span class="kw">setdiff</span>(<span class="kw">colnames</span>(bike), <span class="st">&quot;cnt&quot;</span>))
+combs<span class="op">$</span>cor =<span class="st"> </span><span class="kw">apply</span>(combs, <span class="dv">1</span>, mycor, <span class="dt">dat =</span> bike)</code></pre>
+<pre><code>## Warning in anova.lm(lm(x.num ~ x.cat)): ANOVA F-tests on an essentially
+## perfect fit are unreliable
+
+## Warning in anova.lm(lm(x.num ~ x.cat)): ANOVA F-tests on an essentially
+## perfect fit are unreliable
+
+## Warning in anova.lm(lm(x.num ~ x.cat)): ANOVA F-tests on an essentially
+## perfect fit are unreliable</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">combs<span class="op">$</span>lab =<span class="st"> </span><span class="kw">sprintf</span>(<span class="st">&quot;%.2f&quot;</span>, combs<span class="op">$</span>cor)
+forder =<span class="st"> </span><span class="kw">c</span>(cnames, <span class="kw">setdiff</span>(<span class="kw">unique</span>(combs<span class="op">$</span>x), cnames))
+combs<span class="op">$</span>x =<span class="st"> </span><span class="kw">factor</span>(combs<span class="op">$</span>x, <span class="dt">levels =</span> forder)
+combs<span class="op">$</span>y =<span class="st"> </span><span class="kw">factor</span>(combs<span class="op">$</span>y, <span class="dt">levels =</span> <span class="kw">rev</span>(cnames))
+<span class="kw">ggplot</span>(combs, <span class="kw">aes</span>(<span class="dt">x =</span> x, <span class="dt">y =</span> y, <span class="dt">fill =</span> cor, <span class="dt">label =</span> lab)) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_tile</span>() <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_label</span>(<span class="dt">fill =</span> <span class="st">&quot;white&quot;</span>, <span class="dt">size =</span> <span class="dv">3</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">90</span>, <span class="dt">hjust =</span> <span class="dv">1</span>))  <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_x_discrete</span>(<span class="st">&quot;&quot;</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_y_discrete</span>(<span class="st">&quot;&quot;</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span>viridis<span class="op">::</span><span class="kw">scale_fill_viridis</span>(<span class="st">&quot;Variance</span><span class="ch">\n</span><span class="st">explained&quot;</span>, <span class="dt">begin =</span> <span class="fl">0.2</span>)</code></pre>
+<div class="figure"><span id="fig:ale-bike-cor"></span>
+<img src="interpretable-ml_files/figure-html/ale-bike-cor-1.svg" alt="The strength of the correlation between temperature, humidity and wind speed with all features, measured as the amount of variance explained, when we train a linear model with e.g. temperature to predict and season as feature. For temperature we observe -- not surprisingly -- a high correlation with season and month. Humidity correlates with weather situation." width="672" />
+<p class="caption">
+FIGURE 5.17: The strength of the correlation between temperature, humidity and wind speed with all features, measured as the amount of variance explained, when we train a linear model with e.g. temperature to predict and season as feature. For temperature we observe – not surprisingly – a high correlation with season and month. Humidity correlates with weather situation.
+</p>
+</div>
+<p>This correlation analysis reveals that we may encounter problems with partial dependence plots, especially for the temperature feature.
+Well, see for yourself:</p>
+<pre class="sourceCode r"><code class="sourceCode r">pdp =<span class="st"> </span>FeatureEffect<span class="op">$</span><span class="kw">new</span>(pred.bike, <span class="st">&quot;temp&quot;</span>, <span class="dt">method =</span> <span class="st">&quot;pdp&quot;</span>) 
+p1 =<span class="st"> </span>pdp<span class="op">$</span><span class="kw">plot</span>() <span class="op">+</span><span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="st">&#39;Temperature&#39;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">scale_y_continuous</span>(<span class="st">&#39;Predicted number of rented bikes&#39;</span>, <span class="dt">limits =</span> <span class="kw">c</span>(<span class="dv">3700</span>, <span class="dv">5300</span>))</code></pre>
+<pre><code>## Scale for &#39;y&#39; is already present. Adding another scale for &#39;y&#39;, which
+## will replace the existing scale.</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">pdp<span class="op">$</span><span class="kw">set.feature</span>(<span class="st">&quot;hum&quot;</span>)
+p2 =<span class="st"> </span>pdp<span class="op">$</span><span class="kw">plot</span>() <span class="op">+</span><span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="st">&#39;Humidity&#39;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">scale_y_continuous</span>(<span class="st">&#39;&#39;</span>, <span class="dt">limits =</span> <span class="kw">c</span>(<span class="dv">3000</span>, <span class="dv">5500</span>))</code></pre>
+<pre><code>## Scale for &#39;y&#39; is already present. Adding another scale for &#39;y&#39;, which
+## will replace the existing scale.</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">pdp<span class="op">$</span><span class="kw">set.feature</span>(<span class="st">&quot;windspeed&quot;</span>)
+p3 =<span class="st"> </span>pdp<span class="op">$</span><span class="kw">plot</span>() <span class="op">+</span><span class="st"> </span><span class="kw">scale_x_continuous</span>(<span class="st">&#39;Wind speed&#39;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">scale_y_continuous</span>(<span class="st">&#39;&#39;</span>, <span class="dt">limits =</span> <span class="kw">c</span>(<span class="dv">3000</span>, <span class="dv">5500</span>))</code></pre>
+<pre><code>## Scale for &#39;y&#39; is already present. Adding another scale for &#39;y&#39;, which
+## will replace the existing scale.</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">gridExtra<span class="op">::</span><span class="kw">grid.arrange</span>(p1, p2, p3, <span class="dt">ncol =</span> <span class="dv">3</span>)</code></pre>
+<div class="figure"><span id="fig:pdp-bike-compare"></span>
+<img src="interpretable-ml_files/figure-html/pdp-bike-compare-1.svg" alt="PDPs for temperature, humidity and wind speed. Compared to the ALE plots, the PDPs show a smaller decrease in predicted number of bikes for high temperature or high humidity. The PDP uses all data instances to calculate the effect of high temperatures, even if they are, for example, instances with the season &quot;winter&quot;. The ALE plots are more reliable." width="672" />
+<p class="caption">
+FIGURE 5.18: PDPs for temperature, humidity and wind speed. Compared to the ALE plots, the PDPs show a smaller decrease in predicted number of bikes for high temperature or high humidity. The PDP uses all data instances to calculate the effect of high temperatures, even if they are, for example, instances with the season “winter”. The ALE plots are more reliable.
+</p>
+</div>
+<p>Next, let us see ALE plots in action for a categorical feature.
+The month is a categorical feature for which we want to analyze the effect on the predicted number of bikes.
+Arguably, the months already have a certain order (January to December), but let us try to see what happens if we first reorder the categories by similarity and then compute the effects.
+The months are ordered by the similarity of days of each month based on the other features, such as temperature or whether it is a holiday.</p>
+<pre class="sourceCode r"><code class="sourceCode r">alecat1 =<span class="st"> </span>FeatureEffect<span class="op">$</span><span class="kw">new</span>(pred.bike, <span class="st">&quot;mnth&quot;</span>, <span class="dt">method =</span> <span class="st">&quot;ale&quot;</span>) 
+
+<span class="kw">ggplot</span>(alecat1<span class="op">$</span>results) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_col</span>(<span class="kw">aes</span>(<span class="dt">x =</span> mnth, <span class="dt">y =</span> .ale), <span class="dt">fill =</span> default_color, <span class="dt">width =</span> <span class="fl">0.3</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_x_discrete</span>(<span class="st">&#39;&#39;</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="st">&quot;ALE of predicted bike rentals&quot;</span>)</code></pre>
+<div class="figure"><span id="fig:ale-bike-cat"></span>
+<img src="interpretable-ml_files/figure-html/ale-bike-cat-1.svg" alt="ALE plot for the categorical feature month. The months are ordered by their similarity to each other, based on the distributions of the other features by month. We observe that January, March and April, but especially December and November, have a lower effect on the predicted number of rented bikes compared to the other months." width="672" />
+<p class="caption">
+FIGURE 5.19: ALE plot for the categorical feature month. The months are ordered by their similarity to each other, based on the distributions of the other features by month. We observe that January, March and April, but especially December and November, have a lower effect on the predicted number of rented bikes compared to the other months.
+</p>
+</div>
+<p>Since many of the features are related to weather, the order of the months strongly reflects how similar the weather is between the months.
+All colder months are on the left side (February to April) and the warmer months on the right side (October to August).
+Keep in mind that non-weather features have also been included in the similarity calculation, for example relative frequency of holidays has the same weight as the temperature for calculating the similarity between the months.</p>
+<p>Next, we consider the second-order effect of humidity and temperature on the predicted number of bikes.
+Remember that the second-order effect is the additional interaction effect of the two features and does not include the main effects.
+This means that, for example, you will not see the main effect that high humidity leads to a lower number of predicted bikes on average in the second-order ALE plot.</p>
+<pre class="sourceCode r"><code class="sourceCode r">FeatureEffect<span class="op">$</span><span class="kw">new</span>(pred.bike, <span class="dt">feature =</span> <span class="kw">c</span>(<span class="st">&quot;hum&quot;</span>, <span class="st">&quot;temp&quot;</span>), <span class="dt">method =</span> <span class="st">&quot;ale&quot;</span>, <span class="dt">grid.size =</span> <span class="dv">40</span>)<span class="op">$</span><span class="kw">plot</span>() <span class="op">+</span><span class="st">   </span>
+<span class="st">  </span><span class="kw">scale_fill_gradient</span>(<span class="st">&quot;ALE&quot;</span>, <span class="dt">low =</span> <span class="st">&quot;red&quot;</span>, <span class="dt">high =</span> <span class="st">&quot;yellow&quot;</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="st">&quot;Relative Humidity&quot;</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="st">&quot;Temperature&quot;</span>)<span class="op">+</span>
+<span class="st">  </span>viridis<span class="op">::</span><span class="kw">scale_fill_viridis</span>(<span class="dt">option =</span> <span class="st">&quot;D&quot;</span>)</code></pre>
+<pre><code>## Scale for &#39;fill&#39; is already present. Adding another scale for &#39;fill&#39;,
+## which will replace the existing scale.</code></pre>
+<pre><code>## Scale for &#39;x&#39; is already present. Adding another scale for &#39;x&#39;, which
+## will replace the existing scale.</code></pre>
+<pre><code>## Scale for &#39;y&#39; is already present. Adding another scale for &#39;y&#39;, which
+## will replace the existing scale.</code></pre>
+<pre><code>## Scale for &#39;fill&#39; is already present. Adding another scale for &#39;fill&#39;,
+## which will replace the existing scale.</code></pre>
+<div class="figure"><span id="fig:ale-bike-2d"></span>
+<img src="interpretable-ml_files/figure-html/ale-bike-2d-1.svg" alt="ALE plot for the 2nd-order effect of humidity and temperature on the predicted number of rented bikes. Lighter shade indicates an above average and darker shade a below average prediction when the main effects are already taken into account. The plot reveals an interaction between temperature and humidity: Hot and humid weather increases the prediction. In cold and humid weather an additional negative effect on the number of predicted bikes is shown." width="672" />
+<p class="caption">
+FIGURE 5.20: ALE plot for the 2nd-order effect of humidity and temperature on the predicted number of rented bikes. Lighter shade indicates an above average and darker shade a below average prediction when the main effects are already taken into account. The plot reveals an interaction between temperature and humidity: Hot and humid weather increases the prediction. In cold and humid weather an additional negative effect on the number of predicted bikes is shown.
+</p>
+</div>
+<p>Keep in mind that both main effects of humidity and temperature say that the predicted number of bikes decreases in very hot and humid weather.
+In hot and humid weather, the combined effect of temperature and humidity is therefore not the sum of the main effects, but larger than the sum.
+To emphasize the difference between the pure second-order effect (the 2D ALE plot you just saw) and the total effect, let us look at the partial dependence plot.
+The PDP shows the total effect, which combines the mean prediction, the two main effects and the second-order effect (the interaction).</p>
+<pre class="sourceCode r"><code class="sourceCode r">pdp =<span class="st"> </span>FeatureEffect<span class="op">$</span><span class="kw">new</span>(pred.bike, <span class="kw">c</span>(<span class="st">&quot;hum&quot;</span>, <span class="st">&quot;temp&quot;</span>), <span class="dt">method =</span> <span class="st">&quot;pdp&quot;</span>)
+pdp<span class="op">$</span><span class="kw">plot</span>() <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_fill_gradient</span>(<span class="st">&quot;Prediction&quot;</span>, <span class="dt">low =</span> <span class="st">&quot;red&quot;</span>, <span class="dt">high =</span> <span class="st">&quot;yellow&quot;</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="st">&quot;Relative Humidity&quot;</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="st">&quot;Temperature&quot;</span>) <span class="op">+</span>
+<span class="st">  </span>viridis<span class="op">::</span><span class="kw">scale_fill_viridis</span>(<span class="dt">option =</span> <span class="st">&quot;D&quot;</span>)</code></pre>
+<pre><code>## Scale for &#39;fill&#39; is already present. Adding another scale for &#39;fill&#39;,
+## which will replace the existing scale.
+## Scale for &#39;fill&#39; is already present. Adding another scale for &#39;fill&#39;,
+## which will replace the existing scale.</code></pre>
+<div class="figure"><span id="fig:pdp-bike-vs-ale-2D"></span>
+<img src="interpretable-ml_files/figure-html/pdp-bike-vs-ale-2D-1.svg" alt="PDP of the total effect of temperature and humidity on the predicted number of bikes. The plot combines the main effect of each of the features and their interaction effect, as opposed to the 2D-ALE plot which only shows the interaction." width="672" />
+<p class="caption">
+FIGURE 5.21: PDP of the total effect of temperature and humidity on the predicted number of bikes. The plot combines the main effect of each of the features and their interaction effect, as opposed to the 2D-ALE plot which only shows the interaction.
+</p>
+</div>
+<p>If you are only interested in the interaction, you should look at the second-order effects, because the total effect mixes the main effects into the plot.
+But if you want to know the combined effect of the features, you should look at the total effect (which the PDP shows).
+For example, if you want to know the expected number of bikes at 30 degrees Celsius and 80 percent humidity, you can read it directly from the 2D PDP.
+If you want to read the same from the ALE plots, you need to look at three plots:
+The ALE plot for temperature, for humidity and for temperature + humidity and you also need to know the overall mean prediction.
+In a scenario where two features have no interaction, the total effect plot of the two features could be misleading because it probably shows a complex landscape, suggesting some interaction, but it is simply the product of the two main effects.
+The second-order effect would immediately show that there is no interaction.</p>
+<p>Enough bicycles for now, let’s turn to a classification task.
+We train a random forest to predict the probability of <a href="cervical.html#cervical">cervical cancer</a> based on risk factors.
+We visualize the accumulated local effects for two of the features:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(cervical)
+cervical.task =<span class="st"> </span><span class="kw">makeClassifTask</span>(<span class="dt">data =</span> cervical, <span class="dt">target =</span> <span class="st">&quot;Biopsy&quot;</span>)
+mod =<span class="st"> </span>mlr<span class="op">::</span><span class="kw">train</span>(mlr<span class="op">::</span><span class="kw">makeLearner</span>(<span class="dt">cl =</span> <span class="st">&#39;classif.randomForest&#39;</span>, <span class="dt">id =</span> <span class="st">&#39;cervical-rf&#39;</span>, <span class="dt">predict.type =</span> <span class="st">&#39;prob&#39;</span>), cervical.task)
+
+pred.cervical =<span class="st"> </span>Predictor<span class="op">$</span><span class="kw">new</span>(mod, <span class="dt">data =</span> cervical, <span class="dt">class =</span> <span class="st">&quot;Cancer&quot;</span>)
+ale1 =<span class="st"> </span>FeatureEffect<span class="op">$</span><span class="kw">new</span>(pred.cervical, <span class="st">&quot;Age&quot;</span>, <span class="dt">method =</span> <span class="st">&quot;ale&quot;</span>)<span class="op">$</span><span class="kw">plot</span>()
+ale2 =<span class="st"> </span>FeatureEffect<span class="op">$</span><span class="kw">new</span>(pred.cervical, <span class="st">&quot;Hormonal.Contraceptives..years.&quot;</span>, <span class="dt">method =</span> <span class="st">&quot;ale&quot;</span>)<span class="op">$</span><span class="kw">plot</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="st">&quot;Years with hormonal contraceptives&quot;</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="st">&quot;&quot;</span>)</code></pre>
+<pre><code>## Scale for &#39;y&#39; is already present. Adding another scale for &#39;y&#39;, which
+## will replace the existing scale.</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">gridExtra<span class="op">::</span><span class="kw">grid.arrange</span>(ale1, ale2, <span class="dt">ncol =</span> <span class="dv">2</span>)</code></pre>
+<div class="figure"><span id="fig:ale-cervical-1D"></span>
+<img src="interpretable-ml_files/figure-html/ale-cervical-1D-1.svg" alt="ALE plots for the effect of age and years with hormonal contraceptives on the predicted probability of cervical cancer. For the age feature, the ALE plot shows that the predicted cancer probability is low on average up to age 40 and increases after that. The number of years with hormonal contraceptives is associated with a higher predicted cancer risk after 8 years." width="672" />
+<p class="caption">
+FIGURE 5.22: ALE plots for the effect of age and years with hormonal contraceptives on the predicted probability of cervical cancer. For the age feature, the ALE plot shows that the predicted cancer probability is low on average up to age 40 and increases after that. The number of years with hormonal contraceptives is associated with a higher predicted cancer risk after 8 years.
+</p>
+</div>
+<p>Next, we look at the interaction between number of pregnancies and age.</p>
+<pre class="sourceCode r"><code class="sourceCode r">FeatureEffect<span class="op">$</span><span class="kw">new</span>(pred.cervical, <span class="kw">c</span>(<span class="st">&quot;Age&quot;</span>, <span class="st">&quot;Num.of.pregnancies&quot;</span>), <span class="dt">grid.size =</span> <span class="dv">30</span>)<span class="op">$</span><span class="kw">plot</span>(<span class="dt">show.data =</span> <span class="ot">TRUE</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">scale_fill_gradient</span>(<span class="st">&quot;ALE&quot;</span>, <span class="dt">low =</span> <span class="st">&quot;red&quot;</span>, <span class="dt">high =</span> <span class="st">&quot;yellow&quot;</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="st">&quot;Number of pregnancies&quot;</span>)  <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="st">&quot;Age&quot;</span>) <span class="op">+</span>
+<span class="st">  </span>viridis<span class="op">::</span><span class="kw">scale_fill_viridis</span>(<span class="dt">option =</span> <span class="st">&quot;D&quot;</span>)</code></pre>
+<pre><code>## Scale for &#39;fill&#39; is already present. Adding another scale for &#39;fill&#39;,
+## which will replace the existing scale.</code></pre>
+<pre><code>## Scale for &#39;y&#39; is already present. Adding another scale for &#39;y&#39;, which
+## will replace the existing scale.</code></pre>
+<pre><code>## Scale for &#39;x&#39; is already present. Adding another scale for &#39;x&#39;, which
+## will replace the existing scale.</code></pre>
+<pre><code>## Scale for &#39;fill&#39; is already present. Adding another scale for &#39;fill&#39;,
+## which will replace the existing scale.</code></pre>
+<div class="figure"><span id="fig:ale-cervical-2d"></span>
+<img src="interpretable-ml_files/figure-html/ale-cervical-2d-1.svg" alt="ALE plot of the 2nd-order effect of number of pregnancies and age. The interpretation of the plot is a bit inconclusive, showing what seems like overfitting. For example, the plot shows an odd model behavior at age of 18-20 and more than 3 pregnancies (up to 5 percentage point increase in cancer probability). There are not many women in the data with this constellation of age and number of pregnancies (actual data are displayed as points), so the model is not severely penalized during the training for making mistakes for those women." width="672" />
+<p class="caption">
+FIGURE 5.23: ALE plot of the 2nd-order effect of number of pregnancies and age. The interpretation of the plot is a bit inconclusive, showing what seems like overfitting. For example, the plot shows an odd model behavior at age of 18-20 and more than 3 pregnancies (up to 5 percentage point increase in cancer probability). There are not many women in the data with this constellation of age and number of pregnancies (actual data are displayed as points), so the model is not severely penalized during the training for making mistakes for those women.
+</p>
+</div>
+</div>
+<div id="advantages-7" class="section level3">
+<h3><span class="header-section-number">5.3.5</span> Advantages</h3>
+<p><strong>ALE plots are unbiased</strong>, which means they still work when features are correlated.
+Partial dependence plots fail in this scenario because they marginalize over unlikely or even physically impossible combinations of feature values.</p>
+<p><strong>ALE plots are faster to compute</strong> than PDPs and scale with O(n), since the largest possible number of intervals is the number of instances with one interval per instance.
+The PDP requires n times the number of grid points estimations.
+For 20 grid points, PDPs require 20 times more predictions than the worst case ALE plot where as many intervals as instances are used.</p>
+<p>The <strong>interpretation of ALE plots is clear</strong>: Conditional on a given value, the relative effect of changing the feature on the prediction can be read from the ALE plot.
+<strong>ALE plots are centered at zero</strong>.
+This makes their interpretation nice, because the value at each point of the ALE curve is the difference to the mean prediction.
+<strong>The 2D ALE plot only shows the interaction</strong>:
+If two features do not interact, the plot shows nothing.</p>
+<p>All in all, in most situations I would <strong>prefer ALE plots over PDPs</strong>, because features are usually correlated to some extent.</p>
+</div>
+<div id="disadvantages-7" class="section level3">
+<h3><span class="header-section-number">5.3.6</span> Disadvantages</h3>
+<p><strong>ALE plots can become a bit shaky</strong> (many small ups and downs) with a high number of intervals.
+In this case, reducing the number of intervals makes the estimates more stable, but also smoothes out and hides some of the true complexity of the prediction model.
+There is <strong>no perfect solution for setting the number of intervals</strong>.
+If the number is too small, the ALE plots might not be very accurate.
+If the number is too high, the curve can become shaky.</p>
+<p>Unlike PDPs, <strong>ALE plots are not accompanied by ICE curves</strong>.
+For PDPs, ICE curves are great because they can reveal heterogeneity in the feature effect, which means that the effect of a feature looks different for subsets of the data.
+For ALE plots you can only check per interval whether the effect is different between the instances, but each interval has different instances so it is not the same as ICE curves.</p>
+<p><strong>Second-order ALE estimates have a varying stability across the feature space, which is not visualized in any way.</strong>
+The reason for this is that each estimation of a local effect in a cell uses a different number of data instances.
+As a result, all estimates have a different accuracy (but they are still the best possible estimates).
+The problem exists in a less severe version for main effect ALE plots.
+The number of instances is the same in all intervals, thanks to the use of quantiles as grid, but in some areas there will be many short intervals and the ALE curve will consist of many more estimates.
+But for long intervals, which can make up a big part of the entire curve, there are comparatively fewer instances.
+This happened in the cervical cancer prediction ALE plot for high age for example.</p>
+<p><strong>Second-order effect plots can be a bit annoying to interpret</strong>, as you always have to keep the main effects in mind.
+It is tempting to read the heat maps as the total effect of the two features, but it is only the additional effect of the interaction.
+The pure second-order effect is interesting for discovering and exploring interactions, but for interpreting what the effect looks like, I think it makes more sense to integrate the main effects into the plot.</p>
+<p>The <strong>implementation of ALE plots is much more complex</strong> and less intuitive compared to partial dependence plots.</p>
+<p>Even though ALE plots are not biased in case of correlated features, <strong>interpretation remains difficult when features are strongly correlated</strong>.
+Because if they have a very strong correlation, it only makes sense to analyze the effect of changing both features together and not in isolation.
+This disadvantage is not specific to ALE plots, but a general problem of strongly correlated features.</p>
+<p>If the features are uncorrelated and computation time is not a problem, PDPs are slightly preferable because they are easier to understand and can be plotted along with ICE curves.</p>
+<p>The list of disadvantages has become quite long, but do not be fooled by the number of words I use:
+As a rule of thumb: Use ALE instead of PDP.</p>
+</div>
+<div id="implementation-and-alternatives" class="section level3">
+<h3><span class="header-section-number">5.3.7</span> Implementation and Alternatives</h3>
+<p>Did I mention that <a href="pdp.html#pdp">partial dependence plots</a> and <a href="ice.html#ice">individual conditional expectation curves</a> are an alternative? =)</p>
+<p>To the best of my knowledge, ALE plots are currently only implemented in R, once in the <a href="https://cran.r-project.org/web/packages/ALEPlot/index.html">ALEPlot R package</a> by the inventor himself and once in the <a href="https://cran.r-project.org/web/packages/iml/index.html">iml package</a>.</p>
+
+<!--{pagebreak}-->
+</div>
+</div>
+<div class="footnotes">
+<hr />
+<ol start="31">
+<li id="fn31"><p>Apley, Daniel W. “Visualizing the effects of predictor variables in black box supervised learning models.” arXiv preprint arXiv:1612.08468 (2016).<a href="ale.html#fnref31" class="footnote-back">↩</a></p></li>
+</ol>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="ice.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="interaction.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": true,
+"facebook": true,
+"twitter": true,
+"google": false,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/christophM/interpretable-ml-book/edit/master/05.4-agnostic-ale.Rmd",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:" && /^https?:/.test(src))
+      src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

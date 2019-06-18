@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>6.3 Prototypes and Criticisms | Interpretable Machine Learning</title>
+  <meta name="description" content="Machine learning algorithms usually operate as black boxes and it is unclear how they derived a certain decision. This book is a guide for practitioners to make machine learning decisions interpretable." />
+  <meta name="generator" content="bookdown 0.11 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="6.3 Prototypes and Criticisms | Interpretable Machine Learning" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="Machine learning algorithms usually operate as black boxes and it is unclear how they derived a certain decision. This book is a guide for practitioners to make machine learning decisions interpretable." />
+  <meta name="github-repo" content="christophM/interpretable-ml-book" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="6.3 Prototypes and Criticisms | Interpretable Machine Learning" />
+  
+  <meta name="twitter:description" content="Machine learning algorithms usually operate as black boxes and it is unclear how they derived a certain decision. This book is a guide for practitioners to make machine learning decisions interpretable." />
+  
+
+<meta name="author" content="Christoph Molnar" />
+
+
+<meta name="date" content="2019-06-17" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="adversarial.html">
+<link rel="next" href="influential.html">
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-110543840-1', 'https://christophm.github.io/interpretable-ml-book/', {
+  'anonymizeIp': true
+  , 'storage': 'none'
+  , 'clientId': window.localStorage.getItem('ga_clientId')
+});
+ga(function(tracker) {
+  window.localStorage.setItem('ga_clientId', tracker.get('clientId'));
+});
+ga('send', 'pageview');
+</script>
+
+<link rel="stylesheet" type="text/css" href="css/cookieconsent.min.css" />
+<script src="javascript/cookieconsent.min.js"></script>
+<script>
+window.addEventListener("load", function(){
+window.cookieconsent.initialise({
+  "palette": {
+    "popup": {
+      "background": "#000"
+    },
+    "button": {
+      "background": "#f1d600"
+    }
+  },
+  "position": "bottom-right",
+  "content": {
+    "message": "This website uses cookies for Google Analytics so that I know how many people are reading the book and which chapters are the most popular. The book website doesn't collect any personal data."
+  }
+})});
+</script>
+
+
+<style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<link rel="stylesheet" href="css/style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Interpretable machine learning</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Preface</a></li>
+<li class="chapter" data-level="1" data-path="intro.html"><a href="intro.html"><i class="fa fa-check"></i><b>1</b> Introduction</a><ul>
+<li class="chapter" data-level="1.1" data-path="storytime.html"><a href="storytime.html"><i class="fa fa-check"></i><b>1.1</b> Story Time</a><ul>
+<li class="chapter" data-level="" data-path="storytime.html"><a href="storytime.html#lightning-never-strikes-twice"><i class="fa fa-check"></i>Lightning Never Strikes Twice</a></li>
+<li class="chapter" data-level="" data-path="storytime.html"><a href="storytime.html#trust-fall"><i class="fa fa-check"></i>Trust Fall</a></li>
+<li class="chapter" data-level="" data-path="storytime.html"><a href="storytime.html#fermis-paperclips"><i class="fa fa-check"></i>Fermi’s Paperclips</a></li>
+</ul></li>
+<li class="chapter" data-level="1.2" data-path="what-is-machine-learning.html"><a href="what-is-machine-learning.html"><i class="fa fa-check"></i><b>1.2</b> What Is Machine Learning?</a></li>
+<li class="chapter" data-level="1.3" data-path="terminology.html"><a href="terminology.html"><i class="fa fa-check"></i><b>1.3</b> Terminology</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="interpretability.html"><a href="interpretability.html"><i class="fa fa-check"></i><b>2</b> Interpretability</a><ul>
+<li class="chapter" data-level="2.1" data-path="interpretability-importance.html"><a href="interpretability-importance.html"><i class="fa fa-check"></i><b>2.1</b> Importance of Interpretability</a></li>
+<li class="chapter" data-level="2.2" data-path="taxonomy-of-interpretability-methods.html"><a href="taxonomy-of-interpretability-methods.html"><i class="fa fa-check"></i><b>2.2</b> Taxonomy of Interpretability Methods</a></li>
+<li class="chapter" data-level="2.3" data-path="scope-of-interpretability.html"><a href="scope-of-interpretability.html"><i class="fa fa-check"></i><b>2.3</b> Scope of Interpretability</a><ul>
+<li class="chapter" data-level="2.3.1" data-path="scope-of-interpretability.html"><a href="scope-of-interpretability.html#algorithm-transparency"><i class="fa fa-check"></i><b>2.3.1</b> Algorithm Transparency</a></li>
+<li class="chapter" data-level="2.3.2" data-path="scope-of-interpretability.html"><a href="scope-of-interpretability.html#global-holistic-model-interpretability"><i class="fa fa-check"></i><b>2.3.2</b> Global, Holistic Model Interpretability</a></li>
+<li class="chapter" data-level="2.3.3" data-path="scope-of-interpretability.html"><a href="scope-of-interpretability.html#global-model-interpretability-on-a-modular-level"><i class="fa fa-check"></i><b>2.3.3</b> Global Model Interpretability on a Modular Level</a></li>
+<li class="chapter" data-level="2.3.4" data-path="scope-of-interpretability.html"><a href="scope-of-interpretability.html#local-interpretability-for-a-single-prediction"><i class="fa fa-check"></i><b>2.3.4</b> Local Interpretability for a Single Prediction</a></li>
+<li class="chapter" data-level="2.3.5" data-path="scope-of-interpretability.html"><a href="scope-of-interpretability.html#local-interpretability-for-a-group-of-predictions"><i class="fa fa-check"></i><b>2.3.5</b> Local Interpretability for a Group of Predictions</a></li>
+</ul></li>
+<li class="chapter" data-level="2.4" data-path="evaluation-of-interpretability.html"><a href="evaluation-of-interpretability.html"><i class="fa fa-check"></i><b>2.4</b> Evaluation of Interpretability</a></li>
+<li class="chapter" data-level="2.5" data-path="properties.html"><a href="properties.html"><i class="fa fa-check"></i><b>2.5</b> Properties of Explanations</a></li>
+<li class="chapter" data-level="2.6" data-path="explanation.html"><a href="explanation.html"><i class="fa fa-check"></i><b>2.6</b> Human-friendly Explanations</a><ul>
+<li class="chapter" data-level="2.6.1" data-path="explanation.html"><a href="explanation.html#what-is-an-explanation"><i class="fa fa-check"></i><b>2.6.1</b> What Is an Explanation?</a></li>
+<li class="chapter" data-level="2.6.2" data-path="explanation.html"><a href="explanation.html#good-explanation"><i class="fa fa-check"></i><b>2.6.2</b> What Is a Good Explanation?</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="data.html"><a href="data.html"><i class="fa fa-check"></i><b>3</b> Datasets</a><ul>
+<li class="chapter" data-level="3.1" data-path="bike-data.html"><a href="bike-data.html"><i class="fa fa-check"></i><b>3.1</b> Bike Rentals (Regression)</a></li>
+<li class="chapter" data-level="3.2" data-path="spam-data.html"><a href="spam-data.html"><i class="fa fa-check"></i><b>3.2</b> YouTube Spam Comments (Text Classification)</a></li>
+<li class="chapter" data-level="3.3" data-path="cervical.html"><a href="cervical.html"><i class="fa fa-check"></i><b>3.3</b> Risk Factors for Cervical Cancer (Classification)</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="simple.html"><a href="simple.html"><i class="fa fa-check"></i><b>4</b> Interpretable Models</a><ul>
+<li class="chapter" data-level="4.1" data-path="limo.html"><a href="limo.html"><i class="fa fa-check"></i><b>4.1</b> Linear Regression</a><ul>
+<li class="chapter" data-level="4.1.1" data-path="limo.html"><a href="limo.html#interpretation"><i class="fa fa-check"></i><b>4.1.1</b> Interpretation</a></li>
+<li class="chapter" data-level="4.1.2" data-path="limo.html"><a href="limo.html#example"><i class="fa fa-check"></i><b>4.1.2</b> Example</a></li>
+<li class="chapter" data-level="4.1.3" data-path="limo.html"><a href="limo.html#visual-interpretation"><i class="fa fa-check"></i><b>4.1.3</b> Visual Interpretation</a></li>
+<li class="chapter" data-level="4.1.4" data-path="limo.html"><a href="limo.html#explain-individual-predictions"><i class="fa fa-check"></i><b>4.1.4</b> Explain Individual Predictions</a></li>
+<li class="chapter" data-level="4.1.5" data-path="limo.html"><a href="limo.html#cat-code"><i class="fa fa-check"></i><b>4.1.5</b> Encoding of Categorical Features</a></li>
+<li class="chapter" data-level="4.1.6" data-path="limo.html"><a href="limo.html#do-linear-models-create-good-explanations"><i class="fa fa-check"></i><b>4.1.6</b> Do Linear Models Create Good Explanations?</a></li>
+<li class="chapter" data-level="4.1.7" data-path="limo.html"><a href="limo.html#sparse-linear"><i class="fa fa-check"></i><b>4.1.7</b> Sparse Linear Models</a></li>
+<li class="chapter" data-level="4.1.8" data-path="limo.html"><a href="limo.html#advantages"><i class="fa fa-check"></i><b>4.1.8</b> Advantages</a></li>
+<li class="chapter" data-level="4.1.9" data-path="limo.html"><a href="limo.html#disadvantages"><i class="fa fa-check"></i><b>4.1.9</b> Disadvantages</a></li>
+</ul></li>
+<li class="chapter" data-level="4.2" data-path="logistic.html"><a href="logistic.html"><i class="fa fa-check"></i><b>4.2</b> Logistic Regression</a><ul>
+<li class="chapter" data-level="4.2.1" data-path="logistic.html"><a href="logistic.html#what-is-wrong-with-linear-regression-for-classification"><i class="fa fa-check"></i><b>4.2.1</b> What is Wrong with Linear Regression for Classification?</a></li>
+<li class="chapter" data-level="4.2.2" data-path="logistic.html"><a href="logistic.html#theory"><i class="fa fa-check"></i><b>4.2.2</b> Theory</a></li>
+<li class="chapter" data-level="4.2.3" data-path="logistic.html"><a href="logistic.html#interpretation-1"><i class="fa fa-check"></i><b>4.2.3</b> Interpretation</a></li>
+<li class="chapter" data-level="4.2.4" data-path="logistic.html"><a href="logistic.html#example-1"><i class="fa fa-check"></i><b>4.2.4</b> Example</a></li>
+<li class="chapter" data-level="4.2.5" data-path="logistic.html"><a href="logistic.html#advantages-and-disadvantages"><i class="fa fa-check"></i><b>4.2.5</b> Advantages and Disadvantages</a></li>
+<li class="chapter" data-level="4.2.6" data-path="logistic.html"><a href="logistic.html#software"><i class="fa fa-check"></i><b>4.2.6</b> Software</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="extend-lm.html"><a href="extend-lm.html"><i class="fa fa-check"></i><b>4.3</b> GLM, GAM and more</a><ul>
+<li class="chapter" data-level="4.3.1" data-path="extend-lm.html"><a href="extend-lm.html#glm"><i class="fa fa-check"></i><b>4.3.1</b> Non-Gaussian Outcomes - GLMs</a></li>
+<li class="chapter" data-level="4.3.2" data-path="extend-lm.html"><a href="extend-lm.html#lm-interact"><i class="fa fa-check"></i><b>4.3.2</b> Interactions</a></li>
+<li class="chapter" data-level="4.3.3" data-path="extend-lm.html"><a href="extend-lm.html#gam"><i class="fa fa-check"></i><b>4.3.3</b> Nonlinear Effects - GAMs</a></li>
+<li class="chapter" data-level="4.3.4" data-path="extend-lm.html"><a href="extend-lm.html#advantages-1"><i class="fa fa-check"></i><b>4.3.4</b> Advantages</a></li>
+<li class="chapter" data-level="4.3.5" data-path="extend-lm.html"><a href="extend-lm.html#disadvantages-1"><i class="fa fa-check"></i><b>4.3.5</b> Disadvantages</a></li>
+<li class="chapter" data-level="4.3.6" data-path="extend-lm.html"><a href="extend-lm.html#software-1"><i class="fa fa-check"></i><b>4.3.6</b> Software</a></li>
+<li class="chapter" data-level="4.3.7" data-path="extend-lm.html"><a href="extend-lm.html#more-lm-extension"><i class="fa fa-check"></i><b>4.3.7</b> Further Extensions</a></li>
+</ul></li>
+<li class="chapter" data-level="4.4" data-path="tree.html"><a href="tree.html"><i class="fa fa-check"></i><b>4.4</b> Decision Tree</a><ul>
+<li class="chapter" data-level="4.4.1" data-path="tree.html"><a href="tree.html#interpretation-2"><i class="fa fa-check"></i><b>4.4.1</b> Interpretation</a></li>
+<li class="chapter" data-level="4.4.2" data-path="tree.html"><a href="tree.html#example-2"><i class="fa fa-check"></i><b>4.4.2</b> Example</a></li>
+<li class="chapter" data-level="4.4.3" data-path="tree.html"><a href="tree.html#advantages-2"><i class="fa fa-check"></i><b>4.4.3</b> Advantages</a></li>
+<li class="chapter" data-level="4.4.4" data-path="tree.html"><a href="tree.html#disadvantages-2"><i class="fa fa-check"></i><b>4.4.4</b> Disadvantages</a></li>
+<li class="chapter" data-level="4.4.5" data-path="tree.html"><a href="tree.html#software-2"><i class="fa fa-check"></i><b>4.4.5</b> Software</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="rules.html"><a href="rules.html"><i class="fa fa-check"></i><b>4.5</b> Decision Rules</a><ul>
+<li class="chapter" data-level="4.5.1" data-path="rules.html"><a href="rules.html#learn-rules-from-a-single-feature-oner"><i class="fa fa-check"></i><b>4.5.1</b> Learn Rules from a Single Feature (OneR)</a></li>
+<li class="chapter" data-level="4.5.2" data-path="rules.html"><a href="rules.html#sequential-covering"><i class="fa fa-check"></i><b>4.5.2</b> Sequential Covering</a></li>
+<li class="chapter" data-level="4.5.3" data-path="rules.html"><a href="rules.html#bayesian-rule-lists"><i class="fa fa-check"></i><b>4.5.3</b> Bayesian Rule Lists</a></li>
+<li class="chapter" data-level="4.5.4" data-path="rules.html"><a href="rules.html#advantages-3"><i class="fa fa-check"></i><b>4.5.4</b> Advantages</a></li>
+<li class="chapter" data-level="4.5.5" data-path="rules.html"><a href="rules.html#disadvantages-3"><i class="fa fa-check"></i><b>4.5.5</b> Disadvantages</a></li>
+<li class="chapter" data-level="4.5.6" data-path="rules.html"><a href="rules.html#software-and-alternatives"><i class="fa fa-check"></i><b>4.5.6</b> Software and Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="4.6" data-path="rulefit.html"><a href="rulefit.html"><i class="fa fa-check"></i><b>4.6</b> RuleFit</a><ul>
+<li class="chapter" data-level="4.6.1" data-path="rulefit.html"><a href="rulefit.html#interpretation-and-example"><i class="fa fa-check"></i><b>4.6.1</b> Interpretation and Example</a></li>
+<li class="chapter" data-level="4.6.2" data-path="rulefit.html"><a href="rulefit.html#theory-1"><i class="fa fa-check"></i><b>4.6.2</b> Theory</a></li>
+<li class="chapter" data-level="4.6.3" data-path="rulefit.html"><a href="rulefit.html#advantages-4"><i class="fa fa-check"></i><b>4.6.3</b> Advantages</a></li>
+<li class="chapter" data-level="4.6.4" data-path="rulefit.html"><a href="rulefit.html#disadvantages-4"><i class="fa fa-check"></i><b>4.6.4</b> Disadvantages</a></li>
+<li class="chapter" data-level="4.6.5" data-path="rulefit.html"><a href="rulefit.html#software-and-alternative"><i class="fa fa-check"></i><b>4.6.5</b> Software and Alternative</a></li>
+</ul></li>
+<li class="chapter" data-level="4.7" data-path="other-interpretable.html"><a href="other-interpretable.html"><i class="fa fa-check"></i><b>4.7</b> Other Interpretable Models</a><ul>
+<li class="chapter" data-level="4.7.1" data-path="other-interpretable.html"><a href="other-interpretable.html#naive-bayes-classifier"><i class="fa fa-check"></i><b>4.7.1</b> Naive Bayes Classifier</a></li>
+<li class="chapter" data-level="4.7.2" data-path="other-interpretable.html"><a href="other-interpretable.html#k-nearest-neighbors"><i class="fa fa-check"></i><b>4.7.2</b> K-Nearest Neighbors</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="agnostic.html"><a href="agnostic.html"><i class="fa fa-check"></i><b>5</b> Model-Agnostic Methods</a><ul>
+<li class="chapter" data-level="5.1" data-path="pdp.html"><a href="pdp.html"><i class="fa fa-check"></i><b>5.1</b> Partial Dependence Plot (PDP)</a><ul>
+<li class="chapter" data-level="5.1.1" data-path="pdp.html"><a href="pdp.html#examples"><i class="fa fa-check"></i><b>5.1.1</b> Examples</a></li>
+<li class="chapter" data-level="5.1.2" data-path="pdp.html"><a href="pdp.html#advantages-5"><i class="fa fa-check"></i><b>5.1.2</b> Advantages</a></li>
+<li class="chapter" data-level="5.1.3" data-path="pdp.html"><a href="pdp.html#disadvantages-5"><i class="fa fa-check"></i><b>5.1.3</b> Disadvantages</a></li>
+<li class="chapter" data-level="5.1.4" data-path="pdp.html"><a href="pdp.html#software-and-alternatives-1"><i class="fa fa-check"></i><b>5.1.4</b> Software and Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="5.2" data-path="ice.html"><a href="ice.html"><i class="fa fa-check"></i><b>5.2</b> Individual Conditional Expectation (ICE)</a><ul>
+<li class="chapter" data-level="5.2.1" data-path="ice.html"><a href="ice.html#examples-1"><i class="fa fa-check"></i><b>5.2.1</b> Examples</a></li>
+<li class="chapter" data-level="5.2.2" data-path="ice.html"><a href="ice.html#advantages-6"><i class="fa fa-check"></i><b>5.2.2</b> Advantages</a></li>
+<li class="chapter" data-level="5.2.3" data-path="ice.html"><a href="ice.html#disadvantages-6"><i class="fa fa-check"></i><b>5.2.3</b> Disadvantages</a></li>
+<li class="chapter" data-level="5.2.4" data-path="ice.html"><a href="ice.html#software-and-alternatives-2"><i class="fa fa-check"></i><b>5.2.4</b> Software and Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="ale.html"><a href="ale.html"><i class="fa fa-check"></i><b>5.3</b> Accumulated Local Effects (ALE) Plot</a><ul>
+<li class="chapter" data-level="5.3.1" data-path="ale.html"><a href="ale.html#motivation-and-intuition"><i class="fa fa-check"></i><b>5.3.1</b> Motivation and Intuition</a></li>
+<li class="chapter" data-level="5.3.2" data-path="ale.html"><a href="ale.html#theory-2"><i class="fa fa-check"></i><b>5.3.2</b> Theory</a></li>
+<li class="chapter" data-level="5.3.3" data-path="ale.html"><a href="ale.html#estimation"><i class="fa fa-check"></i><b>5.3.3</b> Estimation</a></li>
+<li class="chapter" data-level="5.3.4" data-path="ale.html"><a href="ale.html#examples-2"><i class="fa fa-check"></i><b>5.3.4</b> Examples</a></li>
+<li class="chapter" data-level="5.3.5" data-path="ale.html"><a href="ale.html#advantages-7"><i class="fa fa-check"></i><b>5.3.5</b> Advantages</a></li>
+<li class="chapter" data-level="5.3.6" data-path="ale.html"><a href="ale.html#disadvantages-7"><i class="fa fa-check"></i><b>5.3.6</b> Disadvantages</a></li>
+<li class="chapter" data-level="5.3.7" data-path="ale.html"><a href="ale.html#implementation-and-alternatives"><i class="fa fa-check"></i><b>5.3.7</b> Implementation and Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="5.4" data-path="interaction.html"><a href="interaction.html"><i class="fa fa-check"></i><b>5.4</b> Feature Interaction</a><ul>
+<li class="chapter" data-level="5.4.1" data-path="interaction.html"><a href="interaction.html#feature-interaction"><i class="fa fa-check"></i><b>5.4.1</b> Feature Interaction?</a></li>
+<li class="chapter" data-level="5.4.2" data-path="interaction.html"><a href="interaction.html#theory-friedmans-h-statistic"><i class="fa fa-check"></i><b>5.4.2</b> Theory: Friedman’s H-statistic</a></li>
+<li class="chapter" data-level="5.4.3" data-path="interaction.html"><a href="interaction.html#examples-3"><i class="fa fa-check"></i><b>5.4.3</b> Examples</a></li>
+<li class="chapter" data-level="5.4.4" data-path="interaction.html"><a href="interaction.html#advantages-8"><i class="fa fa-check"></i><b>5.4.4</b> Advantages</a></li>
+<li class="chapter" data-level="5.4.5" data-path="interaction.html"><a href="interaction.html#disadvantages-8"><i class="fa fa-check"></i><b>5.4.5</b> Disadvantages</a></li>
+<li class="chapter" data-level="5.4.6" data-path="interaction.html"><a href="interaction.html#implementations"><i class="fa fa-check"></i><b>5.4.6</b> Implementations</a></li>
+<li class="chapter" data-level="5.4.7" data-path="interaction.html"><a href="interaction.html#alternatives"><i class="fa fa-check"></i><b>5.4.7</b> Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="5.5" data-path="feature-importance.html"><a href="feature-importance.html"><i class="fa fa-check"></i><b>5.5</b> Feature Importance</a><ul>
+<li class="chapter" data-level="5.5.1" data-path="feature-importance.html"><a href="feature-importance.html#theory-3"><i class="fa fa-check"></i><b>5.5.1</b> Theory</a></li>
+<li class="chapter" data-level="5.5.2" data-path="feature-importance.html"><a href="feature-importance.html#feature-importance-data"><i class="fa fa-check"></i><b>5.5.2</b> Should I Compute Importance on Training or Test Data?</a></li>
+<li class="chapter" data-level="5.5.3" data-path="feature-importance.html"><a href="feature-importance.html#example-and-interpretation"><i class="fa fa-check"></i><b>5.5.3</b> Example and Interpretation</a></li>
+<li class="chapter" data-level="5.5.4" data-path="feature-importance.html"><a href="feature-importance.html#advantages-9"><i class="fa fa-check"></i><b>5.5.4</b> Advantages</a></li>
+<li class="chapter" data-level="5.5.5" data-path="feature-importance.html"><a href="feature-importance.html#disadvantages-9"><i class="fa fa-check"></i><b>5.5.5</b> Disadvantages</a></li>
+<li class="chapter" data-level="5.5.6" data-path="feature-importance.html"><a href="feature-importance.html#software-and-alternatives-3"><i class="fa fa-check"></i><b>5.5.6</b> Software and Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="5.6" data-path="global.html"><a href="global.html"><i class="fa fa-check"></i><b>5.6</b> Global Surrogate</a><ul>
+<li class="chapter" data-level="5.6.1" data-path="global.html"><a href="global.html#theory-4"><i class="fa fa-check"></i><b>5.6.1</b> Theory</a></li>
+<li class="chapter" data-level="5.6.2" data-path="global.html"><a href="global.html#example-4"><i class="fa fa-check"></i><b>5.6.2</b> Example</a></li>
+<li class="chapter" data-level="5.6.3" data-path="global.html"><a href="global.html#advantages-10"><i class="fa fa-check"></i><b>5.6.3</b> Advantages</a></li>
+<li class="chapter" data-level="5.6.4" data-path="global.html"><a href="global.html#disadvantages-10"><i class="fa fa-check"></i><b>5.6.4</b> Disadvantages</a></li>
+<li class="chapter" data-level="5.6.5" data-path="global.html"><a href="global.html#software-3"><i class="fa fa-check"></i><b>5.6.5</b> Software</a></li>
+</ul></li>
+<li class="chapter" data-level="5.7" data-path="lime.html"><a href="lime.html"><i class="fa fa-check"></i><b>5.7</b> Local Surrogate (LIME)</a><ul>
+<li class="chapter" data-level="5.7.1" data-path="lime.html"><a href="lime.html#lime-for-tabular-data"><i class="fa fa-check"></i><b>5.7.1</b> LIME for Tabular Data</a></li>
+<li class="chapter" data-level="5.7.2" data-path="lime.html"><a href="lime.html#lime-for-text"><i class="fa fa-check"></i><b>5.7.2</b> LIME for Text</a></li>
+<li class="chapter" data-level="5.7.3" data-path="lime.html"><a href="lime.html#images-lime"><i class="fa fa-check"></i><b>5.7.3</b> LIME for Images</a></li>
+<li class="chapter" data-level="5.7.4" data-path="lime.html"><a href="lime.html#advantages-11"><i class="fa fa-check"></i><b>5.7.4</b> Advantages</a></li>
+<li class="chapter" data-level="5.7.5" data-path="lime.html"><a href="lime.html#disadvantages-11"><i class="fa fa-check"></i><b>5.7.5</b> Disadvantages</a></li>
+</ul></li>
+<li class="chapter" data-level="5.8" data-path="shapley.html"><a href="shapley.html"><i class="fa fa-check"></i><b>5.8</b> Shapley Values</a><ul>
+<li class="chapter" data-level="5.8.1" data-path="shapley.html"><a href="shapley.html#general-idea"><i class="fa fa-check"></i><b>5.8.1</b> General Idea</a></li>
+<li class="chapter" data-level="5.8.2" data-path="shapley.html"><a href="shapley.html#examples-and-interpretation"><i class="fa fa-check"></i><b>5.8.2</b> Examples and Interpretation</a></li>
+<li class="chapter" data-level="5.8.3" data-path="shapley.html"><a href="shapley.html#the-shapley-value-in-detail"><i class="fa fa-check"></i><b>5.8.3</b> The Shapley Value in Detail</a></li>
+<li class="chapter" data-level="5.8.4" data-path="shapley.html"><a href="shapley.html#advantages-12"><i class="fa fa-check"></i><b>5.8.4</b> Advantages</a></li>
+<li class="chapter" data-level="5.8.5" data-path="shapley.html"><a href="shapley.html#disadvantages-12"><i class="fa fa-check"></i><b>5.8.5</b> Disadvantages</a></li>
+<li class="chapter" data-level="5.8.6" data-path="shapley.html"><a href="shapley.html#software-and-alternatives-4"><i class="fa fa-check"></i><b>5.8.6</b> Software and Alternatives</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="example-based.html"><a href="example-based.html"><i class="fa fa-check"></i><b>6</b> Example-Based Explanations</a><ul>
+<li class="chapter" data-level="6.1" data-path="counterfactual.html"><a href="counterfactual.html"><i class="fa fa-check"></i><b>6.1</b> Counterfactual Explanations</a><ul>
+<li class="chapter" data-level="6.1.1" data-path="counterfactual.html"><a href="counterfactual.html#generating-counterfactual-explanations"><i class="fa fa-check"></i><b>6.1.1</b> Generating Counterfactual Explanations</a></li>
+<li class="chapter" data-level="6.1.2" data-path="counterfactual.html"><a href="counterfactual.html#examples-4"><i class="fa fa-check"></i><b>6.1.2</b> Examples</a></li>
+<li class="chapter" data-level="6.1.3" data-path="counterfactual.html"><a href="counterfactual.html#advantages-13"><i class="fa fa-check"></i><b>6.1.3</b> Advantages</a></li>
+<li class="chapter" data-level="6.1.4" data-path="counterfactual.html"><a href="counterfactual.html#disadvantages-13"><i class="fa fa-check"></i><b>6.1.4</b> Disadvantages</a></li>
+<li class="chapter" data-level="6.1.5" data-path="counterfactual.html"><a href="counterfactual.html#example-software"><i class="fa fa-check"></i><b>6.1.5</b> Software and Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="6.2" data-path="adversarial.html"><a href="adversarial.html"><i class="fa fa-check"></i><b>6.2</b> Adversarial Examples</a><ul>
+<li class="chapter" data-level="6.2.1" data-path="adversarial.html"><a href="adversarial.html#methods-and-examples"><i class="fa fa-check"></i><b>6.2.1</b> Methods and Examples</a></li>
+<li class="chapter" data-level="6.2.2" data-path="adversarial.html"><a href="adversarial.html#the-cybersecurity-perspective"><i class="fa fa-check"></i><b>6.2.2</b> The Cybersecurity Perspective</a></li>
+</ul></li>
+<li class="chapter" data-level="6.3" data-path="proto.html"><a href="proto.html"><i class="fa fa-check"></i><b>6.3</b> Prototypes and Criticisms</a><ul>
+<li class="chapter" data-level="6.3.1" data-path="proto.html"><a href="proto.html#theory-5"><i class="fa fa-check"></i><b>6.3.1</b> Theory</a></li>
+<li class="chapter" data-level="6.3.2" data-path="proto.html"><a href="proto.html#examples-5"><i class="fa fa-check"></i><b>6.3.2</b> Examples</a></li>
+<li class="chapter" data-level="6.3.3" data-path="proto.html"><a href="proto.html#advantages-14"><i class="fa fa-check"></i><b>6.3.3</b> Advantages</a></li>
+<li class="chapter" data-level="6.3.4" data-path="proto.html"><a href="proto.html#disadvantages-14"><i class="fa fa-check"></i><b>6.3.4</b> Disadvantages</a></li>
+<li class="chapter" data-level="6.3.5" data-path="proto.html"><a href="proto.html#code-and-alternatives"><i class="fa fa-check"></i><b>6.3.5</b> Code and Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="6.4" data-path="influential.html"><a href="influential.html"><i class="fa fa-check"></i><b>6.4</b> Influential Instances</a><ul>
+<li class="chapter" data-level="6.4.1" data-path="influential.html"><a href="influential.html#deletion-diagnostics"><i class="fa fa-check"></i><b>6.4.1</b> Deletion Diagnostics</a></li>
+<li class="chapter" data-level="6.4.2" data-path="influential.html"><a href="influential.html#influence-functions"><i class="fa fa-check"></i><b>6.4.2</b> Influence Functions</a></li>
+<li class="chapter" data-level="6.4.3" data-path="influential.html"><a href="influential.html#advantages-of-identifying-influential-instances"><i class="fa fa-check"></i><b>6.4.3</b> Advantages of Identifying Influential Instances</a></li>
+<li class="chapter" data-level="6.4.4" data-path="influential.html"><a href="influential.html#disadvantages-of-identifying-influential-instances"><i class="fa fa-check"></i><b>6.4.4</b> Disadvantages of Identifying Influential Instances</a></li>
+<li class="chapter" data-level="6.4.5" data-path="influential.html"><a href="influential.html#software-and-alternatives-5"><i class="fa fa-check"></i><b>6.4.5</b> Software and Alternatives</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="future.html"><a href="future.html"><i class="fa fa-check"></i><b>7</b> A Look into the Crystal Ball</a><ul>
+<li class="chapter" data-level="7.1" data-path="the-future-of-machine-learning.html"><a href="the-future-of-machine-learning.html"><i class="fa fa-check"></i><b>7.1</b> The Future of Machine Learning</a></li>
+<li class="chapter" data-level="7.2" data-path="the-future-of-interpretability.html"><a href="the-future-of-interpretability.html"><i class="fa fa-check"></i><b>7.2</b> The Future of Interpretability</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="contribute.html"><a href="contribute.html"><i class="fa fa-check"></i><b>8</b> Contribute to the Book</a></li>
+<li class="chapter" data-level="9" data-path="cite.html"><a href="cite.html"><i class="fa fa-check"></i><b>9</b> Citing this Book</a></li>
+<li class="chapter" data-level="10" data-path="acknowledgements.html"><a href="acknowledgements.html"><i class="fa fa-check"></i><b>10</b> Acknowledgements</a></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="divider"></li>
+<li><a href="https://bookdown.org" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Interpretable Machine Learning</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="proto" class="section level2">
+<h2><span class="header-section-number">6.3</span> Prototypes and Criticisms</h2>
+<p>A <strong>prototype</strong> is a data instance that is representative of all the data.
+A <strong>criticism</strong> is a data instance that is not well represented by the set of prototypes.
+The purpose of criticisms is to provide insights together with prototypes, especially for data points which the prototypes do not represent well.
+Prototypes and criticisms can be used independently from a machine learning model to describe the data, but they can also be used to create an interpretable model or to make a black box model interpretable.</p>
+<p>In this chapter I use the expression “data point” to refer to a single instance, to emphasize the interpretation that an instance is also a point in a coordinate system where each feature is a dimension.
+The following figure shows a simulated data distribution, with some of the instances chosen as prototypes and some as criticisms.
+The small points are the data, the large points the prototypes and the large squares the criticisms.
+The prototypes are selected (manually) to cover the centers of the data distribution and the criticisms are points in a cluster without a prototype.
+Prototypes and criticisms are always actual instances from the data.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">1</span>)
+dat1 =<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">x1 =</span> <span class="kw">rnorm</span>(<span class="dv">20</span>, <span class="dt">mean =</span> <span class="dv">4</span>, <span class="dt">sd =</span> <span class="fl">0.3</span>), <span class="dt">x2 =</span> <span class="kw">rnorm</span>(<span class="dv">20</span>, <span class="dt">mean =</span> <span class="dv">1</span>, <span class="dt">sd =</span> <span class="fl">0.3</span>))
+dat2 =<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">x1 =</span> <span class="kw">rnorm</span>(<span class="dv">30</span>, <span class="dt">mean =</span> <span class="dv">2</span>, <span class="dt">sd =</span> <span class="fl">0.2</span>), <span class="dt">x2 =</span> <span class="kw">rnorm</span>(<span class="dv">30</span>, <span class="dt">mean =</span> <span class="dv">2</span>, <span class="dt">sd =</span> <span class="fl">0.2</span>))
+dat3 =<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">x1 =</span> <span class="kw">rnorm</span>(<span class="dv">40</span>, <span class="dt">mean =</span> <span class="dv">3</span>, <span class="dt">sd =</span> <span class="fl">0.2</span>), <span class="dt">x2 =</span> <span class="kw">rnorm</span>(<span class="dv">40</span>, <span class="dt">mean =</span> <span class="dv">3</span>))
+dat4 =<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">x1 =</span> <span class="kw">rnorm</span>(<span class="dv">7</span>, <span class="dt">mean =</span> <span class="dv">4</span>, <span class="dt">sd =</span> <span class="fl">0.1</span>), <span class="dt">x2 =</span> <span class="kw">rnorm</span>(<span class="dv">7</span>, <span class="dt">mean =</span> <span class="fl">2.5</span>, <span class="dt">sd =</span> <span class="fl">0.1</span>))
+
+dat =<span class="st"> </span><span class="kw">rbind</span>(dat1, dat2, dat3, dat4)
+dat<span class="op">$</span>type =<span class="st"> &quot;data&quot;</span>
+dat<span class="op">$</span>type[<span class="kw">c</span>(<span class="dv">7</span>, <span class="dv">23</span>, <span class="dv">77</span>)] =<span class="st"> &quot;prototype&quot;</span>
+dat<span class="op">$</span>type[<span class="kw">c</span>(<span class="dv">81</span>,<span class="dv">95</span>)] =<span class="st"> &quot;criticism&quot;</span>
+
+<span class="kw">ggplot</span>(dat, <span class="kw">aes</span>(<span class="dt">x =</span> x1, <span class="dt">y =</span> x2)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>(<span class="dt">alpha =</span> <span class="fl">0.7</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">data =</span> <span class="kw">filter</span>(dat, type<span class="op">!=</span><span class="st">&#39;data&#39;</span>), <span class="kw">aes</span>(<span class="dt">shape =</span> type), <span class="dt">size =</span> <span class="dv">9</span>, <span class="dt">alpha =</span> <span class="dv">1</span>, <span class="dt">color =</span> <span class="st">&quot;blue&quot;</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_shape_manual</span>(<span class="dt">breaks =</span> <span class="kw">c</span>(<span class="st">&quot;prototype&quot;</span>, <span class="st">&quot;criticism&quot;</span>), <span class="dt">values =</span> <span class="kw">c</span>(<span class="dv">18</span>, <span class="dv">19</span>)) </code></pre>
+<div class="figure"><span id="fig:unnamed-chunk-25"></span>
+<img src="interpretable-ml_files/figure-html/unnamed-chunk-25-1.svg" alt="Prototypes and criticisms for a data distribution with two features x1 and x2." width="672" />
+<p class="caption">
+FIGURE 6.9: Prototypes and criticisms for a data distribution with two features x1 and x2.
+</p>
+</div>
+<p>I selected the prototypes manually, which does not scale well and probably leads to poor results.
+There are many approaches to find prototypes in the data.
+One of these is k-medoids, a clustering algorithm related to the k-means algorithm.
+Any clustering algorithm that returns actual data points as cluster centers would qualify for selecting prototypes.
+But most of these methods find only prototypes, but no criticisms.
+This chapter presents MMD-critic by Kim et. al (2016)<a href="#fn56" class="footnote-ref" id="fnref56"><sup>56</sup></a>, an approach that combines prototypes and criticisms in a single framework.</p>
+<p>MMD-critic compares the distribution of the data and the distribution of the selected prototypes.
+This is the central concept for understanding the MMD-critic method.
+MMD-critic selects prototypes that minimize the discrepancy between the two distributions.
+Data points in areas with high density are good prototypes, especially when points are selected from different “data clusters”.
+Data points from regions that are not well explained by the prototypes are selected as criticisms.</p>
+<p>Let us delve deeper into the theory.</p>
+<div id="theory-5" class="section level3">
+<h3><span class="header-section-number">6.3.1</span> Theory</h3>
+<p>The MMD-critic procedure on a high-level can be summarized briefly:</p>
+<ol style="list-style-type: decimal">
+<li>Select the number of prototypes and criticisms you want to find.</li>
+<li>Find prototypes with greedy search.
+Prototypes are selected so that the distribution of the prototypes is close to the data distribution.</li>
+<li>Find criticisms with greedy search.
+Points are selected as criticisms where the distribution of prototypes differs from the distribution of the data.</li>
+</ol>
+<p>We need a couple of ingredients to find prototypes and criticisms for a dataset with MMD-critic.
+As the most basic ingredient, we need a <strong>kernel function</strong> to estimate the data densities.
+A kernel is a function that weighs two data points according to their proximity.
+Based on density estimates, we need a measure that tells us how different two distributions are so that we can determine whether the distribution of the prototypes we select is close to the data distribution.
+This is solved by measuring the <strong>maximum mean discrepancy (MMD)</strong>.
+Also based on the kernel function, we need the <strong>witness function</strong> to tell us how different two distributions are at a particular data point.
+With the witness function, we can select criticisms, i.e. data points at which the distribution of prototypes and data diverges and the witness function takes on large absolute values.
+The last ingredient is a search strategy for good prototypes and criticisms, which is solved with a simple <strong>greedy search</strong>.</p>
+<p>Let us start with the <strong>maximum mean discrepancy (MMD)</strong>, which measures the discrepancy between two distributions.
+The selection of prototypes creates a density distribution of prototypes.
+We want to evaluate whether the prototypes distribution differs from the data distribution.
+We estimate both with kernel density functions.
+The maximum mean discrepancy measures the difference between two distributions, which is the supremum over a function space of differences between the expectations according to the two distributions.
+All clear?
+Personally, I understand these concepts much better when I see how something is calculated with data.
+The following formula shows how to calculate the squared MMD measure (MMD2):</p>
+<p><span class="math display">\[MMD^2=\frac{1}{m^2}\sum_{i,j=1}^m{}k(z_i,z_j)-\frac{2}{mn}\sum_{i,j=1}^{m,n}k(z_i,x_j)+\frac{1}{n^2}\sum_{i,j=1}^n{}k(x_i,x_j)\]</span></p>
+<p>k is a kernel function that measures the similarity of two points, but more about this later.
+m is the number of prototypes z, and n is the number of data points x in our original dataset.
+The prototypes z are a selection of data points x.
+Each point is multidimensional, that is it can have multiple features.
+The goal of MMD-critic is to minimize MMD2.
+The closer MMD2 is to zero, the better the distribution of the prototypes fits the data.
+The key to bringing MMD2 down to zero is the term in the middle, which calculates the average proximity between the prototypes and all other data points (multiplied by 2).
+If this term adds up to the first term (the average proximity of the prototypes to each other) plus the last term (the average proximity of the data points to each other), then the prototypes explain the data perfectly.
+Try out what would happen to the formula if you used all n data points as prototypes.</p>
+<p>The following graphic illustrates the MMD2 measure.
+The first plot shows the data points with two features, whereby the estimation of the data density is displayed with a shaded background.
+Each of the other plots shows different selections of prototypes, along with the MMD2 measure in the plot titles.
+The prototypes are the large dots and their distribution is shown as contour lines.
+The selection of the prototypes that best covers the data in these scenarios (bottom left) has the lowest discrepancy value.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">42</span>)
+n =<span class="st"> </span><span class="dv">40</span>
+<span class="co"># create dataset from three gaussians in 2d</span>
+dt1 =<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">x1 =</span> <span class="kw">rnorm</span>(n, <span class="dt">mean =</span> <span class="dv">1</span>, <span class="dt">sd =</span> <span class="fl">0.1</span>), <span class="dt">x2 =</span> <span class="kw">rnorm</span>(n, <span class="dt">mean =</span> <span class="dv">1</span>, <span class="dt">sd =</span> <span class="fl">0.3</span>))
+dt2 =<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">x1 =</span> <span class="kw">rnorm</span>(n, <span class="dt">mean =</span> <span class="dv">4</span>, <span class="dt">sd =</span> <span class="fl">0.3</span>), <span class="dt">x2 =</span> <span class="kw">rnorm</span>(n, <span class="dt">mean =</span> <span class="dv">2</span>, <span class="dt">sd =</span> <span class="fl">0.3</span>))
+dt3 =<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">x1 =</span> <span class="kw">rnorm</span>(n, <span class="dt">mean =</span> <span class="dv">3</span>, <span class="dt">sd =</span> <span class="fl">0.5</span>), <span class="dt">x2 =</span> <span class="kw">rnorm</span>(n, <span class="dt">mean =</span> <span class="dv">3</span>, <span class="dt">sd =</span> <span class="fl">0.3</span>))
+dt4 =<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">x1 =</span> <span class="kw">rnorm</span>(n, <span class="dt">mean =</span> <span class="fl">2.6</span>, <span class="dt">sd =</span> <span class="fl">0.1</span>), <span class="dt">x2 =</span> <span class="kw">rnorm</span>(n, <span class="dt">mean =</span> <span class="fl">1.7</span>, <span class="dt">sd =</span> <span class="fl">0.1</span>))
+dt =<span class="st"> </span><span class="kw">rbind</span>(dt1, dt2, dt3, dt4)
+
+
+radial =<span class="st"> </span><span class="cf">function</span>(x1, x2, <span class="dt">sigma =</span> <span class="dv">1</span>) {
+  dist =<span class="st"> </span><span class="kw">sum</span>((x1 <span class="op">-</span><span class="st"> </span>x2)<span class="op">^</span><span class="dv">2</span>)
+  <span class="kw">exp</span>(<span class="op">-</span>dist<span class="op">/</span>(<span class="dv">2</span><span class="op">*</span>sigma<span class="op">^</span><span class="dv">2</span>))
+}
+
+
+cross.kernel =<span class="st"> </span><span class="cf">function</span>(d1, d2) {
+  kk =<span class="st"> </span><span class="kw">c</span>()
+  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(d1)) {
+    <span class="cf">for</span> (j <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(d2)) {
+      res =<span class="st"> </span><span class="kw">radial</span>(d1[i,], d2[j,])
+      kk =<span class="st"> </span><span class="kw">c</span>(kk, res)
+    }
+  }
+  <span class="kw">mean</span>(kk)
+}
+
+mmd2 =<span class="st"> </span><span class="cf">function</span>(d1, d2) {
+  <span class="kw">cross.kernel</span>(d1, d1) <span class="op">-</span><span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span><span class="kw">cross.kernel</span>(d1, d2) <span class="op">+</span><span class="st"> </span><span class="kw">cross.kernel</span>(d2,d2)
+}
+
+<span class="co"># create 3 variants of prototypes</span>
+pt1 =<span class="st"> </span><span class="kw">rbind</span>(dt1[<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>),], dt4[<span class="dv">1</span>,])
+pt2 =<span class="st"> </span><span class="kw">rbind</span>(dt1[<span class="dv">1</span>,], dt2[<span class="dv">3</span>,], dt3[<span class="dv">19</span>,])
+pt3 =<span class="st"> </span><span class="kw">rbind</span>(dt2[<span class="dv">3</span>,], dt3[<span class="dv">19</span>,])
+
+<span class="co"># create plot with all data and density estimation</span>
+p =<span class="st"> </span><span class="kw">ggplot</span>(dt, <span class="kw">aes</span>(<span class="dt">x =</span> x1, <span class="dt">y =</span> x2)) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">stat_density_2d</span>(<span class="dt">geom =</span> <span class="st">&quot;tile&quot;</span>, <span class="kw">aes</span>(<span class="dt">fill =</span> ..density..), <span class="dt">contour =</span> <span class="ot">FALSE</span>, <span class="dt">alpha =</span> <span class="fl">0.9</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_point</span>() <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_fill_gradient2</span>(<span class="dt">low =</span> <span class="st">&quot;white&quot;</span>, <span class="dt">high =</span> <span class="st">&quot;blue&quot;</span>, <span class="dt">guide =</span> <span class="st">&quot;none&quot;</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">limits =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="ot">NA</span>)) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="dt">limits =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="ot">NA</span>))
+<span class="co"># create plot for each prototype</span>
+p1 =<span class="st"> </span>p <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>(<span class="dt">data =</span> pt1, <span class="dt">color =</span> <span class="st">&quot;red&quot;</span>, <span class="dt">size =</span> <span class="dv">4</span>) <span class="op">+</span><span class="st"> </span><span class="kw">geom_density_2d</span>(<span class="dt">data =</span> pt1, <span class="dt">color =</span> <span class="st">&quot;red&quot;</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggtitle</span>(<span class="kw">sprintf</span>(<span class="st">&quot;%.3f MMD2&quot;</span>, <span class="kw">mmd2</span>(dt, pt1))) 
+
+p2 =<span class="st"> </span>p <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>(<span class="dt">data =</span> pt2, <span class="dt">color =</span> <span class="st">&quot;red&quot;</span>, <span class="dt">size =</span> <span class="dv">4</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_density_2d</span>(<span class="dt">data =</span> pt2, <span class="dt">color =</span> <span class="st">&quot;red&quot;</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggtitle</span>(<span class="kw">sprintf</span>(<span class="st">&quot;%.3f MMD2&quot;</span>, <span class="kw">mmd2</span>(dt, pt2)))
+
+p3 =<span class="st"> </span>p <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>(<span class="dt">data =</span> pt3, <span class="dt">color =</span> <span class="st">&quot;red&quot;</span>, <span class="dt">size =</span> <span class="dv">4</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_density_2d</span>(<span class="dt">data =</span> pt3, <span class="dt">color =</span> <span class="st">&quot;red&quot;</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggtitle</span>(<span class="kw">sprintf</span>(<span class="st">&quot;%.3f MMD2&quot;</span>, <span class="kw">mmd2</span>(dt, pt3)))
+<span class="co"># </span><span class="al">TODO</span><span class="co">: Add custom legend for prototypes</span>
+
+<span class="co"># overlay mmd measure for each plot</span>
+gridExtra<span class="op">::</span><span class="kw">grid.arrange</span>(p, p1, p2, p3, <span class="dt">ncol =</span> <span class="dv">2</span>)</code></pre>
+<div class="figure"><span id="fig:mmd"></span>
+<img src="interpretable-ml_files/figure-html/mmd-1.svg" alt="The squared maximum mean discrepancy measure (MMD2) for a dataset with two features and different selections of prototypes." width="672" />
+<p class="caption">
+FIGURE 6.10: The squared maximum mean discrepancy measure (MMD2) for a dataset with two features and different selections of prototypes.
+</p>
+</div>
+<p>A choice for the kernel is the radial basis function kernel:</p>
+<p><span class="math display">\[k(x,x^\prime)=exp\left(\gamma||x-x^\prime||^2\right)\]</span></p>
+<p>where ||x-x’||<sup>2</sup> is the Euclidean distance between two points and <span class="math inline">\(\gamma\)</span> is a scaling parameter.
+The value of the kernel decreases with the distance between the two points and ranges between zero and one:
+Zero when the two points are infinitely far apart;
+one when the two points are equal.</p>
+<p>We combine the MMD2 measure, the kernel and greedy search in an algorithm for finding prototypes:</p>
+<ul>
+<li>Start with an empty list of prototypes.</li>
+<li>While the number of prototypes is below the chosen number m:
+<ul>
+<li>For each point in the dataset, check how much MMD2 is reduced when the point is added to the list of prototypes. Add the data point that minimizes the MMD2 to the list.</li>
+</ul></li>
+<li>Return the list of prototypes.</li>
+</ul>
+<p>The remaining ingredient for finding criticisms is the witness function, which tells us how much two density estimates differ at a particular point.
+It can be estimated using:</p>
+<p><span class="math display">\[witness(x)=\frac{1}{n}\sum_{i=1}^nk(x,x_i)-\frac{1}{m}\sum_{j=1}^mk(x,z_j)\]</span></p>
+<p>For two datasets (with the same features), the witness function gives you the means of evaluating in which empirical distribution the point x fits better.
+To find criticisms, we look for extreme values of the witness function in both negative and positive directions.
+The first term in the witness function is the average proximity between point x and the prototypes, and, respectively, the second term is the average proximity between point x and the data.
+If the witness function for a point x is close to zero, the density function of the data and the prototypes are close together, which means that the distribution of prototypes resembles the distribution of the data at point x.
+A positive witness function at point x means that the prototype distribution overestimates the data distribution (for example if we select a prototype but there are only few data points nearby);
+a negative witness function at point x means that the prototype distribution underestimates the data distribution (for example if there are many data points around x but we have not selected any prototypes nearby).</p>
+<p>To give you more intuition, let us reuse the prototypes from the plot beforehand with the lowest MMD2 and display the witness function for a few manually selected points.
+The labels in the following plot show the value of the witness function for various points marked as squares.
+Only the point in the middle has a high absolute value and is therefore a good candidate for a criticism.</p>
+<pre class="sourceCode r"><code class="sourceCode r">witness =<span class="st"> </span><span class="cf">function</span>(x, dist1, dist2, <span class="dt">sigma =</span> <span class="dv">1</span>) {
+  k1 =<span class="st"> </span><span class="kw">apply</span>(dist1, <span class="dv">1</span>, <span class="cf">function</span>(z) <span class="kw">radial</span>(x, z, <span class="dt">sigma =</span> sigma))
+  k2 =<span class="st"> </span><span class="kw">apply</span>(dist2, <span class="dv">1</span>, <span class="cf">function</span>(z) <span class="kw">radial</span>(x, z, <span class="dt">sigma =</span> sigma))
+  <span class="kw">mean</span>(k1) <span class="op">-</span><span class="st"> </span><span class="kw">mean</span>(k2)
+}
+
+w.points.indices =<span class="st"> </span><span class="kw">c</span>(<span class="dv">125</span>, <span class="dv">2</span>, <span class="dv">60</span>, <span class="dv">19</span>, <span class="dv">100</span>)
+wit.points =<span class="st"> </span>dt[w.points.indices,]
+wit.points<span class="op">$</span>witness =<span class="st"> </span><span class="kw">apply</span>(wit.points, <span class="dv">1</span>, <span class="cf">function</span>(x) <span class="kw">round</span>(<span class="kw">witness</span>(x[<span class="kw">c</span>(<span class="st">&quot;x1&quot;</span>, <span class="st">&quot;x2&quot;</span>)], pt2, dt, <span class="dt">sigma =</span> <span class="dv">1</span>), <span class="dv">3</span>))
+
+p <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>(<span class="dt">data =</span> pt2, <span class="dt">color =</span> <span class="st">&quot;red&quot;</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_density_2d</span>(<span class="dt">data =</span> pt2, <span class="dt">color =</span> <span class="st">&quot;red&quot;</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggtitle</span>(<span class="kw">sprintf</span>(<span class="st">&quot;%.3f MMD2&quot;</span>, <span class="kw">mmd2</span>(dt, pt2))) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_label</span>(<span class="dt">data =</span> wit.points, <span class="kw">aes</span>(<span class="dt">label =</span> witness), <span class="dt">alpha =</span> <span class="fl">0.9</span>, <span class="dt">vjust =</span> <span class="st">&quot;top&quot;</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">geom_point</span>(<span class="dt">data =</span> wit.points, <span class="dt">color =</span> <span class="st">&quot;black&quot;</span>, <span class="dt">shape =</span> <span class="dv">17</span>, <span class="dt">size =</span> <span class="dv">4</span>) </code></pre>
+<div class="figure"><span id="fig:witness"></span>
+<img src="interpretable-ml_files/figure-html/witness-1.svg" alt="Evaluations of the witness function at different points." width="672" />
+<p class="caption">
+FIGURE 6.11: Evaluations of the witness function at different points.
+</p>
+</div>
+<p>The witness function allows us to explicitly search for data instances that are not well represented by the prototypes.
+Criticisms are points with high absolute value in the witness function.
+Like prototypes, criticisms are also found through greedy search.
+But instead of reducing the overall MMD2, we are looking for points that maximize a cost function that includes the witness function and a regularizer term.
+The additional term in the optimization function enforces diversity in the points, which is needed so that the points come from different clusters.</p>
+<p>This second step is independent of how the prototypes are found.
+I could also have handpicked some prototypes and used the procedure described here to learn criticisms.
+Or the prototypes could come from any clustering procedure, like k-medoids.</p>
+<p>That is it with the important parts of MMD-critic theory.
+One question remains:
+<strong>How can MMD-critic be used for interpretable machine learning?</strong></p>
+<p>MMD-critic can add interpretability in three ways:
+By helping to better understand the data distribution;
+by building an interpretable model;
+by making a black box model interpretable.</p>
+<p>If you apply MMD-critic to your data to find prototypes and criticisms, it will improve your understanding of the data, especially if you have a complex data distribution with edge cases.
+But with MMD-critic you can achieve more!</p>
+<p>For example, you can create an interpretable prediction model: a so-called “nearest prototype model”.
+The prediction function is defined as:</p>
+<p><span class="math display">\[\hat{f}(x)=argmax_{i\in{}S}k(x,x_i)\]</span></p>
+<p>which means that we select the prototype i from the set of prototypes S that is closest to the new data point, in the sense that it yields the highest value of the kernel function.
+The prototype itself is returned as an explanation for the prediction.
+This procedure has three tuning parameters:
+The type of kernel, the kernel scaling parameter and the number of prototypes.
+All parameters can be optimized within a cross validation loop.
+The criticisms are not used in this approach.</p>
+<p>As a third option, we can use MMD-critic to make any machine learning model globally explainable by examining prototypes and criticisms along with their model predictions.
+The procedure is as follows:</p>
+<ol style="list-style-type: decimal">
+<li>Find prototypes and criticisms with MMD-critic.</li>
+<li>Train a machine learning model as usual.</li>
+<li>Predict outcomes for the prototypes and criticisms with the machine learning model.</li>
+<li>Analyse the predictions: In which cases was the algorithm wrong?
+Now you have a number of examples that represent the data well and help you to find the weaknesses of the machine learning model.</li>
+</ol>
+<p>How does that help?
+Remember when Google’s image classifier identified black people as gorillas?
+Perhaps they should have used the procedure described here before deploying their image recognition model.
+It is not enough just to check the performance of the model, because if it were 99% correct, this issue could still be in the 1%.
+And labels can also be wrong!
+Going through all the training data and performing a sanity check if the prediction is problematic might have revealed the problem, but would be infeasible.
+But the selection of – say a few thousand – prototypes and criticisms is feasible and could have revealed a problem with the data:
+It might have shown that there is a lack of images of people with dark skin, which indicates a problem with the diversity in the dataset.
+Or it could have shown one or more images of a person with dark skin as a prototype or (probably) as a criticism with the notorious “gorilla” classification.
+I do not promise that MMD-critic would certainly intercept these kind of mistakes, but it is a good sanity check.</p>
+</div>
+<div id="examples-5" class="section level3">
+<h3><span class="header-section-number">6.3.2</span> Examples</h3>
+<p>I have taken the examples from the MMD-critic paper.
+Both applications are based on image datasets.
+Each image was represented by image embeddings with 2048 dimensions.
+An image embedding is a vector with numbers which capture abstract attributes of an image.
+Embedding vectors are usually extracted from neural networks which are trained to solve an image recognition task, in this case the ImageNet challenge.
+The kernel distances between the images were calculated using these embedding vectors.</p>
+<p>The first dataset contains different dog breeds from the ImageNet dataset.
+MMD-critic is applied on data from two dog breed classes.
+With the dogs on the left, the prototypes usually show the face of the dog, while the criticisms are images without the dog faces or in different colors (like black and white).
+On the right side, the prototypes contain outdoor images of dogs.
+The criticisms contain dogs in costumes and other unusual cases.</p>
+<pre class="sourceCode r"><code class="sourceCode r">knitr<span class="op">::</span><span class="kw">include_graphics</span>(<span class="st">&quot;images/proto-critique.jpg&quot;</span>)</code></pre>
+<div class="figure"><span id="fig:prototypes-and-criticisms"></span>
+<img src="images/proto-critique.jpg" alt="Prototypes and criticisms for two types of dog breeds from the ImageNet dataset." width="600" />
+<p class="caption">
+FIGURE 6.12: Prototypes and criticisms for two types of dog breeds from the ImageNet dataset.
+</p>
+</div>
+<p>Another illustration of MMD-critic uses a handwritten digit dataset.</p>
+<p>Looking at the actual prototypes and criticisms, you might notice that the number of images per digit is different.
+This is because a fixed number of prototypes and criticisms were searched across the entire dataset and not with a fixed number per class.
+As expected, the prototypes show different ways of writing the digits.
+The criticisms include examples with unusually thick or thin lines, but also unrecognizable digits.</p>
+<pre class="sourceCode r"><code class="sourceCode r">knitr<span class="op">::</span><span class="kw">include_graphics</span>(<span class="st">&quot;images/proto-critique2.jpg&quot;</span>)</code></pre>
+<div class="figure"><span id="fig:prototypes-and-criticisms2"></span>
+<img src="images/proto-critique2.jpg" alt="Prototypes and criticisms for a handwritten digits dataset." width="600" />
+<p class="caption">
+FIGURE 6.13: Prototypes and criticisms for a handwritten digits dataset.
+</p>
+</div>
+</div>
+<div id="advantages-14" class="section level3">
+<h3><span class="header-section-number">6.3.3</span> Advantages</h3>
+<p>In a user study the authors of MMD-critic gave images to the participants, which they had to visually match to one of two sets of images, each representing one of two classes (e.g. two dog breeds).
+The <strong>participants performed best when the sets showed prototypes and criticisms</strong> instead of random images of a class.</p>
+<p>You are free to <strong>choose the number of prototypes and criticisms</strong>.</p>
+<p>MMD-critic works with density estimates of the data.
+This <strong>works with any type of data and any type of machine learning model</strong>.</p>
+<p>The algorithm is <strong>easy to implement</strong>.</p>
+<p>MMD-critic is very flexible in the way it is used to increase interpretability.
+It can be used to understand complex data distributions.
+It can be used to build an interpretable machine learning model.
+Or it can shed light on the decision making of a black box machine learning model.</p>
+<p><strong>Finding criticisms is independent of the selection process of the prototypes</strong>.
+But it makes sense to select prototypes according to MMD-critic, because then both prototypes and criticisms are created using the same method of comparing prototypes and data densities.</p>
+</div>
+<div id="disadvantages-14" class="section level3">
+<h3><span class="header-section-number">6.3.4</span> Disadvantages</h3>
+<p>You have to <strong>choose the number of prototypes and criticisms</strong>.
+As much as this can be nice-to-have, it is also a disadvantage.
+How many prototypes and criticisms do we actually need?
+The more the better? The less the better?
+One solution is to select the number of prototypes and criticisms by measuring how much time humans have for the task of looking at the images, which depends on the particular application.
+Only when using MMD-critic to build a classifier do we have a way to optimize it directly.
+One solution could be a screeplot showing the number of prototypes on the x-axis and the MMD2 measure on the y-axis.
+We would choose the number of prototypes where the MMD2 curve flattens.</p>
+<p>The other parameters are the choice of the kernel and the kernel scaling parameter.
+We have the same problem as with the number of prototypes and criticisms:
+<strong>How do we select a kernel and its scaling parameter?</strong>
+Again, when we use MMD-critic as a nearest prototype classifier, we can tune the kernel parameters.
+For the unsupervised use cases of MMD-critic, however, it is unclear.
+(Maybe I am a bit harsh here, since all unsupervised methods have this problem.)</p>
+<p>It takes all the features as input, <strong>disregarding the fact that some features might not be relevant</strong> for predicting the outcome of interest.
+One solution is to use only relevant features, for example image embeddings instead of raw pixels.
+This works as long as we have a way to project the original instance onto a representation that contains only relevant information.</p>
+<p>There is some code available, but it is <strong>not yet implemented as nicely packaged and documented software</strong>.</p>
+</div>
+<div id="code-and-alternatives" class="section level3">
+<h3><span class="header-section-number">6.3.5</span> Code and Alternatives</h3>
+<p>An implementation of MMD-critic can be found here: <a href="https://github.com/BeenKim/MMD-critic">https://github.com/BeenKim/MMD-critic</a>.</p>
+<p>The simplest alternative to finding prototypes is <a href="https://en.wikipedia.org/wiki/K-medoids">k-medoids</a> by Kaufman et. al (1987).<a href="#fn57" class="footnote-ref" id="fnref57"><sup>57</sup></a></p>
+
+<!--{pagebreak}-->
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(<span class="st">&quot;archetypes&quot;</span>)
+<span class="co"># devtools::load_all()</span>
+<span class="kw">library</span>(interpretable.ml)
+<span class="kw">data</span>(cervical)
+
+mm =<span class="st"> </span><span class="kw">model.matrix</span>(<span class="op">~</span><span class="st"> </span>. <span class="op">-</span><span class="st"> </span><span class="dv">1</span>, <span class="dt">data =</span> cervical)
+
+cervical.x =<span class="st"> </span>cervical[<span class="kw">setdiff</span>(<span class="kw">names</span>(cervical), <span class="st">&quot;Biopsy&quot;</span>)]
+aa =<span class="st"> </span><span class="kw">archetypes</span>(cervical.x, <span class="dv">5</span>)
+
+
+<span class="kw">simplexplot</span>(aa)
+
+<span class="kw">summary</span>(aa)
+
+<span class="kw">round</span>(aa<span class="op">$</span>archetypes, <span class="dv">1</span>)
+
+
+cervical.task =<span class="st"> </span><span class="kw">makeClassifTask</span>(<span class="dt">data =</span> cervical, <span class="dt">target =</span> <span class="st">&quot;Biopsy&quot;</span>)
+mod =<span class="st"> </span>mlr<span class="op">::</span><span class="kw">train</span>(mlr<span class="op">::</span><span class="kw">makeLearner</span>(<span class="dt">cl =</span> <span class="st">&#39;classif.randomForest&#39;</span>, <span class="dt">id =</span> <span class="st">&#39;cervical-rf&#39;</span>, <span class="dt">predict.type =</span> <span class="st">&#39;prob&#39;</span>), cervical.task)
+
+<span class="kw">predict</span>(mod, <span class="dt">newdata =</span> <span class="kw">data.frame</span>(aa<span class="op">$</span>archetypes))
+
+
+pred.cervical =<span class="st"> </span>Predictor<span class="op">$</span><span class="kw">new</span>(mod, <span class="dt">data =</span> cervical.x, <span class="dt">class =</span> <span class="st">&quot;Cancer&quot;</span>)
+pdp =<span class="st"> </span>Shapley<span class="op">$</span><span class="kw">new</span>(pred.cervical, <span class="kw">data.frame</span>(aa<span class="op">$</span>archetypes)[<span class="dv">1</span>,]) 
+pdp<span class="op">$</span><span class="kw">plot</span>()
+
+pdp =<span class="st"> </span>Shapley<span class="op">$</span><span class="kw">new</span>(pred.cervical, <span class="kw">data.frame</span>(aa<span class="op">$</span>archetypes)[<span class="dv">2</span>,]) 
+pdp<span class="op">$</span><span class="kw">plot</span>()
+
+
+pdp =<span class="st"> </span>Shapley<span class="op">$</span><span class="kw">new</span>(pred.cervical, <span class="kw">round</span>(<span class="kw">data.frame</span>(aa<span class="op">$</span>archetypes)[<span class="dv">3</span>,])) 
+pdp<span class="op">$</span><span class="kw">plot</span>()</code></pre>
+<!-- Using archetypes for interpretability:  -->
+<!-- - Find archetypes -->
+<!-- - Get predictions for archetypes -->
+<!-- - Interpret -->
+
+<!--{pagebreak}-->
+</div>
+</div>
+<div class="footnotes">
+<hr />
+<ol start="56">
+<li id="fn56"><p>Kim, Been, Rajiv Khanna, and Oluwasanmi O. Koyejo. “Examples are not enough, learn to criticize! Criticism for interpretability.” Advances in Neural Information Processing Systems (2016).<a href="proto.html#fnref56" class="footnote-back">↩</a></p></li>
+<li id="fn57"><p>Kaufman, Leonard, and Peter Rousseeuw. “Clustering by means of medoids”. North-Holland (1987).<a href="proto.html#fnref57" class="footnote-back">↩</a></p></li>
+</ol>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="adversarial.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="influential.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": true,
+"facebook": true,
+"twitter": true,
+"google": false,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/christophM/interpretable-ml-book/edit/master/06.3-example-based-proto.Rmd",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:" && /^https?:/.test(src))
+      src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
