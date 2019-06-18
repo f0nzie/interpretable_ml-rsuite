@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>4.5 Decision Rules | Interpretable Machine Learning</title>
+  <meta name="description" content="Machine learning algorithms usually operate as black boxes and it is unclear how they derived a certain decision. This book is a guide for practitioners to make machine learning decisions interpretable." />
+  <meta name="generator" content="bookdown 0.11 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="4.5 Decision Rules | Interpretable Machine Learning" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="Machine learning algorithms usually operate as black boxes and it is unclear how they derived a certain decision. This book is a guide for practitioners to make machine learning decisions interpretable." />
+  <meta name="github-repo" content="christophM/interpretable-ml-book" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="4.5 Decision Rules | Interpretable Machine Learning" />
+  
+  <meta name="twitter:description" content="Machine learning algorithms usually operate as black boxes and it is unclear how they derived a certain decision. This book is a guide for practitioners to make machine learning decisions interpretable." />
+  
+
+<meta name="author" content="Christoph Molnar" />
+
+
+<meta name="date" content="2019-06-17" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="tree.html">
+<link rel="next" href="rulefit.html">
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-110543840-1', 'https://christophm.github.io/interpretable-ml-book/', {
+  'anonymizeIp': true
+  , 'storage': 'none'
+  , 'clientId': window.localStorage.getItem('ga_clientId')
+});
+ga(function(tracker) {
+  window.localStorage.setItem('ga_clientId', tracker.get('clientId'));
+});
+ga('send', 'pageview');
+</script>
+
+<link rel="stylesheet" type="text/css" href="css/cookieconsent.min.css" />
+<script src="javascript/cookieconsent.min.js"></script>
+<script>
+window.addEventListener("load", function(){
+window.cookieconsent.initialise({
+  "palette": {
+    "popup": {
+      "background": "#000"
+    },
+    "button": {
+      "background": "#f1d600"
+    }
+  },
+  "position": "bottom-right",
+  "content": {
+    "message": "This website uses cookies for Google Analytics so that I know how many people are reading the book and which chapters are the most popular. The book website doesn't collect any personal data."
+  }
+})});
+</script>
+
+
+<style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<link rel="stylesheet" href="css/style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Interpretable machine learning</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Preface</a></li>
+<li class="chapter" data-level="1" data-path="intro.html"><a href="intro.html"><i class="fa fa-check"></i><b>1</b> Introduction</a><ul>
+<li class="chapter" data-level="1.1" data-path="storytime.html"><a href="storytime.html"><i class="fa fa-check"></i><b>1.1</b> Story Time</a><ul>
+<li class="chapter" data-level="" data-path="storytime.html"><a href="storytime.html#lightning-never-strikes-twice"><i class="fa fa-check"></i>Lightning Never Strikes Twice</a></li>
+<li class="chapter" data-level="" data-path="storytime.html"><a href="storytime.html#trust-fall"><i class="fa fa-check"></i>Trust Fall</a></li>
+<li class="chapter" data-level="" data-path="storytime.html"><a href="storytime.html#fermis-paperclips"><i class="fa fa-check"></i>Fermi’s Paperclips</a></li>
+</ul></li>
+<li class="chapter" data-level="1.2" data-path="what-is-machine-learning.html"><a href="what-is-machine-learning.html"><i class="fa fa-check"></i><b>1.2</b> What Is Machine Learning?</a></li>
+<li class="chapter" data-level="1.3" data-path="terminology.html"><a href="terminology.html"><i class="fa fa-check"></i><b>1.3</b> Terminology</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="interpretability.html"><a href="interpretability.html"><i class="fa fa-check"></i><b>2</b> Interpretability</a><ul>
+<li class="chapter" data-level="2.1" data-path="interpretability-importance.html"><a href="interpretability-importance.html"><i class="fa fa-check"></i><b>2.1</b> Importance of Interpretability</a></li>
+<li class="chapter" data-level="2.2" data-path="taxonomy-of-interpretability-methods.html"><a href="taxonomy-of-interpretability-methods.html"><i class="fa fa-check"></i><b>2.2</b> Taxonomy of Interpretability Methods</a></li>
+<li class="chapter" data-level="2.3" data-path="scope-of-interpretability.html"><a href="scope-of-interpretability.html"><i class="fa fa-check"></i><b>2.3</b> Scope of Interpretability</a><ul>
+<li class="chapter" data-level="2.3.1" data-path="scope-of-interpretability.html"><a href="scope-of-interpretability.html#algorithm-transparency"><i class="fa fa-check"></i><b>2.3.1</b> Algorithm Transparency</a></li>
+<li class="chapter" data-level="2.3.2" data-path="scope-of-interpretability.html"><a href="scope-of-interpretability.html#global-holistic-model-interpretability"><i class="fa fa-check"></i><b>2.3.2</b> Global, Holistic Model Interpretability</a></li>
+<li class="chapter" data-level="2.3.3" data-path="scope-of-interpretability.html"><a href="scope-of-interpretability.html#global-model-interpretability-on-a-modular-level"><i class="fa fa-check"></i><b>2.3.3</b> Global Model Interpretability on a Modular Level</a></li>
+<li class="chapter" data-level="2.3.4" data-path="scope-of-interpretability.html"><a href="scope-of-interpretability.html#local-interpretability-for-a-single-prediction"><i class="fa fa-check"></i><b>2.3.4</b> Local Interpretability for a Single Prediction</a></li>
+<li class="chapter" data-level="2.3.5" data-path="scope-of-interpretability.html"><a href="scope-of-interpretability.html#local-interpretability-for-a-group-of-predictions"><i class="fa fa-check"></i><b>2.3.5</b> Local Interpretability for a Group of Predictions</a></li>
+</ul></li>
+<li class="chapter" data-level="2.4" data-path="evaluation-of-interpretability.html"><a href="evaluation-of-interpretability.html"><i class="fa fa-check"></i><b>2.4</b> Evaluation of Interpretability</a></li>
+<li class="chapter" data-level="2.5" data-path="properties.html"><a href="properties.html"><i class="fa fa-check"></i><b>2.5</b> Properties of Explanations</a></li>
+<li class="chapter" data-level="2.6" data-path="explanation.html"><a href="explanation.html"><i class="fa fa-check"></i><b>2.6</b> Human-friendly Explanations</a><ul>
+<li class="chapter" data-level="2.6.1" data-path="explanation.html"><a href="explanation.html#what-is-an-explanation"><i class="fa fa-check"></i><b>2.6.1</b> What Is an Explanation?</a></li>
+<li class="chapter" data-level="2.6.2" data-path="explanation.html"><a href="explanation.html#good-explanation"><i class="fa fa-check"></i><b>2.6.2</b> What Is a Good Explanation?</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="data.html"><a href="data.html"><i class="fa fa-check"></i><b>3</b> Datasets</a><ul>
+<li class="chapter" data-level="3.1" data-path="bike-data.html"><a href="bike-data.html"><i class="fa fa-check"></i><b>3.1</b> Bike Rentals (Regression)</a></li>
+<li class="chapter" data-level="3.2" data-path="spam-data.html"><a href="spam-data.html"><i class="fa fa-check"></i><b>3.2</b> YouTube Spam Comments (Text Classification)</a></li>
+<li class="chapter" data-level="3.3" data-path="cervical.html"><a href="cervical.html"><i class="fa fa-check"></i><b>3.3</b> Risk Factors for Cervical Cancer (Classification)</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="simple.html"><a href="simple.html"><i class="fa fa-check"></i><b>4</b> Interpretable Models</a><ul>
+<li class="chapter" data-level="4.1" data-path="limo.html"><a href="limo.html"><i class="fa fa-check"></i><b>4.1</b> Linear Regression</a><ul>
+<li class="chapter" data-level="4.1.1" data-path="limo.html"><a href="limo.html#interpretation"><i class="fa fa-check"></i><b>4.1.1</b> Interpretation</a></li>
+<li class="chapter" data-level="4.1.2" data-path="limo.html"><a href="limo.html#example"><i class="fa fa-check"></i><b>4.1.2</b> Example</a></li>
+<li class="chapter" data-level="4.1.3" data-path="limo.html"><a href="limo.html#visual-interpretation"><i class="fa fa-check"></i><b>4.1.3</b> Visual Interpretation</a></li>
+<li class="chapter" data-level="4.1.4" data-path="limo.html"><a href="limo.html#explain-individual-predictions"><i class="fa fa-check"></i><b>4.1.4</b> Explain Individual Predictions</a></li>
+<li class="chapter" data-level="4.1.5" data-path="limo.html"><a href="limo.html#cat-code"><i class="fa fa-check"></i><b>4.1.5</b> Encoding of Categorical Features</a></li>
+<li class="chapter" data-level="4.1.6" data-path="limo.html"><a href="limo.html#do-linear-models-create-good-explanations"><i class="fa fa-check"></i><b>4.1.6</b> Do Linear Models Create Good Explanations?</a></li>
+<li class="chapter" data-level="4.1.7" data-path="limo.html"><a href="limo.html#sparse-linear"><i class="fa fa-check"></i><b>4.1.7</b> Sparse Linear Models</a></li>
+<li class="chapter" data-level="4.1.8" data-path="limo.html"><a href="limo.html#advantages"><i class="fa fa-check"></i><b>4.1.8</b> Advantages</a></li>
+<li class="chapter" data-level="4.1.9" data-path="limo.html"><a href="limo.html#disadvantages"><i class="fa fa-check"></i><b>4.1.9</b> Disadvantages</a></li>
+</ul></li>
+<li class="chapter" data-level="4.2" data-path="logistic.html"><a href="logistic.html"><i class="fa fa-check"></i><b>4.2</b> Logistic Regression</a><ul>
+<li class="chapter" data-level="4.2.1" data-path="logistic.html"><a href="logistic.html#what-is-wrong-with-linear-regression-for-classification"><i class="fa fa-check"></i><b>4.2.1</b> What is Wrong with Linear Regression for Classification?</a></li>
+<li class="chapter" data-level="4.2.2" data-path="logistic.html"><a href="logistic.html#theory"><i class="fa fa-check"></i><b>4.2.2</b> Theory</a></li>
+<li class="chapter" data-level="4.2.3" data-path="logistic.html"><a href="logistic.html#interpretation-1"><i class="fa fa-check"></i><b>4.2.3</b> Interpretation</a></li>
+<li class="chapter" data-level="4.2.4" data-path="logistic.html"><a href="logistic.html#example-1"><i class="fa fa-check"></i><b>4.2.4</b> Example</a></li>
+<li class="chapter" data-level="4.2.5" data-path="logistic.html"><a href="logistic.html#advantages-and-disadvantages"><i class="fa fa-check"></i><b>4.2.5</b> Advantages and Disadvantages</a></li>
+<li class="chapter" data-level="4.2.6" data-path="logistic.html"><a href="logistic.html#software"><i class="fa fa-check"></i><b>4.2.6</b> Software</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="extend-lm.html"><a href="extend-lm.html"><i class="fa fa-check"></i><b>4.3</b> GLM, GAM and more</a><ul>
+<li class="chapter" data-level="4.3.1" data-path="extend-lm.html"><a href="extend-lm.html#glm"><i class="fa fa-check"></i><b>4.3.1</b> Non-Gaussian Outcomes - GLMs</a></li>
+<li class="chapter" data-level="4.3.2" data-path="extend-lm.html"><a href="extend-lm.html#lm-interact"><i class="fa fa-check"></i><b>4.3.2</b> Interactions</a></li>
+<li class="chapter" data-level="4.3.3" data-path="extend-lm.html"><a href="extend-lm.html#gam"><i class="fa fa-check"></i><b>4.3.3</b> Nonlinear Effects - GAMs</a></li>
+<li class="chapter" data-level="4.3.4" data-path="extend-lm.html"><a href="extend-lm.html#advantages-1"><i class="fa fa-check"></i><b>4.3.4</b> Advantages</a></li>
+<li class="chapter" data-level="4.3.5" data-path="extend-lm.html"><a href="extend-lm.html#disadvantages-1"><i class="fa fa-check"></i><b>4.3.5</b> Disadvantages</a></li>
+<li class="chapter" data-level="4.3.6" data-path="extend-lm.html"><a href="extend-lm.html#software-1"><i class="fa fa-check"></i><b>4.3.6</b> Software</a></li>
+<li class="chapter" data-level="4.3.7" data-path="extend-lm.html"><a href="extend-lm.html#more-lm-extension"><i class="fa fa-check"></i><b>4.3.7</b> Further Extensions</a></li>
+</ul></li>
+<li class="chapter" data-level="4.4" data-path="tree.html"><a href="tree.html"><i class="fa fa-check"></i><b>4.4</b> Decision Tree</a><ul>
+<li class="chapter" data-level="4.4.1" data-path="tree.html"><a href="tree.html#interpretation-2"><i class="fa fa-check"></i><b>4.4.1</b> Interpretation</a></li>
+<li class="chapter" data-level="4.4.2" data-path="tree.html"><a href="tree.html#example-2"><i class="fa fa-check"></i><b>4.4.2</b> Example</a></li>
+<li class="chapter" data-level="4.4.3" data-path="tree.html"><a href="tree.html#advantages-2"><i class="fa fa-check"></i><b>4.4.3</b> Advantages</a></li>
+<li class="chapter" data-level="4.4.4" data-path="tree.html"><a href="tree.html#disadvantages-2"><i class="fa fa-check"></i><b>4.4.4</b> Disadvantages</a></li>
+<li class="chapter" data-level="4.4.5" data-path="tree.html"><a href="tree.html#software-2"><i class="fa fa-check"></i><b>4.4.5</b> Software</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="rules.html"><a href="rules.html"><i class="fa fa-check"></i><b>4.5</b> Decision Rules</a><ul>
+<li class="chapter" data-level="4.5.1" data-path="rules.html"><a href="rules.html#learn-rules-from-a-single-feature-oner"><i class="fa fa-check"></i><b>4.5.1</b> Learn Rules from a Single Feature (OneR)</a></li>
+<li class="chapter" data-level="4.5.2" data-path="rules.html"><a href="rules.html#sequential-covering"><i class="fa fa-check"></i><b>4.5.2</b> Sequential Covering</a></li>
+<li class="chapter" data-level="4.5.3" data-path="rules.html"><a href="rules.html#bayesian-rule-lists"><i class="fa fa-check"></i><b>4.5.3</b> Bayesian Rule Lists</a></li>
+<li class="chapter" data-level="4.5.4" data-path="rules.html"><a href="rules.html#advantages-3"><i class="fa fa-check"></i><b>4.5.4</b> Advantages</a></li>
+<li class="chapter" data-level="4.5.5" data-path="rules.html"><a href="rules.html#disadvantages-3"><i class="fa fa-check"></i><b>4.5.5</b> Disadvantages</a></li>
+<li class="chapter" data-level="4.5.6" data-path="rules.html"><a href="rules.html#software-and-alternatives"><i class="fa fa-check"></i><b>4.5.6</b> Software and Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="4.6" data-path="rulefit.html"><a href="rulefit.html"><i class="fa fa-check"></i><b>4.6</b> RuleFit</a><ul>
+<li class="chapter" data-level="4.6.1" data-path="rulefit.html"><a href="rulefit.html#interpretation-and-example"><i class="fa fa-check"></i><b>4.6.1</b> Interpretation and Example</a></li>
+<li class="chapter" data-level="4.6.2" data-path="rulefit.html"><a href="rulefit.html#theory-1"><i class="fa fa-check"></i><b>4.6.2</b> Theory</a></li>
+<li class="chapter" data-level="4.6.3" data-path="rulefit.html"><a href="rulefit.html#advantages-4"><i class="fa fa-check"></i><b>4.6.3</b> Advantages</a></li>
+<li class="chapter" data-level="4.6.4" data-path="rulefit.html"><a href="rulefit.html#disadvantages-4"><i class="fa fa-check"></i><b>4.6.4</b> Disadvantages</a></li>
+<li class="chapter" data-level="4.6.5" data-path="rulefit.html"><a href="rulefit.html#software-and-alternative"><i class="fa fa-check"></i><b>4.6.5</b> Software and Alternative</a></li>
+</ul></li>
+<li class="chapter" data-level="4.7" data-path="other-interpretable.html"><a href="other-interpretable.html"><i class="fa fa-check"></i><b>4.7</b> Other Interpretable Models</a><ul>
+<li class="chapter" data-level="4.7.1" data-path="other-interpretable.html"><a href="other-interpretable.html#naive-bayes-classifier"><i class="fa fa-check"></i><b>4.7.1</b> Naive Bayes Classifier</a></li>
+<li class="chapter" data-level="4.7.2" data-path="other-interpretable.html"><a href="other-interpretable.html#k-nearest-neighbors"><i class="fa fa-check"></i><b>4.7.2</b> K-Nearest Neighbors</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="agnostic.html"><a href="agnostic.html"><i class="fa fa-check"></i><b>5</b> Model-Agnostic Methods</a><ul>
+<li class="chapter" data-level="5.1" data-path="pdp.html"><a href="pdp.html"><i class="fa fa-check"></i><b>5.1</b> Partial Dependence Plot (PDP)</a><ul>
+<li class="chapter" data-level="5.1.1" data-path="pdp.html"><a href="pdp.html#examples"><i class="fa fa-check"></i><b>5.1.1</b> Examples</a></li>
+<li class="chapter" data-level="5.1.2" data-path="pdp.html"><a href="pdp.html#advantages-5"><i class="fa fa-check"></i><b>5.1.2</b> Advantages</a></li>
+<li class="chapter" data-level="5.1.3" data-path="pdp.html"><a href="pdp.html#disadvantages-5"><i class="fa fa-check"></i><b>5.1.3</b> Disadvantages</a></li>
+<li class="chapter" data-level="5.1.4" data-path="pdp.html"><a href="pdp.html#software-and-alternatives-1"><i class="fa fa-check"></i><b>5.1.4</b> Software and Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="5.2" data-path="ice.html"><a href="ice.html"><i class="fa fa-check"></i><b>5.2</b> Individual Conditional Expectation (ICE)</a><ul>
+<li class="chapter" data-level="5.2.1" data-path="ice.html"><a href="ice.html#examples-1"><i class="fa fa-check"></i><b>5.2.1</b> Examples</a></li>
+<li class="chapter" data-level="5.2.2" data-path="ice.html"><a href="ice.html#advantages-6"><i class="fa fa-check"></i><b>5.2.2</b> Advantages</a></li>
+<li class="chapter" data-level="5.2.3" data-path="ice.html"><a href="ice.html#disadvantages-6"><i class="fa fa-check"></i><b>5.2.3</b> Disadvantages</a></li>
+<li class="chapter" data-level="5.2.4" data-path="ice.html"><a href="ice.html#software-and-alternatives-2"><i class="fa fa-check"></i><b>5.2.4</b> Software and Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="ale.html"><a href="ale.html"><i class="fa fa-check"></i><b>5.3</b> Accumulated Local Effects (ALE) Plot</a><ul>
+<li class="chapter" data-level="5.3.1" data-path="ale.html"><a href="ale.html#motivation-and-intuition"><i class="fa fa-check"></i><b>5.3.1</b> Motivation and Intuition</a></li>
+<li class="chapter" data-level="5.3.2" data-path="ale.html"><a href="ale.html#theory-2"><i class="fa fa-check"></i><b>5.3.2</b> Theory</a></li>
+<li class="chapter" data-level="5.3.3" data-path="ale.html"><a href="ale.html#estimation"><i class="fa fa-check"></i><b>5.3.3</b> Estimation</a></li>
+<li class="chapter" data-level="5.3.4" data-path="ale.html"><a href="ale.html#examples-2"><i class="fa fa-check"></i><b>5.3.4</b> Examples</a></li>
+<li class="chapter" data-level="5.3.5" data-path="ale.html"><a href="ale.html#advantages-7"><i class="fa fa-check"></i><b>5.3.5</b> Advantages</a></li>
+<li class="chapter" data-level="5.3.6" data-path="ale.html"><a href="ale.html#disadvantages-7"><i class="fa fa-check"></i><b>5.3.6</b> Disadvantages</a></li>
+<li class="chapter" data-level="5.3.7" data-path="ale.html"><a href="ale.html#implementation-and-alternatives"><i class="fa fa-check"></i><b>5.3.7</b> Implementation and Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="5.4" data-path="interaction.html"><a href="interaction.html"><i class="fa fa-check"></i><b>5.4</b> Feature Interaction</a><ul>
+<li class="chapter" data-level="5.4.1" data-path="interaction.html"><a href="interaction.html#feature-interaction"><i class="fa fa-check"></i><b>5.4.1</b> Feature Interaction?</a></li>
+<li class="chapter" data-level="5.4.2" data-path="interaction.html"><a href="interaction.html#theory-friedmans-h-statistic"><i class="fa fa-check"></i><b>5.4.2</b> Theory: Friedman’s H-statistic</a></li>
+<li class="chapter" data-level="5.4.3" data-path="interaction.html"><a href="interaction.html#examples-3"><i class="fa fa-check"></i><b>5.4.3</b> Examples</a></li>
+<li class="chapter" data-level="5.4.4" data-path="interaction.html"><a href="interaction.html#advantages-8"><i class="fa fa-check"></i><b>5.4.4</b> Advantages</a></li>
+<li class="chapter" data-level="5.4.5" data-path="interaction.html"><a href="interaction.html#disadvantages-8"><i class="fa fa-check"></i><b>5.4.5</b> Disadvantages</a></li>
+<li class="chapter" data-level="5.4.6" data-path="interaction.html"><a href="interaction.html#implementations"><i class="fa fa-check"></i><b>5.4.6</b> Implementations</a></li>
+<li class="chapter" data-level="5.4.7" data-path="interaction.html"><a href="interaction.html#alternatives"><i class="fa fa-check"></i><b>5.4.7</b> Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="5.5" data-path="feature-importance.html"><a href="feature-importance.html"><i class="fa fa-check"></i><b>5.5</b> Feature Importance</a><ul>
+<li class="chapter" data-level="5.5.1" data-path="feature-importance.html"><a href="feature-importance.html#theory-3"><i class="fa fa-check"></i><b>5.5.1</b> Theory</a></li>
+<li class="chapter" data-level="5.5.2" data-path="feature-importance.html"><a href="feature-importance.html#feature-importance-data"><i class="fa fa-check"></i><b>5.5.2</b> Should I Compute Importance on Training or Test Data?</a></li>
+<li class="chapter" data-level="5.5.3" data-path="feature-importance.html"><a href="feature-importance.html#example-and-interpretation"><i class="fa fa-check"></i><b>5.5.3</b> Example and Interpretation</a></li>
+<li class="chapter" data-level="5.5.4" data-path="feature-importance.html"><a href="feature-importance.html#advantages-9"><i class="fa fa-check"></i><b>5.5.4</b> Advantages</a></li>
+<li class="chapter" data-level="5.5.5" data-path="feature-importance.html"><a href="feature-importance.html#disadvantages-9"><i class="fa fa-check"></i><b>5.5.5</b> Disadvantages</a></li>
+<li class="chapter" data-level="5.5.6" data-path="feature-importance.html"><a href="feature-importance.html#software-and-alternatives-3"><i class="fa fa-check"></i><b>5.5.6</b> Software and Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="5.6" data-path="global.html"><a href="global.html"><i class="fa fa-check"></i><b>5.6</b> Global Surrogate</a><ul>
+<li class="chapter" data-level="5.6.1" data-path="global.html"><a href="global.html#theory-4"><i class="fa fa-check"></i><b>5.6.1</b> Theory</a></li>
+<li class="chapter" data-level="5.6.2" data-path="global.html"><a href="global.html#example-4"><i class="fa fa-check"></i><b>5.6.2</b> Example</a></li>
+<li class="chapter" data-level="5.6.3" data-path="global.html"><a href="global.html#advantages-10"><i class="fa fa-check"></i><b>5.6.3</b> Advantages</a></li>
+<li class="chapter" data-level="5.6.4" data-path="global.html"><a href="global.html#disadvantages-10"><i class="fa fa-check"></i><b>5.6.4</b> Disadvantages</a></li>
+<li class="chapter" data-level="5.6.5" data-path="global.html"><a href="global.html#software-3"><i class="fa fa-check"></i><b>5.6.5</b> Software</a></li>
+</ul></li>
+<li class="chapter" data-level="5.7" data-path="lime.html"><a href="lime.html"><i class="fa fa-check"></i><b>5.7</b> Local Surrogate (LIME)</a><ul>
+<li class="chapter" data-level="5.7.1" data-path="lime.html"><a href="lime.html#lime-for-tabular-data"><i class="fa fa-check"></i><b>5.7.1</b> LIME for Tabular Data</a></li>
+<li class="chapter" data-level="5.7.2" data-path="lime.html"><a href="lime.html#lime-for-text"><i class="fa fa-check"></i><b>5.7.2</b> LIME for Text</a></li>
+<li class="chapter" data-level="5.7.3" data-path="lime.html"><a href="lime.html#images-lime"><i class="fa fa-check"></i><b>5.7.3</b> LIME for Images</a></li>
+<li class="chapter" data-level="5.7.4" data-path="lime.html"><a href="lime.html#advantages-11"><i class="fa fa-check"></i><b>5.7.4</b> Advantages</a></li>
+<li class="chapter" data-level="5.7.5" data-path="lime.html"><a href="lime.html#disadvantages-11"><i class="fa fa-check"></i><b>5.7.5</b> Disadvantages</a></li>
+</ul></li>
+<li class="chapter" data-level="5.8" data-path="shapley.html"><a href="shapley.html"><i class="fa fa-check"></i><b>5.8</b> Shapley Values</a><ul>
+<li class="chapter" data-level="5.8.1" data-path="shapley.html"><a href="shapley.html#general-idea"><i class="fa fa-check"></i><b>5.8.1</b> General Idea</a></li>
+<li class="chapter" data-level="5.8.2" data-path="shapley.html"><a href="shapley.html#examples-and-interpretation"><i class="fa fa-check"></i><b>5.8.2</b> Examples and Interpretation</a></li>
+<li class="chapter" data-level="5.8.3" data-path="shapley.html"><a href="shapley.html#the-shapley-value-in-detail"><i class="fa fa-check"></i><b>5.8.3</b> The Shapley Value in Detail</a></li>
+<li class="chapter" data-level="5.8.4" data-path="shapley.html"><a href="shapley.html#advantages-12"><i class="fa fa-check"></i><b>5.8.4</b> Advantages</a></li>
+<li class="chapter" data-level="5.8.5" data-path="shapley.html"><a href="shapley.html#disadvantages-12"><i class="fa fa-check"></i><b>5.8.5</b> Disadvantages</a></li>
+<li class="chapter" data-level="5.8.6" data-path="shapley.html"><a href="shapley.html#software-and-alternatives-4"><i class="fa fa-check"></i><b>5.8.6</b> Software and Alternatives</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="example-based.html"><a href="example-based.html"><i class="fa fa-check"></i><b>6</b> Example-Based Explanations</a><ul>
+<li class="chapter" data-level="6.1" data-path="counterfactual.html"><a href="counterfactual.html"><i class="fa fa-check"></i><b>6.1</b> Counterfactual Explanations</a><ul>
+<li class="chapter" data-level="6.1.1" data-path="counterfactual.html"><a href="counterfactual.html#generating-counterfactual-explanations"><i class="fa fa-check"></i><b>6.1.1</b> Generating Counterfactual Explanations</a></li>
+<li class="chapter" data-level="6.1.2" data-path="counterfactual.html"><a href="counterfactual.html#examples-4"><i class="fa fa-check"></i><b>6.1.2</b> Examples</a></li>
+<li class="chapter" data-level="6.1.3" data-path="counterfactual.html"><a href="counterfactual.html#advantages-13"><i class="fa fa-check"></i><b>6.1.3</b> Advantages</a></li>
+<li class="chapter" data-level="6.1.4" data-path="counterfactual.html"><a href="counterfactual.html#disadvantages-13"><i class="fa fa-check"></i><b>6.1.4</b> Disadvantages</a></li>
+<li class="chapter" data-level="6.1.5" data-path="counterfactual.html"><a href="counterfactual.html#example-software"><i class="fa fa-check"></i><b>6.1.5</b> Software and Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="6.2" data-path="adversarial.html"><a href="adversarial.html"><i class="fa fa-check"></i><b>6.2</b> Adversarial Examples</a><ul>
+<li class="chapter" data-level="6.2.1" data-path="adversarial.html"><a href="adversarial.html#methods-and-examples"><i class="fa fa-check"></i><b>6.2.1</b> Methods and Examples</a></li>
+<li class="chapter" data-level="6.2.2" data-path="adversarial.html"><a href="adversarial.html#the-cybersecurity-perspective"><i class="fa fa-check"></i><b>6.2.2</b> The Cybersecurity Perspective</a></li>
+</ul></li>
+<li class="chapter" data-level="6.3" data-path="proto.html"><a href="proto.html"><i class="fa fa-check"></i><b>6.3</b> Prototypes and Criticisms</a><ul>
+<li class="chapter" data-level="6.3.1" data-path="proto.html"><a href="proto.html#theory-5"><i class="fa fa-check"></i><b>6.3.1</b> Theory</a></li>
+<li class="chapter" data-level="6.3.2" data-path="proto.html"><a href="proto.html#examples-5"><i class="fa fa-check"></i><b>6.3.2</b> Examples</a></li>
+<li class="chapter" data-level="6.3.3" data-path="proto.html"><a href="proto.html#advantages-14"><i class="fa fa-check"></i><b>6.3.3</b> Advantages</a></li>
+<li class="chapter" data-level="6.3.4" data-path="proto.html"><a href="proto.html#disadvantages-14"><i class="fa fa-check"></i><b>6.3.4</b> Disadvantages</a></li>
+<li class="chapter" data-level="6.3.5" data-path="proto.html"><a href="proto.html#code-and-alternatives"><i class="fa fa-check"></i><b>6.3.5</b> Code and Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="6.4" data-path="influential.html"><a href="influential.html"><i class="fa fa-check"></i><b>6.4</b> Influential Instances</a><ul>
+<li class="chapter" data-level="6.4.1" data-path="influential.html"><a href="influential.html#deletion-diagnostics"><i class="fa fa-check"></i><b>6.4.1</b> Deletion Diagnostics</a></li>
+<li class="chapter" data-level="6.4.2" data-path="influential.html"><a href="influential.html#influence-functions"><i class="fa fa-check"></i><b>6.4.2</b> Influence Functions</a></li>
+<li class="chapter" data-level="6.4.3" data-path="influential.html"><a href="influential.html#advantages-of-identifying-influential-instances"><i class="fa fa-check"></i><b>6.4.3</b> Advantages of Identifying Influential Instances</a></li>
+<li class="chapter" data-level="6.4.4" data-path="influential.html"><a href="influential.html#disadvantages-of-identifying-influential-instances"><i class="fa fa-check"></i><b>6.4.4</b> Disadvantages of Identifying Influential Instances</a></li>
+<li class="chapter" data-level="6.4.5" data-path="influential.html"><a href="influential.html#software-and-alternatives-5"><i class="fa fa-check"></i><b>6.4.5</b> Software and Alternatives</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="future.html"><a href="future.html"><i class="fa fa-check"></i><b>7</b> A Look into the Crystal Ball</a><ul>
+<li class="chapter" data-level="7.1" data-path="the-future-of-machine-learning.html"><a href="the-future-of-machine-learning.html"><i class="fa fa-check"></i><b>7.1</b> The Future of Machine Learning</a></li>
+<li class="chapter" data-level="7.2" data-path="the-future-of-interpretability.html"><a href="the-future-of-interpretability.html"><i class="fa fa-check"></i><b>7.2</b> The Future of Interpretability</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="contribute.html"><a href="contribute.html"><i class="fa fa-check"></i><b>8</b> Contribute to the Book</a></li>
+<li class="chapter" data-level="9" data-path="cite.html"><a href="cite.html"><i class="fa fa-check"></i><b>9</b> Citing this Book</a></li>
+<li class="chapter" data-level="10" data-path="acknowledgements.html"><a href="acknowledgements.html"><i class="fa fa-check"></i><b>10</b> Acknowledgements</a></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="divider"></li>
+<li><a href="https://bookdown.org" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Interpretable Machine Learning</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="rules" class="section level2">
+<h2><span class="header-section-number">4.5</span> Decision Rules</h2>
+<p>A decision rule is a simple IF-THEN statement consisting of a condition (also called antecedent) and a prediction.
+For example:
+IF it rains today AND if it is April (condition), THEN it will rain tomorrow (prediction).
+A single decision rule or a combination of several rules can be used to make predictions.</p>
+<!-- *Keywords: decision rules, decision sets, decision lists, association rules, IF-THEN rules* -->
+<p>Decision rules follow a general structure:
+IF the conditions are met THEN make a certain prediction.
+Decision rules are probably the most interpretable prediction models.
+Their IF-THEN structure semantically resembles natural language and the way we think, provided that the condition is built from intelligible features, the length of the condition is short (small number of <code>feature=value</code> pairs combined with an AND) and there are not too many rules.
+In programming, it is very natural to write IF-THEN rules.
+New in machine learning is that the decision rules are learned through an algorithm.</p>
+<p>Imagine using an algorithm to learn decision rules for predicting the value of a house (<code>low</code>, <code>medium</code> or <code>high</code>).
+One decision rule learned by this model could be:
+If a house is bigger than 100 square meters and has a garden, then its value is high.
+More formally:
+IF <code>size&gt;100 AND garden=1</code> THEN <code>value=high</code>.</p>
+<p>Let us break down the decision rule:</p>
+<ul>
+<li><code>size&gt;100</code> is the first condition in the IF-part.</li>
+<li><code>garden=1</code> is the second condition in the IF-part.</li>
+<li>The two conditions are connected with an ‘AND’ to create a new condition.
+Both must be true for the rule to apply.</li>
+<li>The predicted outcome (THEN-part) is <code>value=high</code>.</li>
+</ul>
+<p>A decision rule uses at least one <code>feature=value</code> statement in the condition, with no upper limit on how many more can be added with an ‘AND’.
+An exception is the default rule that has no explicit IF-part and that applies when no other rule applies, but more about this later.</p>
+<p>The usefulness of a decision rule is usually summarized in two numbers: Support and accuracy.</p>
+<p><strong>Support or coverage of a rule</strong>:
+The percentage of instances to which the condition of a rule applies is called the support.
+Take for example the rule <code>size=big AND location=good THEN value=high</code> for predicting house values.
+Suppose 100 of 1000 houses are big and in a good location, then the support of the rule is 10%.
+The prediction (THEN-part) is not important for the calculation of support.</p>
+<p><strong>Accuracy or confidence of a rule</strong>:
+The accuracy of a rule is a measure of how accurate the rule is in predicting the correct class for the instances to which the condition of the rule applies.
+For example:
+Let us say of the 100 houses, where the rule <code>size=big AND location=good THEN value=high</code> applies, 85 have <code>value=high</code>, 14 have <code>value=medium</code> and 1 has <code>value=low</code>, then the accuracy of the rule is 85%.</p>
+<p>Usually there is a trade-off between accuracy and support:
+By adding more features to the condition, we can achieve higher accuracy, but lose support.</p>
+<p>To create a good classifier for predicting the value of a house you might need to learn not only one rule, but maybe 10 or 20.
+Then things can get more complicated and you can run into one of the following problems:</p>
+<ul>
+<li>Rules can overlap:
+What if I want to predict the value of a house and two or more rules apply and they give me contradictory predictions?</li>
+<li>No rule applies:
+What if I want to predict the value of a house and none of the rules apply?</li>
+</ul>
+<p>There are two main strategies for combining multiple rules:
+Decision lists (ordered) and decision sets (unordered).
+Both strategies imply different solutions to the problem of overlapping rules.</p>
+<p>A <strong>decision list</strong> introduces an order to the decision rules.
+If the condition of the first rule is true for an instance, we use the prediction of the first rule.
+If not, we go to the next rule and check if it applies and so on.
+Decision lists solve the problem of overlapping rules by only returning the prediction of the first rule in the list that applies.</p>
+<p>A <strong>decision set</strong> resembles a democracy of the rules, except that some rules might have a higher voting power.
+In a set, the rules are either mutually exclusive, or there is a strategy for resolving conflicts, such as majority voting, which may be weighted by the individual rule accuracies or other quality measures.
+Interpretability suffers potentially when several rules apply.</p>
+<p>Both decision lists and sets can suffer from the problem that no rule applies to an instance.
+This can be resolved by introducing a default rule.
+The default rule is the rule that applies when no other rule applies.
+The prediction of the default rule is often the most frequent class of the data points which are not covered by other rules.
+If a set or list of rules covers the entire feature space, we call it exhaustive.
+By adding a default rule, a set or list automatically becomes exhaustive.</p>
+<p>There are many ways to learn rules from data and this book is far from covering them all.
+This chapter shows you three of them.
+The algorithms are chosen to cover a wide range of general ideas for learning rules, so all three of them represent very different approaches.</p>
+<ol style="list-style-type: decimal">
+<li><strong>OneR</strong> learns rules from a single feature.
+OneR is characterized by its simplicity, interpretability and its use as a benchmark.</li>
+<li><strong>Sequential covering</strong> is a general procedure that iteratively learns rules and removes the data points that are covered by the new rule.
+This procedure is used by many rule learning algorithms.</li>
+<li><strong>Bayesian Rule Lists</strong> combine pre-mined frequent patterns into a decision list using Bayesian statistics.
+Using pre-mined patterns is a common approach used by many rule learning algorithms.</li>
+</ol>
+<p>Let’s start with the simplest approach: Using the single best feature to learn rules.</p>
+<div id="learn-rules-from-a-single-feature-oner" class="section level3">
+<h3><span class="header-section-number">4.5.1</span> Learn Rules from a Single Feature (OneR)</h3>
+<p>The OneR algorithm suggested by Holte (1993)<a href="#fn18" class="footnote-ref" id="fnref18"><sup>18</sup></a> is one of the simplest rule induction algorithms.
+From all the features, OneR selects the one that carries the most information about the outcome of interest and creates decision rules from this feature.</p>
+<p>Despite the name OneR, which stands for “One Rule”, the algorithm generates more than one rule:
+It is actually one rule per unique feature value of the selected best feature.
+A better name would be OneFeatureRules.</p>
+<p>The algorithm is simple and fast:</p>
+<ol style="list-style-type: decimal">
+<li>Discretize the continuous features by choosing appropriate intervals.</li>
+<li>For each feature:
+<ul>
+<li>Create a cross table between the feature values and the (categorical) outcome.</li>
+<li>For each value of the feature, create a rule which predicts the most frequent class of the instances that have this particular feature value (can be read from the cross table).</li>
+<li>Calculate the total error of the rules for the feature.</li>
+</ul></li>
+<li>Select the feature with the smallest total error.</li>
+</ol>
+<p>OneR always covers all instances of the dataset, since it uses all levels of the selected feature.
+Missing values can be either treated as an additional feature value or be imputed beforehand.</p>
+<p>A OneR model is a decision tree with only one split.
+The split is not necessarily binary as in CART, but depends on the number of unique feature values.</p>
+<p>Let us look at an example how the best feature is chosen by OneR.
+The following table shows an artificial dataset about houses with information about its value, location, size and whether pets are allowed.
+We are interested in learning a simple model to predict the value of a house.</p>
+<pre class="sourceCode r"><code class="sourceCode r">value =<span class="st"> </span><span class="kw">factor</span>(<span class="kw">c</span>(<span class="st">&quot;high&quot;</span>, <span class="st">&quot;high&quot;</span>, <span class="st">&quot;high&quot;</span>, <span class="st">&quot;medium&quot;</span>, <span class="st">&quot;medium&quot;</span>, <span class="st">&quot;medium&quot;</span>, <span class="st">&quot;medium&quot;</span>, <span class="st">&quot;low&quot;</span>, <span class="st">&quot;low&quot;</span>, <span class="st">&quot;low&quot;</span>), <span class="dt">levels =</span> <span class="kw">c</span>(<span class="st">&quot;low&quot;</span>, <span class="st">&quot;medium&quot;</span>, <span class="st">&quot;high&quot;</span>))
+
+df =<span class="st"> </span><span class="kw">data.frame</span>(
+  <span class="dt">location =</span> <span class="kw">c</span>(<span class="st">&quot;good&quot;</span>, <span class="st">&quot;good&quot;</span>, <span class="st">&quot;good&quot;</span>, <span class="st">&quot;bad&quot;</span>, <span class="st">&quot;good&quot;</span>, <span class="st">&quot;good&quot;</span>, <span class="st">&quot;bad&quot;</span>, <span class="st">&quot;bad&quot;</span>, <span class="st">&quot;bad&quot;</span>, <span class="st">&quot;bad&quot;</span>),
+  <span class="dt">size =</span> <span class="kw">c</span>(<span class="st">&quot;small&quot;</span>, <span class="st">&quot;big&quot;</span>, <span class="st">&quot;big&quot;</span>, <span class="st">&quot;medium&quot;</span>, <span class="st">&quot;medium&quot;</span>, <span class="st">&quot;small&quot;</span>, <span class="st">&quot;medium&quot;</span>, <span class="st">&quot;small&quot;</span>, <span class="st">&quot;medium&quot;</span>, <span class="st">&quot;small&quot;</span>), 
+  <span class="dt">pets =</span> <span class="kw">c</span>(<span class="st">&quot;yes&quot;</span>, <span class="st">&quot;no&quot;</span>, <span class="st">&quot;no&quot;</span>, <span class="st">&quot;no&quot;</span>, <span class="st">&quot;only cats&quot;</span>, <span class="st">&quot;only cats&quot;</span>, <span class="st">&quot;yes&quot;</span>, <span class="st">&quot;yes&quot;</span>, <span class="st">&quot;yes&quot;</span>, <span class="st">&quot;no&quot;</span>),
+  <span class="dt">value =</span> value
+)
+value.f =<span class="st"> </span><span class="kw">factor</span>(<span class="kw">paste</span>(<span class="st">&quot;value=&quot;</span>, value, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>), <span class="dt">levels =</span> <span class="kw">c</span>(<span class="st">&quot;value=low&quot;</span>, <span class="st">&quot;value=medium&quot;</span>, <span class="st">&quot;value=high&quot;</span>))
+<span class="kw">kable</span>(df)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">location</th>
+<th align="left">size</th>
+<th align="left">pets</th>
+<th align="left">value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">good</td>
+<td align="left">small</td>
+<td align="left">yes</td>
+<td align="left">high</td>
+</tr>
+<tr class="even">
+<td align="left">good</td>
+<td align="left">big</td>
+<td align="left">no</td>
+<td align="left">high</td>
+</tr>
+<tr class="odd">
+<td align="left">good</td>
+<td align="left">big</td>
+<td align="left">no</td>
+<td align="left">high</td>
+</tr>
+<tr class="even">
+<td align="left">bad</td>
+<td align="left">medium</td>
+<td align="left">no</td>
+<td align="left">medium</td>
+</tr>
+<tr class="odd">
+<td align="left">good</td>
+<td align="left">medium</td>
+<td align="left">only cats</td>
+<td align="left">medium</td>
+</tr>
+<tr class="even">
+<td align="left">good</td>
+<td align="left">small</td>
+<td align="left">only cats</td>
+<td align="left">medium</td>
+</tr>
+<tr class="odd">
+<td align="left">bad</td>
+<td align="left">medium</td>
+<td align="left">yes</td>
+<td align="left">medium</td>
+</tr>
+<tr class="even">
+<td align="left">bad</td>
+<td align="left">small</td>
+<td align="left">yes</td>
+<td align="left">low</td>
+</tr>
+<tr class="odd">
+<td align="left">bad</td>
+<td align="left">medium</td>
+<td align="left">yes</td>
+<td align="left">low</td>
+</tr>
+<tr class="even">
+<td align="left">bad</td>
+<td align="left">small</td>
+<td align="left">no</td>
+<td align="left">low</td>
+</tr>
+</tbody>
+</table>
+<p>OneR creates the cross tables between each feature and the outcome:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">kable</span>(<span class="kw">table</span>(<span class="kw">paste0</span>(<span class="st">&quot;location=&quot;</span>, df[,<span class="st">&quot;location&quot;</span>]), value.f))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">value=low</th>
+<th align="right">value=medium</th>
+<th align="right">value=high</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>location=bad</td>
+<td align="right">3</td>
+<td align="right">2</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td>location=good</td>
+<td align="right">0</td>
+<td align="right">2</td>
+<td align="right">3</td>
+</tr>
+</tbody>
+</table>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">kable</span>(<span class="kw">table</span>(<span class="kw">paste0</span>(<span class="st">&quot;size=&quot;</span>, df[,<span class="st">&quot;size&quot;</span>]), value.f))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">value=low</th>
+<th align="right">value=medium</th>
+<th align="right">value=high</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>size=big</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td>size=medium</td>
+<td align="right">1</td>
+<td align="right">3</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td>size=small</td>
+<td align="right">2</td>
+<td align="right">1</td>
+<td align="right">1</td>
+</tr>
+</tbody>
+</table>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">kable</span>(<span class="kw">table</span>(<span class="kw">paste0</span>(<span class="st">&quot;pets=&quot;</span>, df[,<span class="st">&quot;pets&quot;</span>]), value.f))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">value=low</th>
+<th align="right">value=medium</th>
+<th align="right">value=high</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>pets=no</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td>pets=only cats</td>
+<td align="right">0</td>
+<td align="right">2</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td>pets=yes</td>
+<td align="right">2</td>
+<td align="right">1</td>
+<td align="right">1</td>
+</tr>
+</tbody>
+</table>
+<p>For each feature, we go through the table row by row:
+Each feature value is the IF-part of a rule;
+the most common class for instances with this feature value is the prediction, the THEN-part of the rule.
+For example, the size feature with the levels <code>small</code>, <code>medium</code> and <code>big</code> results in three rules.
+For each feature we calculate the total error rate of the generated rules, which is the sum of the errors.
+The location feature has the possible values <code>bad</code> and <code>good</code>.
+The most frequent value for houses in bad locations is <code>low</code> and when we use <code>low</code> as a prediction, we make two mistakes, because two houses have a <code>medium</code> value.
+The predicted value of houses in good locations is <code>high</code> and again we make two mistakes, because two houses have a <code>medium</code> value.
+The error we make by using the location feature is 4/10, for the size feature it is 3/10 and for the pet feature it is 4/10 .
+The size feature produces the rules with the lowest error and will be used for the final OneR model:</p>
+<p>IF <code>size=small</code> THEN <code>value=small</code><br />
+IF <code>size=medium</code> THEN <code>value=medium</code><br />
+IF <code>size=big</code> THEN <code>value=high</code></p>
+<p>OneR prefers features with many possible levels, because those features can overfit the target more easily.
+Imagine a dataset that contains only noise and no signal, which means that all features take on random values and have no predictive value for the target.
+Some features have more levels than others.
+The features with more levels can now more easily overfit.
+A feature that has a separate level for each instance from the data would perfectly predict the entire training dataset.
+A solution would be to split the data into training and validation sets, learn the rules on the training data and evaluate the total error for choosing the feature on the validation set.</p>
+<p>Ties are another issue, i.e. when two features result in the same total error.
+OneR solves ties by either taking the first feature with the lowest error or the one with the lowest p-value of a chi-squared test.</p>
+<p><strong>Example</strong></p>
+<p>Let us try OneR with real data.
+We use the <a href="cervical.html#cervical">cervical cancer classification task</a> to test the OneR algorithm.
+All continuous input features were discretized into their 5 quantiles.
+The following rules are created:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(<span class="st">&quot;OneR&quot;</span>)
+<span class="kw">data</span>(<span class="st">&quot;cervical&quot;</span>)
+rule =<span class="st"> </span>OneR<span class="op">::</span><span class="kw">OneR</span>(Biopsy <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> cervical)</code></pre>
+<pre><code>## Warning in OneR.data.frame(x = data, ties.method = ties.method, verbose =
+## verbose, : data contains unused factor levels</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">rule.to.table =<span class="st"> </span><span class="cf">function</span>(rule){
+  dt =<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">x =</span> <span class="kw">names</span>(rule<span class="op">$</span>rules), <span class="dt">prediction =</span> <span class="kw">unlist</span>(rule<span class="op">$</span>rules))
+  <span class="kw">colnames</span>(dt) =<span class="st"> </span><span class="kw">c</span>(rule<span class="op">$</span>feature, <span class="st">&quot;prediction&quot;</span>)
+  dt
+}
+
+<span class="kw">kable</span>(<span class="kw">rule.to.table</span>(rule), <span class="dt">row.names =</span> <span class="ot">FALSE</span>)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Age</th>
+<th align="left">prediction</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(12.9,27.2]</td>
+<td align="left">Healthy</td>
+</tr>
+<tr class="even">
+<td align="left">(27.2,41.4]</td>
+<td align="left">Healthy</td>
+</tr>
+<tr class="odd">
+<td align="left">(41.4,55.6]</td>
+<td align="left">Healthy</td>
+</tr>
+<tr class="even">
+<td align="left">(55.6,69.8]</td>
+<td align="left">Healthy</td>
+</tr>
+<tr class="odd">
+<td align="left">(69.8,84.1]</td>
+<td align="left">Healthy</td>
+</tr>
+</tbody>
+</table>
+<p>The age feature was chosen by OneR as the best predictive feature.
+Since cancer is rare, for each rule the majority class and therefore the predicted label is always Healthy, which is rather unhelpful.
+It does not make sense to use the label prediction in this unbalanced case.
+The cross table between the ‘Age’ intervals and Cancer/Healthy together with the percentage of women with cancer is more informative:</p>
+<pre class="sourceCode r"><code class="sourceCode r">tt =<span class="st"> </span><span class="kw">table</span>(<span class="kw">paste0</span>(<span class="st">&quot;Age=&quot;</span>, <span class="kw">bin</span>(cervical<span class="op">$</span>Age)), cervical<span class="op">$</span>Biopsy)
+tt =<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">matrix</span>(tt, <span class="dt">ncol =</span> <span class="dv">2</span>), <span class="dt">row.names =</span> <span class="kw">rownames</span>(tt))
+tt<span class="op">$</span>p.cancer =<span class="st"> </span><span class="kw">round</span>(tt[,<span class="dv">1</span>]<span class="op">/</span>(tt[,<span class="dv">1</span>] <span class="op">+</span><span class="st"> </span>tt[,<span class="dv">2</span>]), <span class="dv">2</span>)
+<span class="kw">kable</span>(tt, <span class="dt">col.names =</span> <span class="kw">c</span>(<span class="st">&quot;# Cancer&quot;</span>, <span class="st">&quot;# Healthy&quot;</span>, <span class="st">&quot;P(Cancer)&quot;</span>))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right"># Cancer</th>
+<th align="right"># Healthy</th>
+<th align="right">P(Cancer)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Age=(12.9,27.2]</td>
+<td align="right">26</td>
+<td align="right">477</td>
+<td align="right">0.05</td>
+</tr>
+<tr class="even">
+<td>Age=(27.2,41.4]</td>
+<td align="right">25</td>
+<td align="right">290</td>
+<td align="right">0.08</td>
+</tr>
+<tr class="odd">
+<td>Age=(41.4,55.6]</td>
+<td align="right">4</td>
+<td align="right">31</td>
+<td align="right">0.11</td>
+</tr>
+<tr class="even">
+<td>Age=(55.6,69.8]</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0.00</td>
+</tr>
+<tr class="odd">
+<td>Age=(69.8,84.1]</td>
+<td align="right">0</td>
+<td align="right">4</td>
+<td align="right">0.00</td>
+</tr>
+</tbody>
+</table>
+<p>But before you start interpreting anything:
+Since the prediction for every feature and every value is Healthy, the total error rate is the same for all features.
+The ties in the total error are, by default, resolved by using the first feature from the ones with the lowest error rates (here, all features have 55/858), which happens to be the Age feature.</p>
+<p>OneR does not support regression tasks.
+But we can turn a regression task into a classification task by cutting the continuous outcome into intervals.
+We use this trick to predict the number of <a href="bike-data.html#bike-data">rented bikes</a> with OneR by cutting the number of bikes into its four quartiles (0-25%, 25-50%, 50-75% and 75-100%).
+The following table shows the selected feature after fitting the OneR model:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(<span class="st">&quot;bike&quot;</span>)
+bike2 =<span class="st"> </span>bike
+bike2<span class="op">$</span>days_since_<span class="dv">2011</span> =<span class="st"> </span><span class="kw">max</span>(<span class="dv">0</span>, bike2<span class="op">$</span>days_since_<span class="dv">2011</span>)
+bike2<span class="op">$</span>cnt =<span class="st">  </span><span class="kw">cut</span>(bike2<span class="op">$</span>cnt, <span class="dt">breaks =</span> <span class="kw">quantile</span>(bike<span class="op">$</span>cnt), <span class="dt">dig.lab =</span> <span class="dv">10</span>, <span class="dt">include.lowest =</span> <span class="ot">TRUE</span>)
+rule =<span class="st"> </span>OneR<span class="op">::</span><span class="kw">OneR</span>(cnt <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> bike2)
+
+<span class="kw">kable</span>(<span class="kw">rule.to.table</span>(rule), <span class="dt">row.names =</span> <span class="ot">FALSE</span>)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">mnth</th>
+<th align="left">prediction</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">JAN</td>
+<td align="left">[22,3152]</td>
+</tr>
+<tr class="even">
+<td align="left">FEB</td>
+<td align="left">[22,3152]</td>
+</tr>
+<tr class="odd">
+<td align="left">MAR</td>
+<td align="left">[22,3152]</td>
+</tr>
+<tr class="even">
+<td align="left">APR</td>
+<td align="left">(3152,4548]</td>
+</tr>
+<tr class="odd">
+<td align="left">MAY</td>
+<td align="left">(5956,8714]</td>
+</tr>
+<tr class="even">
+<td align="left">JUN</td>
+<td align="left">(4548,5956]</td>
+</tr>
+<tr class="odd">
+<td align="left">JUL</td>
+<td align="left">(5956,8714]</td>
+</tr>
+<tr class="even">
+<td align="left">AUG</td>
+<td align="left">(5956,8714]</td>
+</tr>
+<tr class="odd">
+<td align="left">SEP</td>
+<td align="left">(5956,8714]</td>
+</tr>
+<tr class="even">
+<td align="left">OKT</td>
+<td align="left">(5956,8714]</td>
+</tr>
+<tr class="odd">
+<td align="left">NOV</td>
+<td align="left">(3152,4548]</td>
+</tr>
+<tr class="even">
+<td align="left">DEZ</td>
+<td align="left">[22,3152]</td>
+</tr>
+</tbody>
+</table>
+<p>The selected feature is the month.
+The month feature has (surprise!) 12 feature levels, which is more than most other features have.
+So there is a danger of overfitting.
+On the more optimistic side: the month feature can handle the seasonal trend (e.g. less rented bikes in winter) and the predictions seem sensible.</p>
+<p>Now we move from the simple OneR algorithm to a more complex procedure using rules with more complex conditions consisting of several features: Sequential Covering.</p>
+</div>
+<div id="sequential-covering" class="section level3">
+<h3><span class="header-section-number">4.5.2</span> Sequential Covering</h3>
+<p>Sequential covering is a general procedure that repeatedly learns a single rule to create a decision list (or set) that covers the entire dataset rule by rule.
+Many rule-learning algorithms are variants of the sequential covering algorithm.
+This chapter introduces the main recipe and uses RIPPER, a variant of the sequential covering algorithm for the examples.</p>
+<p>The idea is simple:
+First, find a good rule that applies to some of the data points.
+Remove all data points which are covered by the rule.
+A data point is covered when the conditions apply, regardless of whether the points are classified correctly or not.
+Repeat the rule-learning and removal of covered points with the remaining points until no more points are left or another stop condition is met.
+The result is a decision list.
+This approach of repeated rule-learning and removal of covered data points is called “separate-and-conquer”.</p>
+<p>Suppose we already have an algorithm that can create a single rule that covers part of the data.
+The sequential covering algorithm for two classes (one positive, one negative) works like this:</p>
+<ul>
+<li>Start with an empty list of rules (rlist).</li>
+<li>Learn a rule r.</li>
+<li>While the list of rules is below a certain quality threshold (or positive examples are not yet covered):
+<ul>
+<li>Add rule r to rlist.</li>
+<li>Remove all data points covered by rule r.</li>
+<li>Learn another rule on the remaining data.</li>
+</ul></li>
+<li>Return the decision list.</li>
+</ul>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(dplyr)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;dplyr&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:nlme&#39;:
+## 
+##     collapse</code></pre>
+<pre><code>## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">42</span>)
+n =<span class="st"> </span><span class="dv">100</span>
+dat =<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">x1 =</span> <span class="kw">rnorm</span>(n), <span class="dt">x2 =</span> <span class="kw">rnorm</span>(n))
+dat<span class="op">$</span>class =<span class="st"> </span><span class="kw">rbinom</span>(<span class="dt">n =</span> <span class="dv">100</span>, <span class="dt">size =</span> <span class="dv">1</span>, <span class="dt">p =</span> <span class="kw">exp</span>(dat<span class="op">$</span>x1 <span class="op">+</span><span class="st"> </span>dat<span class="op">$</span>x2) <span class="op">/</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">+</span><span class="st"> </span><span class="kw">exp</span>(dat<span class="op">$</span>x1 <span class="op">+</span><span class="st"> </span>dat<span class="op">$</span>x2)))
+dat<span class="op">$</span>class =<span class="st"> </span><span class="kw">factor</span>(dat<span class="op">$</span>class)
+
+min.x1 =<span class="st"> </span><span class="kw">min</span>(dat<span class="op">$</span>x1)
+min.x2 =<span class="st"> </span><span class="kw">min</span>(dat<span class="op">$</span>x2)
+p1 =<span class="st"> </span><span class="kw">ggplot</span>(dat) <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">x =</span> x1, <span class="dt">y =</span> x2, <span class="dt">color =</span> class, <span class="dt">shape =</span> class))<span class="op">+</span><span class="st"> </span>
+<span class="st">  </span>viridis<span class="op">::</span><span class="kw">scale_color_viridis</span>(<span class="dt">guide =</span> <span class="st">&quot;none&quot;</span>, <span class="dt">discrete =</span> <span class="ot">TRUE</span>, <span class="dt">option =</span> <span class="st">&quot;D&quot;</span>, <span class="dt">end =</span> <span class="fl">0.9</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_shape_discrete</span>(<span class="dt">guide =</span> <span class="st">&quot;none&quot;</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">ggtitle</span>(<span class="st">&quot;Data&quot;</span>)
+p2 =<span class="st"> </span><span class="kw">ggplot</span>(dat) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_rect</span>(<span class="dt">xmin =</span> <span class="dv">-3</span>, <span class="dt">xmax =</span> <span class="dv">0</span>,   <span class="dt">ymin =</span> <span class="dv">-2</span>, <span class="dt">ymax =</span> <span class="fl">-0.5</span>, <span class="dt">color =</span> <span class="st">&quot;black&quot;</span>, <span class="dt">fill =</span> <span class="ot">NA</span>) <span class="op">+</span><span class="st"> </span>
+<span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">x =</span> x1, <span class="dt">y =</span> x2, <span class="dt">color =</span> class, <span class="dt">shape =</span> class)) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span>viridis<span class="op">::</span><span class="kw">scale_color_viridis</span>(<span class="dt">guide =</span> <span class="st">&quot;none&quot;</span>, <span class="dt">discrete =</span> <span class="ot">TRUE</span>, <span class="dt">option =</span> <span class="st">&quot;D&quot;</span>, <span class="dt">end =</span> <span class="fl">0.9</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_shape_discrete</span>(<span class="dt">guide =</span> <span class="st">&quot;none&quot;</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">ggtitle</span>(<span class="st">&quot;Step 1: Find rule&quot;</span>)
+
+<span class="co"># dat.reduced = filter(dat, !(x1 &lt;= 0 &amp; x2 &lt;= -0.5))</span>
+
+dat.reduced &lt;-<span class="st"> </span>
+<span class="st">  </span>dat <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">filter</span>(<span class="op">!</span>(x1 <span class="op">&lt;=</span><span class="st"> </span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>x2 <span class="op">&lt;=</span><span class="st"> </span><span class="fl">-0.5</span>)) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">print</span>()</code></pre>
+<pre><code>##             x1            x2 class
+## 1   1.37095845  1.200965e+00     1
+## 2  -0.56469817  1.044751e+00     1
+## 3   0.36312841 -1.003209e+00     0
+## 4   0.63286260  1.848482e+00     1
+## 5   0.40426832 -6.667734e-01     1
+## 6  -0.10612452  1.055138e-01     0
+## 7   1.51152200 -4.222559e-01     0
+## 8  -0.09465904 -1.223502e-01     0
+## 9   2.01842371  1.881930e-01     1
+## 10 -0.06271410  1.191610e-01     1
+## 11  1.30486965 -2.509255e-02     1
+## 12  2.28664539  1.080727e-01     1
+## 13 -1.38886070 -4.854352e-01     0
+## 14  0.63595040 -3.823337e-01     1
+## 15 -2.65645542  2.701891e+00     0
+## 16  1.32011335  1.372562e-01     1
+## 17 -0.17191736  1.247024e-01     1
+## 18  1.21467470 -9.966391e-01     0
+## 19  1.89519346 -1.822614e-03     1
+## 20 -0.43046913 -4.282589e-01     0
+## 21  0.46009735 -1.224748e+00     1
+## 22 -0.63999488  1.795164e-01     0
+## 23  0.45545012  5.676206e-01     1
+## 24  0.70483734 -4.928774e-01     1
+## 25  1.03510352  6.288407e-05     1
+## 26 -0.60892638  1.122890e+00     1
+## 27  0.50495512  1.439856e+00     0
+## 28 -0.78445901 -1.173196e-01     0
+## 29 -0.85090759  1.201498e+00     1
+## 30 -2.41420765 -4.697296e-01     0
+## 31  0.03612261 -5.246948e-02     0
+## 32  0.20599860 -8.610730e-02     0
+## 33  0.75816324 -4.446840e-01     1
+## 34 -0.72670483 -2.944488e-02     1
+## 35 -1.36828104 -4.138688e-01     0
+## 36  0.43281803  1.113386e+00     1
+## 37 -0.81139318 -4.809928e-01     0
+## 38  1.44410126 -4.331690e-01     0
+## 39 -0.43144620  6.968626e-01     0
+## 40  0.65564788 -1.056368e+00     0
+## 41  0.32192527 -4.069848e-02     1
+## 42  1.57572752  1.167170e+00     1
+## 43  0.64289931 -2.736457e-01     0
+## 44  0.08976065 -4.678453e-01     0
+## 45  0.27655075 -1.238252e+00     0
+## 46  0.67928882 -7.762034e-03     1
+## 47  0.08983289 -8.002822e-01     1
+## 48  0.28488295  1.287675e+00     0
+## 49 -0.36723464 -1.755259e-01     0
+## 50  0.18523056 -1.071782e+00     0
+## 51  0.58182373  1.632069e-01     0
+## 52  1.39973683 -3.627384e-01     1
+## 53 -0.72729206  5.900135e-01     0
+## 54  1.30254263  1.432422e+00     1
+## 55  0.33584812 -9.926925e-01     0
+## 56  1.03850610  4.546503e-01     1
+## 57  0.92072857  8.489806e-02     1
+## 58  0.72087816  8.955656e-01     0
+## 59 -1.04311894 -2.297781e-01     0
+## 60 -0.09018639  8.366191e-01     1
+## 61  0.62351816 -1.745056e+00     1
+## 62 -0.95352336  1.689459e+00     0
+## 63 -0.54282881  8.647780e-01     1
+## 64  0.58099650 -1.507760e-01     1
+## 65  0.76817874 -1.449007e+00     0
+## 66  0.46376759  6.430087e-01     0
+## 67 -0.88577630  4.831939e-01     0
+## 68 -1.09978090 -6.355626e-03     1
+## 69  1.51270701  1.514559e-01     1
+## 70  0.25792144 -5.841090e-01     0
+## 71  0.08844023  3.688067e-01     0
+## 72 -0.12089654  2.946543e-01     1
+## 73 -1.19432890 -2.792594e-01     1
+## 74  0.61199690 -1.336237e+00     0
+## 75 -0.21713985  7.007488e-01     0
+## 76 -0.18275671  5.541966e-01     1
+## 77  0.93334633 -8.363066e-01     1
+## 78  0.82177311 -1.594588e+00     0
+## 79  1.39211638  2.049586e-01     0
+## 80 -0.47617392 -3.450880e-01     0
+## 81  0.65034856  2.526117e-01     0
+## 82  1.39111046 -1.294002e+00     1
+## 83 -0.86079259  1.085775e+00     1
+## 84 -1.13173868  4.037749e-01     1
+## 85 -1.45921400  5.864875e-01     0
+## 86  0.07998255  1.815228e+00     1
+## 87  0.65320434  1.288214e-01     1</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">p3 =<span class="st"> </span><span class="kw">ggplot</span>(dat.reduced) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_rect</span>(<span class="dt">xmin =</span> <span class="dv">-3</span>, <span class="dt">xmax =</span> <span class="dv">0</span>,   <span class="dt">ymin =</span> <span class="dv">-2</span>, <span class="dt">ymax =</span> <span class="fl">-0.5</span>, <span class="dt">color =</span> <span class="st">&quot;black&quot;</span>, <span class="dt">fill =</span> <span class="ot">NA</span>)  <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">x =</span> x1, <span class="dt">y =</span> x2, <span class="dt">color =</span> class, <span class="dt">shape =</span> class)) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">limits =</span> <span class="kw">c</span>(min.x1, <span class="ot">NA</span>)) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="dt">limits =</span> <span class="kw">c</span>(min.x2, <span class="ot">NA</span>)) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span>viridis<span class="op">::</span><span class="kw">scale_color_viridis</span>(<span class="dt">guide =</span> <span class="st">&quot;none&quot;</span>, <span class="dt">discrete =</span> <span class="ot">TRUE</span>, <span class="dt">option =</span> <span class="st">&quot;D&quot;</span>, <span class="dt">end =</span> <span class="fl">0.9</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_shape_discrete</span>(<span class="dt">guide =</span> <span class="st">&quot;none&quot;</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggtitle</span>(<span class="st">&quot;Step 2: Remove covered instances&quot;</span>)
+
+
+p4 =<span class="st"> </span>p3 <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_rect</span>(<span class="dt">xmin =</span> <span class="fl">0.8</span>, <span class="dt">xmax =</span> <span class="fl">2.5</span>, <span class="dt">ymin =</span> <span class="fl">-1.5</span>, <span class="dt">ymax =</span> <span class="fl">1.5</span>, <span class="dt">color =</span> <span class="st">&quot;black&quot;</span>, <span class="dt">fill =</span> <span class="ot">NA</span>)  <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggtitle</span>(<span class="st">&quot;Step 3: Find next rule&quot;</span>)
+
+gridExtra<span class="op">::</span><span class="kw">grid.arrange</span>(p1, p2, p3, p4, <span class="dt">ncol =</span> <span class="dv">2</span>)</code></pre>
+<div class="figure"><span id="fig:covering-algo"></span>
+<img src="interpretable-ml_files/figure-html/covering-algo-1.svg" alt="The covering algorithm works by sequentially covering the feature space with single rules and removing the data points that are already covered by those rules. For visualization purposes, the features x1 and x2 are continuous, but most rule learning algorithms require categorical features." width="672" />
+<p class="caption">
+FIGURE 4.19: The covering algorithm works by sequentially covering the feature space with single rules and removing the data points that are already covered by those rules. For visualization purposes, the features x1 and x2 are continuous, but most rule learning algorithms require categorical features.
+</p>
+</div>
+<p>For example:
+We have a task and dataset for predicting the values of houses from size, location and whether pets are allowed.
+We learn the first rule, which turns out to be:
+If <code>size=big</code> and <code>location=good</code>, then <code>value=high</code>.
+Then we remove all big houses in good locations from the dataset.
+With the remaining data we learn the next rule.
+Maybe: If <code>location=good</code>, then <code>value=medium</code>.
+Note that this rule is learned on data without big houses in good locations, leaving only medium and small houses in good locations.</p>
+<p>For multi-class settings, the approach must be modified.
+First, the classes are ordered by increasing prevalence.
+The sequential covering algorithm starts with the least common class, learns a rule for it, removes all covered instances, then moves on to the second least common class and so on.
+The current class is always treated as the positive class and all classes with a higher prevalence are combined in the negative class.
+The last class is the default rule.
+This is also referred to as one-versus-all strategy in classification.</p>
+<p>How do we learn a single rule?
+The OneR algorithm would be useless here, since it would always cover the whole feature space.
+But there are many other possibilities.
+One possibility is to learn a single rule from a decision tree with beam search:</p>
+<ul>
+<li>Learn a decision tree (with CART or another tree learning algorithm).</li>
+<li>Start at the root node and recursively select the purest node (e.g. with the lowest misclassification rate).</li>
+<li>The majority class of the terminal node is used as the rule prediction;
+the path leading to that node is used as the rule condition.</li>
+</ul>
+<p>The following figure illustrates the beam search in a tree:</p>
+<pre class="sourceCode r"><code class="sourceCode r">knitr<span class="op">::</span><span class="kw">include_graphics</span>(<span class="st">&quot;images/learn-one-rule.png&quot;</span>)</code></pre>
+<div class="figure"><span id="fig:learn-one-rule"></span>
+<img src="images/learn-one-rule.png" alt="Learning a rule by searching a path through a decision tree. A decision tree is grown to predict the target of interest. We start at the root node, greedily and iteratively follow the path which locally produces the purest subset (e.g. highest accuracy) and add all the split values to the rule condition. We end up with: If `location=good` and `size=big`, then `value=high`." width="700" />
+<p class="caption">
+FIGURE 4.20: Learning a rule by searching a path through a decision tree. A decision tree is grown to predict the target of interest. We start at the root node, greedily and iteratively follow the path which locally produces the purest subset (e.g. highest accuracy) and add all the split values to the rule condition. We end up with: If <code>location=good</code> and <code>size=big</code>, then <code>value=high</code>.
+</p>
+</div>
+<p>Learning a single rule is a search problem, where the search space is the space of all possible rules.
+The goal of the search is to find the best rule according to some criteria.
+There are many different search strategies:
+hill-climbing, beam search, exhaustive search, best-first search, ordered search, stochastic search, top-down search, bottom-up search, …</p>
+<p>RIPPER (Repeated Incremental Pruning to Produce Error Reduction) by Cohen (1995)<a href="#fn19" class="footnote-ref" id="fnref19"><sup>19</sup></a> is a variant of the Sequential Covering algorithm.
+RIPPER is a bit more sophisticated and uses a post-processing phase (rule pruning) to optimize the decision list (or set).
+RIPPER can run in ordered or unordered mode and generate either a decision list or decision set.</p>
+<p><strong>Examples</strong></p>
+<p>We will use RIPPER for the examples.</p>
+<p>The RIPPER algorithm does not find any rule in the classification task for <a href="cervical.html#cervical">cervical cancer</a>.</p>
+<p>When we use RIPPER on the regression task to predict <a href="bike-data.html#bike-data">bike counts</a> some rules are found.
+Since RIPPER only works for classification, the bike counts must be turned into a categorical outcome.
+I achieved this by cutting the bike counts into the quartiles.
+For example (4548, 5956) is the interval covering predicted bike counts between 4548 and 5956.
+The following table shows the decision list of learned rules.</p>
+<pre class="sourceCode r"><code class="sourceCode r">bike2 =<span class="st"> </span>bike
+bike2<span class="op">$</span>cnt =<span class="st"> </span><span class="kw">round</span>(bike2<span class="op">$</span>cnt)
+bike2<span class="op">$</span>cnt =<span class="st">  </span><span class="kw">cut</span>(bike<span class="op">$</span>cnt, <span class="dt">breaks =</span> <span class="kw">quantile</span>(bike<span class="op">$</span>cnt), <span class="dt">dig.lab =</span> <span class="dv">10</span>, <span class="dt">include.lowest =</span> <span class="ot">TRUE</span>)
+bike2<span class="op">$</span>temp =<span class="st"> </span><span class="kw">round</span>(bike2<span class="op">$</span>temp)
+bike2<span class="op">$</span>windspeed =<span class="st"> </span><span class="kw">round</span>(bike2<span class="op">$</span>windspeed)
+bike2<span class="op">$</span>hum =<span class="st"> </span><span class="kw">round</span>(bike2<span class="op">$</span>hum)
+
+rule =<span class="st"> </span><span class="kw">JRip</span>(cnt  <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> bike2)
+<span class="kw">extract.rules.jrip</span>(rule)</code></pre>
+<table>
+<colgroup>
+<col width="100%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">rules</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(days_since_2011 &gt;= 438) and (temp &gt;= 17) and (temp &lt;= 27) and (hum &lt;= 67) =&gt; cnt=(5956,8714]</td>
+</tr>
+<tr class="even">
+<td align="left">(days_since_2011 &gt;= 443) and (temp &gt;= 12) and (weathersit = GOOD) and (hum &gt;= 59) =&gt; cnt=(5956,8714]</td>
+</tr>
+<tr class="odd">
+<td align="left">(days_since_2011 &gt;= 441) and (windspeed &lt;= 10) and (temp &gt;= 13) =&gt; cnt=(5956,8714]</td>
+</tr>
+<tr class="even">
+<td align="left">(temp &gt;= 12) and (hum &lt;= 68) and (days_since_2011 &gt;= 551) =&gt; cnt=(5956,8714]</td>
+</tr>
+<tr class="odd">
+<td align="left">(days_since_2011 &gt;= 100) and (days_since_2011 &lt;= 434) and (hum &lt;= 72) and (workingday = WORKING DAY) =&gt; cnt=(3152,4548]</td>
+</tr>
+<tr class="even">
+<td align="left">(days_since_2011 &gt;= 106) and (days_since_2011 &lt;= 323) =&gt; cnt=(3152,4548]</td>
+</tr>
+<tr class="odd">
+<td align="left">=&gt; cnt=[22,3152]</td>
+</tr>
+</tbody>
+</table>
+<p>The interpretation is simple:
+If the conditions apply, we predict the interval on the right hand side for the number of bikes.
+The last rule is the default rule that applies when none of the other rules apply to an instance.
+To predict a new instance, start at the top of the list and check whether a rule applies.
+When a condition matches, then the right hand side of the rule is the prediction for this instance.
+The default rule ensures that there is always a prediction.</p>
+</div>
+<div id="bayesian-rule-lists" class="section level3">
+<h3><span class="header-section-number">4.5.3</span> Bayesian Rule Lists</h3>
+<p>In this section, I will show you another approach to learning a decision list, which follows this rough recipe:</p>
+<ol style="list-style-type: decimal">
+<li>Pre-mine frequent patterns from the data that can be used as conditions for the decision rules.</li>
+<li>Learn a decision list from a selection of the pre-mined rules.</li>
+</ol>
+<p>A specific approach using this recipe is called Bayesian Rule Lists (Letham et. al, 2015)<a href="#fn20" class="footnote-ref" id="fnref20"><sup>20</sup></a> or BRL for short.
+BRL uses Bayesian statistics to learn decision lists from frequent patterns which are pre-mined with the FP-tree algorithm (Borgelt 2005)<a href="#fn21" class="footnote-ref" id="fnref21"><sup>21</sup></a></p>
+<p>But let us start slowly with the first step of BRL.</p>
+<p><strong>Pre-mining of frequent patterns</strong></p>
+<p>A frequent pattern is the frequent (co-)occurrence of feature values.
+As a pre-processing step for the BRL algorithm, we use the features (we do not need the target outcome in this step) and extract frequently occurring patterns from them.
+A pattern can be a single feature value such as <code>size=medium</code> or a combination of feature values such as <code>size=medium AND location=bad</code>.</p>
+<p>The frequency of a pattern is measured with its support in the dataset:</p>
+<p><span class="math display">\[Support(x_j=A)=\frac{1}n{}\sum_{i=1}^nI(x^{(i)}_{j}=A)\]</span></p>
+<p>where A is the feature value, n the number of data points in the dataset and I the indicator function that returns 1 if the feature <span class="math inline">\(x_j\)</span> of the instance i has level A otherwise 0.
+In a dataset of house values, if 20% of houses have no balcony and 80% have one or more, then the support for the pattern <code>balcony=0</code> is 20%.
+Support can also be measured for combinations of feature values, for example for <code>balcony=0 AND pets=allowed</code>.</p>
+<p>There are many algorithms to find such frequent patterns, for example Apriori or FP-Growth.
+Which you use does not matter much, only the speed at which the patterns are found is different, but the resulting patterns are always the same.</p>
+<p>I will give you a rough idea of how the Apriori algorithm works to find frequent patterns.
+Actually the Apriori algorithm consists of two parts, where the first part finds frequent patterns and the second part builds association rules from them.
+For the BRL algorithm, we are only interested in the frequent patterns that are generated in the first part of Apriori.</p>
+<p>In the first step, the Apriori algorithm starts with all feature values that have a support greater than the minimum support defined by the user.
+If the user says that the minimum support should be 10% and only 5% of the houses have <code>size=big</code>, we would remove that feature value and keep only <code>size=medium</code> and <code>size=small</code> as patterns.
+This does not mean that the houses are removed from the data, it just means that <code>size=big</code> is not returned as frequent pattern.
+Based on frequent patterns with a single feature value, the Apriori algorithm iteratively tries to find combinations of feature values of increasingly higher order.
+Patterns are constructed by combining <code>feature=value</code> statements with a logical AND, e.g. <code>size=medium AND location=bad</code>.
+Generated patterns with a support below the minimum support are removed.
+In the end we have all the frequent patterns.
+Any subset of a frequent pattern is frequent again, which is called the Apriori property.
+It makes sense intuitively:
+By removing a condition from a pattern, the reduced pattern can only cover more or the same number of data points, but not less.
+For example, if 20% of the houses are <code>size=medium and location=good</code>, then the support of houses that are only <code>size=medium</code> is 20% or greater.
+The Apriori property is used to reduce the number of patterns to be inspected.
+Only in the case of frequent patterns we have to check patterns of higher order.</p>
+<p>Now we are done with pre-mining conditions for the Bayesian Rule List algorithm.
+But before we move on to the second step of BRL, I would like to hint at another way for rule-learning based on pre-mined patterns.
+Other approaches suggest including the outcome of interest into the frequent pattern mining process and also executing the second part of the Apriori algorithm that builds IF-THEN rules.
+Since the algorithm is unsupervised, the THEN-part also contains feature values we are not interested in.
+But we can filter by rules that have only the outcome of interest in the THEN-part.
+These rules already form a decision set, but it would also be possible to arrange, prune, delete or recombine the rules.</p>
+<p>In the BRL approach however, we work with the frequent patterns and learn the THEN-part and how to arrange the patterns into a decision list using Bayesian statistics.</p>
+<p><strong>Learning Bayesian Rule Lists</strong></p>
+<p>The goal of the BRL algorithm is to learn an accurate decision list using a selection of the pre-mined conditions, while prioritizing lists with few rules and short conditions.
+BRL addresses this goal by defining a distribution of decision lists with prior distributions for the length of conditions (preferably shorter rules) and the number of rules (preferably a shorter list).</p>
+<p>The posteriori probability distribution of lists makes it possible to say how likely a decision list is, given assumptions of shortness and how well the list fits the data.
+Our goal is to find the list that maximizes this posterior probability.
+Since it is not possible to find the exact best list directly from the distributions of lists, BRL suggests the following recipe:<br />
+1) Generate an initial decision list, which is randomly drawn from the priori distribution.<br />
+2) Iteratively modify the list by adding, switching or removing rules, ensuring that the resulting lists follow the posterior distribution of lists.<br />
+3) Select the decision list from the sampled lists with the highest probability according to the posteriori distribution.</p>
+<p>Let us go over the algorithm more closely:
+The algorithm starts with pre-mining feature value patterns with the FP-Growth algorithm.
+BRL makes a number of assumptions about the distribution of the target and the distribution of the parameters that define the distribution of the target.
+(That’s Bayesian statistic.)
+If you are unfamiliar with Bayesian statistics, do not get too caught up in the following explanations.
+It is important to know that the Bayesian approach is a way to combine existing knowledge or requirements (so-called priori distributions) while also fitting to the data.
+In the case of decision lists, the Bayesian approach makes sense, since the prior assumptions nudges the decision lists to be short with short rules.</p>
+<p>The goal is to sample decision lists d from the posteriori distribution:</p>
+<p><span class="math display">\[\underbrace{p(d|x,y,A,\alpha,\lambda,\eta)}_{posteriori}\propto\underbrace{p(y|x,d,\alpha)}_{likelihood}\cdot\underbrace{p(d|A,\lambda,\eta)}_{priori}\]</span></p>
+<p>where d is a decision list, x are the features, y is the target, A the set of pre-mined conditions, <span class="math inline">\(\lambda\)</span> the prior expected length of the decision lists, <span class="math inline">\(\eta\)</span> the prior expected number of conditions in a rule, <span class="math inline">\(\alpha\)</span> the prior pseudo-count for the positive and negative classes which is best fixed at (1,1).</p>
+<p><span class="math display">\[p(d|x,y,A,\alpha,\lambda,\eta)\]</span></p>
+<p>quantifies how probable a decision list is, given the observed data and the priori assumptions.
+This is proportional to the likelihood of the outcome y given the decision list and the data times the probability of the list given prior assumptions and the pre-mined conditions.</p>
+<p><span class="math display">\[p(y|x,d,\alpha)\]</span></p>
+<p>is the likelihood of the observed y, given the decision list and the data.
+BRL assumes that y is generated by a Dirichlet-Multinomial distribution.
+The better the decision list d explains the data, the higher the likelihood.</p>
+<p><span class="math display">\[p(d|A,\lambda,\eta)\]</span></p>
+<p>is the prior distribution of the decision lists.
+It multiplicatively combines a truncated Poisson distribution (parameter <span class="math inline">\(\lambda\)</span>) for the number of rules in the list and a truncated Poisson distribution (parameter <span class="math inline">\(\eta\)</span>) for the number of feature values in the conditions of the rules.</p>
+<p>A decision list has a high posterior probability if it explains the outcome y well and is also likely according to the prior assumptions.</p>
+<p>Estimations in Bayesian statistics are always a bit tricky, because we usually cannot directly calculate the correct answer, but we have to draw candidates, evaluate them and update our posteriori estimates using the Markov chain Monte Carlo method.
+For decision lists, this is even more tricky, because we have to draw from the distribution of decision lists.
+The BRL authors propose to first draw an initial decision list and then iteratively modify it to generate samples of decision lists from the posterior distribution of the lists (a Markov chain of decision lists).
+The results are potentially dependent on the initial decision list, so it is advisable to repeat this procedure to ensure a great variety of lists.
+The default in the software implementation is 10 times.
+The following recipe tells us how to draw an initial decision list:</p>
+<ul>
+<li>Pre-mine patterns with FP-Growth.</li>
+<li>Sample the list length parameter m from a truncated Poisson distribution.</li>
+<li>For the default rule: Sample the Dirichlet-Multinomial distribution parameter <span class="math inline">\(\theta_0\)</span> of the target value (i.e. the rule that applies when nothing else applies).</li>
+<li>For decision list rule j=1,…,m, do:
+<ul>
+<li>Sample the rule length parameter l (number of conditions) for rule j.</li>
+<li>Sample a condition of length <span class="math inline">\(l_j\)</span> from the pre-mined conditions.</li>
+<li>Sample the Dirichlet-Multinomial distribution parameter for the THEN-part (i.e. for the distribution of the target outcome given the rule)</li>
+</ul></li>
+<li>For each observation in the dataset:
+<ul>
+<li>Find the rule from the decision list that applies first (top to bottom).</li>
+<li>Draw the predicted outcome from the probability distribution (Binomial) suggested by the rule that applies.</li>
+</ul></li>
+</ul>
+<p>The next step is to generate many new lists starting from this initial sample to obtain many samples from the posterior distribution of decision lists.</p>
+<p>The new decision lists are sampled by starting from the initial list and then randomly either moving a rule to a different position in the list or adding a rule to the current decision list from the pre-mined conditions or removing a rule from the decision list.
+Which of the rules is switched, added or deleted is chosen at random.
+At each step, the algorithm evaluates the posteriori probability of the decision list (mixture of accuracy and shortness).
+The Metropolis Hastings algorithm ensures that we sample decision lists that have a high posterior probability.
+This procedure provides us with many samples from the distribution of decision lists.
+The BRL algorithm selects the decision list of the samples with the highest posterior probability.</p>
+<p><strong>Examples</strong></p>
+<p>That is it with the theory, now let’s see the BRL method in action.
+The examples use a faster variant of BRL called Scalable Bayesian Rule Lists (SBRL) by Yang et. al (2017) <a href="#fn22" class="footnote-ref" id="fnref22"><sup>22</sup></a>.
+We use the SBRL algorithm to predict the <a href="cervical.html#cervical">risk for cervical cancer</a>.
+I first had to discretize all input features for the SBRL algorithm to work.
+For this purpose I binned the continuous features based on the frequency of the values by quantiles.</p>
+<p>We get the following rules:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(<span class="st">&quot;sbrl&quot;</span>)
+<span class="kw">library</span>(<span class="st">&quot;arules&quot;</span>)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;arules&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:dplyr&#39;:
+## 
+##     recode</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     abbreviate, write</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(<span class="st">&quot;cervical&quot;</span>)
+
+cervical2 =<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">lapply</span>(cervical, <span class="cf">function</span>(x) {
+  <span class="cf">if</span>(<span class="kw">is.factor</span>(x) <span class="op">||</span><span class="st"> </span><span class="kw">length</span>(<span class="kw">unique</span>(x)) <span class="op">&lt;</span><span class="st"> </span><span class="dv">3</span>) {
+    <span class="kw">as.factor</span>(x)
+  } <span class="cf">else</span> {
+    <span class="kw">discretize</span>(x, <span class="dt">method =</span> <span class="st">&quot;interval&quot;</span>, <span class="dv">3</span>)
+    <span class="co">#discretize(x, breaks = max(length(unique(x))-1, 5))</span>
+  }
+}))
+
+get.sbrl.rules =<span class="st"> </span><span class="cf">function</span>(x) {
+    res =<span class="st"> </span><span class="kw">lapply</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(x<span class="op">$</span>rs), <span class="cf">function</span>(i) {
+        <span class="cf">if</span> (i <span class="op">==</span><span class="st"> </span><span class="dv">1</span>) 
+            <span class="kw">sprintf</span>(<span class="st">&quot;If      %s (rule[%d]) then positive probability = %.8f</span><span class="ch">\n</span><span class="st">&quot;</span>, 
+                x<span class="op">$</span>rulenames[x<span class="op">$</span>rs<span class="op">$</span>V1[i]], x<span class="op">$</span>rs<span class="op">$</span>V1[i], x<span class="op">$</span>rs<span class="op">$</span>V2[i])
+        <span class="cf">else</span> <span class="cf">if</span> (i <span class="op">==</span><span class="st"> </span><span class="kw">nrow</span>(x<span class="op">$</span>rs)) 
+            <span class="kw">sprintf</span>(<span class="st">&quot;else  (default rule)  then positive probability = %.8f</span><span class="ch">\n</span><span class="st">&quot;</span>, 
+                x<span class="op">$</span>rs<span class="op">$</span>V2[<span class="kw">nrow</span>(x<span class="op">$</span>rs)])
+        <span class="cf">else</span> <span class="kw">sprintf</span>(<span class="st">&quot;else if %s (rule[%d]) then positive probability = %.8f</span><span class="ch">\n</span><span class="st">&quot;</span>, 
+            x<span class="op">$</span>rulenames[x<span class="op">$</span>rs<span class="op">$</span>V1[i]], x<span class="op">$</span>rs<span class="op">$</span>V1[i], x<span class="op">$</span>rs<span class="op">$</span>V2[i])
+    })
+    <span class="kw">data.frame</span>(<span class="dt">rules =</span> <span class="kw">unlist</span>(res))
+}
+
+
+cervical2<span class="op">$</span>label =<span class="st"> </span>cervical2<span class="op">$</span>Biopsy
+cervical2<span class="op">$</span>Biopsy =<span class="st"> </span><span class="ot">NULL</span>
+rules =<span class="st"> </span><span class="kw">sbrl</span>(cervical2, <span class="dt">pos_sign =</span> <span class="st">&quot;Cancer&quot;</span>, <span class="dt">neg_sign =</span> <span class="st">&quot;Healthy&quot;</span>, <span class="dt">rule_maxlen =</span> <span class="dv">2</span>)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">kable</span>(<span class="kw">get.sbrl.rules</span>(rules))</code></pre>
+<table>
+<colgroup>
+<col width="100%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">rules</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">If {STDs=1} (rule[259]) then positive probability = 0.16049383</td>
+</tr>
+<tr class="even">
+<td align="left">else if {Hormonal.Contraceptives..years.=[0,10)} (rule[82]) then positive probability = 0.04685408</td>
+</tr>
+<tr class="odd">
+<td align="left">else (default rule) then positive probability = 0.27777778</td>
+</tr>
+</tbody>
+</table>
+<p>Note that we get sensible rules, since the prediction on the THEN-part is not the class outcome, but the predicted probability for cancer.</p>
+<p>The conditions were selected from patterns that were pre-mined with the FP-Growth algorithm.
+The following table displays the pool of conditions the SBRL algorithm could choose from for building a decision list.
+The maximum number of feature values in a condition I allowed as a user was two.
+Here is a sample of ten patterns:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">1</span>)
+conditions =<span class="st"> </span><span class="kw">sample</span>(rules<span class="op">$</span>rulenames, <span class="dt">size =</span> <span class="dv">10</span>)
+<span class="kw">kable</span>(<span class="kw">gsub</span>(<span class="st">&quot;</span><span class="ch">\\</span><span class="st">{|</span><span class="ch">\\</span><span class="st">}&quot;</span>, <span class="st">&quot;&quot;</span>, conditions), <span class="dt">col.names =</span> <span class="st">&quot;pre-mined conditions&quot;</span>)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">pre-mined conditions</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Num.of.pregnancies=[3.67,7.33)</td>
+</tr>
+<tr class="even">
+<td align="left">IUD=0,STDs=1</td>
+</tr>
+<tr class="odd">
+<td align="left">Number.of.sexual.partners=[1,10),STDs..Time.since.last.diagnosis=[1,8)</td>
+</tr>
+<tr class="even">
+<td align="left">First.sexual.intercourse=[10,17.3),STDs=0</td>
+</tr>
+<tr class="odd">
+<td align="left">Smokes=1,IUD..years.=[0,6.33)</td>
+</tr>
+<tr class="even">
+<td align="left">Hormonal.Contraceptives..years.=[10,20),STDs..Number.of.diagnosis=[0,1)</td>
+</tr>
+<tr class="odd">
+<td align="left">Age=[13,36.7)</td>
+</tr>
+<tr class="even">
+<td align="left">Hormonal.Contraceptives=1,STDs..Number.of.diagnosis=[0,1)</td>
+</tr>
+<tr class="odd">
+<td align="left">Number.of.sexual.partners=[1,10),STDs..number.=[0,1.33)</td>
+</tr>
+<tr class="even">
+<td align="left">STDs..number.=[1.33,2.67),STDs..Time.since.first.diagnosis=[1,8)</td>
+</tr>
+</tbody>
+</table>
+<p>Next, we apply the SBRL algorithm to the <a href="bike-data.html#bike-data">bike rental prediction task</a>.
+This only works if the regression problem of predicting bike counts is converted into a binary classification task.
+I have arbitrarily created a classification task by creating a label that is 1 if the number of bikes exceeds 4000 bikes on a day, else 0.</p>
+<p>The following list was learned by SBRL:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(<span class="st">&quot;sbrl&quot;</span>)
+<span class="kw">library</span>(<span class="st">&quot;arules&quot;</span>)
+<span class="kw">data</span>(<span class="st">&quot;bike&quot;</span>)
+
+bike2 =<span class="st"> </span>bike
+bike2<span class="op">$</span>label =<span class="st"> </span>bike2<span class="op">$</span>cnt <span class="op">&gt;</span><span class="st"> </span><span class="dv">4000</span>
+bike2<span class="op">$</span>cnt =<span class="st"> </span><span class="ot">NULL</span>
+bike2 =<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">lapply</span>(bike2, <span class="cf">function</span>(x) {
+  <span class="cf">if</span>(<span class="kw">is.factor</span>(x) <span class="op">||</span><span class="st"> </span><span class="kw">length</span>(<span class="kw">unique</span>(x)) <span class="op">&lt;</span><span class="st"> </span><span class="dv">3</span>) {
+    <span class="kw">as.factor</span>(x)
+  } <span class="cf">else</span> {
+    <span class="kw">discretize</span>(x, <span class="dt">method =</span> <span class="st">&quot;interval&quot;</span>, <span class="dv">3</span>)
+    <span class="co">#discretize(x, breaks = max(length(unique(x))-1, 5))</span>
+  }
+}))
+rules =<span class="st"> </span><span class="kw">sbrl</span>(bike2, <span class="dt">pos_sign =</span> <span class="ot">TRUE</span>, <span class="dt">neg_sign =</span> <span class="ot">FALSE</span>, <span class="dt">rule_maxlen =</span> <span class="dv">3</span>)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">kable</span>(<span class="kw">get.sbrl.rules</span>(rules))</code></pre>
+<table>
+<colgroup>
+<col width="100%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">rules</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">If {yr=2011,temp=[-5.22,7.35)} (rule[718]) then positive probability = 0.01041667</td>
+</tr>
+<tr class="even">
+<td align="left">else if {yr=2012,temp=[7.35,19.9)} (rule[823]) then positive probability = 0.88125000</td>
+</tr>
+<tr class="odd">
+<td align="left">else if {yr=2012,temp=[19.9,32.5]} (rule[816]) then positive probability = 0.99253731</td>
+</tr>
+<tr class="even">
+<td align="left">else if {season=SPRING} (rule[351]) then positive probability = 0.06410256</td>
+</tr>
+<tr class="odd">
+<td align="left">else if {temp=[7.35,19.9)} (rule[489]) then positive probability = 0.44444444</td>
+</tr>
+<tr class="even">
+<td align="left">else (default rule) then positive probability = 0.79746835</td>
+</tr>
+</tbody>
+</table>
+<p>Let us predict the probability that the number of bikes will exceed 4000 for a day in 2012 with a temperature of 17 degrees Celsius.
+The first rule does not apply, since it only applies for days in 2011.
+The second rule applies, because the day is in 2012 and 17 degrees lies in the interval <code>[7.35,19.9)</code>.
+Our prediction for the probability is that more than 4000 bikes are rented is 88%.</p>
+</div>
+<div id="advantages-3" class="section level3">
+<h3><span class="header-section-number">4.5.4</span> Advantages</h3>
+<p>This section discusses the benefits of IF-THEN rules in general.</p>
+<p>IF-THEN rules are <strong>easy to interpret</strong>.
+They are probably the most interpretable of the interpretable models.
+This statement only applies if the number of rules is small, the conditions of the rules are short (maximum 3 I would say) and if the rules are organized in a decision list or a non-overlapping decision set.</p>
+<p>Decision rules can be <strong>as expressive as decision trees, while being more compact</strong>.
+Decision trees often also suffer from replicated sub-trees, that is, when the splits in a left and a right child node have the same structure.</p>
+<p>The <strong>prediction with IF-THEN rules is fast</strong>, since only a few binary statements need to be checked to determine which rules apply.</p>
+<p>Decision rules are <strong>robust</strong> against monotonous transformations of the input features, because only the threshold in the conditions changes.
+They are also robust against outliers, since it only matters if a condition applies or not.</p>
+<p>IF-THEN rules usually generate sparse models, which means that not many features are included.
+They <strong>select only the relevant features</strong> for the model.
+For example, a linear model assigns a weight to every input feature by default.
+Features that are irrelevant can simply be ignored by IF-THEN rules.</p>
+<p>Simple rules like from OneR <strong>can be used as baseline</strong> for more complex algorithms.</p>
+</div>
+<div id="disadvantages-3" class="section level3">
+<h3><span class="header-section-number">4.5.5</span> Disadvantages</h3>
+<p>This section deals with the disadvantages of IF-THEN rules in general.</p>
+<p>The research and literature for IF-THEN rules focuses on classification and almost <strong>completely neglects regression</strong>.
+While you can always divide a continuous target into intervals and turn it into a classification problem, you always lose information.
+In general, approaches are more attractive if they can be used for both regression and classification.</p>
+<p>Often the <strong>features also have to be categorical</strong>.
+That means numeric features must be categorized if you want to use them.
+There are many ways to cut a continuous feature into intervals, but this is not trivial and comes with many questions without clear answers.
+How many intervals should the feature be divided into?
+What is the splitting criteria: Fixed interval lengths, quantiles or something else?
+Categorizing continuous features is a non-trivial issue that is often neglected and people just use the next best method (like I did in the examples).</p>
+<p>Many of the older rule-learning algorithms are prone to overfitting.
+The algorithms presented here all have at least some safeguards to prevent overfitting:
+OneR is limited because it can only use one feature (only problematic if the feature has too many levels or if there are many features, which equates to the multiple testing problem), RIPPER does pruning and Bayesian Rule Lists impose a prior distribution on the decision lists.</p>
+<p>Decision rules are <strong>bad in describing linear relationships</strong> between features and output.
+That is a problem they share with the decision trees.
+Decision trees and rules can only produce step-like prediction functions, where changes in the prediction are always discrete steps and never smooth curves.
+This is related to the issue that the inputs have to be categorical.
+In decision trees, they are implicitly categorized by splitting them.</p>
+</div>
+<div id="software-and-alternatives" class="section level3">
+<h3><span class="header-section-number">4.5.6</span> Software and Alternatives</h3>
+<p>OneR is implemented in the <a href="https://cran.r-project.org/web/packages/OneR/">R package OneR</a>, which was used for the examples in this book.
+OneR is also implemented in the <a href="(https://www.eecs.yorku.ca/tdb/_doc.php/userg/sw/weka/doc/weka/classifiers/rules/package-summary.html)">Weka machine learning library</a> and as such available in Java, R and Python.
+RIPPER is also implemented in Weka. For the examples, I used the R implementation of JRIP in the <a href="https://cran.r-project.org/web/packages/RWeka/index.html">RWeka package</a>.
+SBRL is available as <a href="https://cran.r-project.org/web/packages/sbrl/index.html">R package</a> (which I used for the examples), in <a href="https://github.com/datascienceinc/Skater">Python</a> or as <a href="https://github.com/Hongyuy/sbrlmod">C implementation</a>.</p>
+<p>I will not even try to list all alternatives for learning decision rule sets and lists, but will point to some summarizing work.
+I recommend the book “Foundations of Rule Learning” by Fuernkranz et. al (2012)<a href="#fn23" class="footnote-ref" id="fnref23"><sup>23</sup></a>.
+It is an extensive work on learning rules, for those who want to delve deeper into the topic.
+It provides a holistic framework for thinking about learning rules and presents many rule learning algorithms.
+I also recommend to checkout the <a href="http://weka.sourceforge.net/doc.dev/weka/classifiers/rules/package-summary.html">Weka rule learners</a>, which implement RIPPER, M5Rules, OneR, PART and many more.
+IF-THEN rules can be used in linear models as described in this book in the chapter about the <a href="rulefit.html#rulefit">RuleFit algorithm</a>.</p>
+
+<!--{pagebreak}-->
+</div>
+</div>
+<div class="footnotes">
+<hr />
+<ol start="18">
+<li id="fn18"><p>Holte, Robert C. “Very simple classification rules perform well on most commonly used datasets.” Machine learning 11.1 (1993): 63-90.<a href="rules.html#fnref18" class="footnote-back">↩</a></p></li>
+<li id="fn19"><p>Cohen, William W. “Fast effective rule induction.” Machine Learning Proceedings (1995). 115-123.<a href="rules.html#fnref19" class="footnote-back">↩</a></p></li>
+<li id="fn20"><p>Letham, Benjamin, et al. “Interpretable classifiers using rules and Bayesian analysis: Building a better stroke prediction model.” The Annals of Applied Statistics 9.3 (2015): 1350-1371.<a href="rules.html#fnref20" class="footnote-back">↩</a></p></li>
+<li id="fn21"><p>Borgelt, C. “An implementation of the FP-growth algorithm.” Proceedings of the 1st International Workshop on Open Source Data Mining Frequent Pattern Mining Implementations - OSDM ’05, 1–5. <a href="http://doi.org/10.1145/1133905.1133907" class="uri">http://doi.org/10.1145/1133905.1133907</a> (2005).<a href="rules.html#fnref21" class="footnote-back">↩</a></p></li>
+<li id="fn22"><p>Yang, Hongyu, Cynthia Rudin, and Margo Seltzer. “Scalable Bayesian rule lists.” Proceedings of the 34th International Conference on Machine Learning-Volume 70. JMLR. org, 2017.<a href="rules.html#fnref22" class="footnote-back">↩</a></p></li>
+<li id="fn23"><p>Fürnkranz, Johannes, Dragan Gamberger, and Nada Lavrač. “Foundations of rule learning.” Springer Science &amp; Business Media, (2012).<a href="rules.html#fnref23" class="footnote-back">↩</a></p></li>
+</ol>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="tree.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="rulefit.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": true,
+"facebook": true,
+"twitter": true,
+"google": false,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/christophM/interpretable-ml-book/edit/master/04.6-interpretable-rules.Rmd",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:" && /^https?:/.test(src))
+      src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

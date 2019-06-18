@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>4.3 GLM, GAM and more | Interpretable Machine Learning</title>
+  <meta name="description" content="Machine learning algorithms usually operate as black boxes and it is unclear how they derived a certain decision. This book is a guide for practitioners to make machine learning decisions interpretable." />
+  <meta name="generator" content="bookdown 0.11 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="4.3 GLM, GAM and more | Interpretable Machine Learning" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="Machine learning algorithms usually operate as black boxes and it is unclear how they derived a certain decision. This book is a guide for practitioners to make machine learning decisions interpretable." />
+  <meta name="github-repo" content="christophM/interpretable-ml-book" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="4.3 GLM, GAM and more | Interpretable Machine Learning" />
+  
+  <meta name="twitter:description" content="Machine learning algorithms usually operate as black boxes and it is unclear how they derived a certain decision. This book is a guide for practitioners to make machine learning decisions interpretable." />
+  
+
+<meta name="author" content="Christoph Molnar" />
+
+
+<meta name="date" content="2019-06-17" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="logistic.html">
+<link rel="next" href="tree.html">
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-110543840-1', 'https://christophm.github.io/interpretable-ml-book/', {
+  'anonymizeIp': true
+  , 'storage': 'none'
+  , 'clientId': window.localStorage.getItem('ga_clientId')
+});
+ga(function(tracker) {
+  window.localStorage.setItem('ga_clientId', tracker.get('clientId'));
+});
+ga('send', 'pageview');
+</script>
+
+<link rel="stylesheet" type="text/css" href="css/cookieconsent.min.css" />
+<script src="javascript/cookieconsent.min.js"></script>
+<script>
+window.addEventListener("load", function(){
+window.cookieconsent.initialise({
+  "palette": {
+    "popup": {
+      "background": "#000"
+    },
+    "button": {
+      "background": "#f1d600"
+    }
+  },
+  "position": "bottom-right",
+  "content": {
+    "message": "This website uses cookies for Google Analytics so that I know how many people are reading the book and which chapters are the most popular. The book website doesn't collect any personal data."
+  }
+})});
+</script>
+
+
+<style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<link rel="stylesheet" href="css/style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Interpretable machine learning</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Preface</a></li>
+<li class="chapter" data-level="1" data-path="intro.html"><a href="intro.html"><i class="fa fa-check"></i><b>1</b> Introduction</a><ul>
+<li class="chapter" data-level="1.1" data-path="storytime.html"><a href="storytime.html"><i class="fa fa-check"></i><b>1.1</b> Story Time</a><ul>
+<li class="chapter" data-level="" data-path="storytime.html"><a href="storytime.html#lightning-never-strikes-twice"><i class="fa fa-check"></i>Lightning Never Strikes Twice</a></li>
+<li class="chapter" data-level="" data-path="storytime.html"><a href="storytime.html#trust-fall"><i class="fa fa-check"></i>Trust Fall</a></li>
+<li class="chapter" data-level="" data-path="storytime.html"><a href="storytime.html#fermis-paperclips"><i class="fa fa-check"></i>Fermi’s Paperclips</a></li>
+</ul></li>
+<li class="chapter" data-level="1.2" data-path="what-is-machine-learning.html"><a href="what-is-machine-learning.html"><i class="fa fa-check"></i><b>1.2</b> What Is Machine Learning?</a></li>
+<li class="chapter" data-level="1.3" data-path="terminology.html"><a href="terminology.html"><i class="fa fa-check"></i><b>1.3</b> Terminology</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="interpretability.html"><a href="interpretability.html"><i class="fa fa-check"></i><b>2</b> Interpretability</a><ul>
+<li class="chapter" data-level="2.1" data-path="interpretability-importance.html"><a href="interpretability-importance.html"><i class="fa fa-check"></i><b>2.1</b> Importance of Interpretability</a></li>
+<li class="chapter" data-level="2.2" data-path="taxonomy-of-interpretability-methods.html"><a href="taxonomy-of-interpretability-methods.html"><i class="fa fa-check"></i><b>2.2</b> Taxonomy of Interpretability Methods</a></li>
+<li class="chapter" data-level="2.3" data-path="scope-of-interpretability.html"><a href="scope-of-interpretability.html"><i class="fa fa-check"></i><b>2.3</b> Scope of Interpretability</a><ul>
+<li class="chapter" data-level="2.3.1" data-path="scope-of-interpretability.html"><a href="scope-of-interpretability.html#algorithm-transparency"><i class="fa fa-check"></i><b>2.3.1</b> Algorithm Transparency</a></li>
+<li class="chapter" data-level="2.3.2" data-path="scope-of-interpretability.html"><a href="scope-of-interpretability.html#global-holistic-model-interpretability"><i class="fa fa-check"></i><b>2.3.2</b> Global, Holistic Model Interpretability</a></li>
+<li class="chapter" data-level="2.3.3" data-path="scope-of-interpretability.html"><a href="scope-of-interpretability.html#global-model-interpretability-on-a-modular-level"><i class="fa fa-check"></i><b>2.3.3</b> Global Model Interpretability on a Modular Level</a></li>
+<li class="chapter" data-level="2.3.4" data-path="scope-of-interpretability.html"><a href="scope-of-interpretability.html#local-interpretability-for-a-single-prediction"><i class="fa fa-check"></i><b>2.3.4</b> Local Interpretability for a Single Prediction</a></li>
+<li class="chapter" data-level="2.3.5" data-path="scope-of-interpretability.html"><a href="scope-of-interpretability.html#local-interpretability-for-a-group-of-predictions"><i class="fa fa-check"></i><b>2.3.5</b> Local Interpretability for a Group of Predictions</a></li>
+</ul></li>
+<li class="chapter" data-level="2.4" data-path="evaluation-of-interpretability.html"><a href="evaluation-of-interpretability.html"><i class="fa fa-check"></i><b>2.4</b> Evaluation of Interpretability</a></li>
+<li class="chapter" data-level="2.5" data-path="properties.html"><a href="properties.html"><i class="fa fa-check"></i><b>2.5</b> Properties of Explanations</a></li>
+<li class="chapter" data-level="2.6" data-path="explanation.html"><a href="explanation.html"><i class="fa fa-check"></i><b>2.6</b> Human-friendly Explanations</a><ul>
+<li class="chapter" data-level="2.6.1" data-path="explanation.html"><a href="explanation.html#what-is-an-explanation"><i class="fa fa-check"></i><b>2.6.1</b> What Is an Explanation?</a></li>
+<li class="chapter" data-level="2.6.2" data-path="explanation.html"><a href="explanation.html#good-explanation"><i class="fa fa-check"></i><b>2.6.2</b> What Is a Good Explanation?</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="data.html"><a href="data.html"><i class="fa fa-check"></i><b>3</b> Datasets</a><ul>
+<li class="chapter" data-level="3.1" data-path="bike-data.html"><a href="bike-data.html"><i class="fa fa-check"></i><b>3.1</b> Bike Rentals (Regression)</a></li>
+<li class="chapter" data-level="3.2" data-path="spam-data.html"><a href="spam-data.html"><i class="fa fa-check"></i><b>3.2</b> YouTube Spam Comments (Text Classification)</a></li>
+<li class="chapter" data-level="3.3" data-path="cervical.html"><a href="cervical.html"><i class="fa fa-check"></i><b>3.3</b> Risk Factors for Cervical Cancer (Classification)</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="simple.html"><a href="simple.html"><i class="fa fa-check"></i><b>4</b> Interpretable Models</a><ul>
+<li class="chapter" data-level="4.1" data-path="limo.html"><a href="limo.html"><i class="fa fa-check"></i><b>4.1</b> Linear Regression</a><ul>
+<li class="chapter" data-level="4.1.1" data-path="limo.html"><a href="limo.html#interpretation"><i class="fa fa-check"></i><b>4.1.1</b> Interpretation</a></li>
+<li class="chapter" data-level="4.1.2" data-path="limo.html"><a href="limo.html#example"><i class="fa fa-check"></i><b>4.1.2</b> Example</a></li>
+<li class="chapter" data-level="4.1.3" data-path="limo.html"><a href="limo.html#visual-interpretation"><i class="fa fa-check"></i><b>4.1.3</b> Visual Interpretation</a></li>
+<li class="chapter" data-level="4.1.4" data-path="limo.html"><a href="limo.html#explain-individual-predictions"><i class="fa fa-check"></i><b>4.1.4</b> Explain Individual Predictions</a></li>
+<li class="chapter" data-level="4.1.5" data-path="limo.html"><a href="limo.html#cat-code"><i class="fa fa-check"></i><b>4.1.5</b> Encoding of Categorical Features</a></li>
+<li class="chapter" data-level="4.1.6" data-path="limo.html"><a href="limo.html#do-linear-models-create-good-explanations"><i class="fa fa-check"></i><b>4.1.6</b> Do Linear Models Create Good Explanations?</a></li>
+<li class="chapter" data-level="4.1.7" data-path="limo.html"><a href="limo.html#sparse-linear"><i class="fa fa-check"></i><b>4.1.7</b> Sparse Linear Models</a></li>
+<li class="chapter" data-level="4.1.8" data-path="limo.html"><a href="limo.html#advantages"><i class="fa fa-check"></i><b>4.1.8</b> Advantages</a></li>
+<li class="chapter" data-level="4.1.9" data-path="limo.html"><a href="limo.html#disadvantages"><i class="fa fa-check"></i><b>4.1.9</b> Disadvantages</a></li>
+</ul></li>
+<li class="chapter" data-level="4.2" data-path="logistic.html"><a href="logistic.html"><i class="fa fa-check"></i><b>4.2</b> Logistic Regression</a><ul>
+<li class="chapter" data-level="4.2.1" data-path="logistic.html"><a href="logistic.html#what-is-wrong-with-linear-regression-for-classification"><i class="fa fa-check"></i><b>4.2.1</b> What is Wrong with Linear Regression for Classification?</a></li>
+<li class="chapter" data-level="4.2.2" data-path="logistic.html"><a href="logistic.html#theory"><i class="fa fa-check"></i><b>4.2.2</b> Theory</a></li>
+<li class="chapter" data-level="4.2.3" data-path="logistic.html"><a href="logistic.html#interpretation-1"><i class="fa fa-check"></i><b>4.2.3</b> Interpretation</a></li>
+<li class="chapter" data-level="4.2.4" data-path="logistic.html"><a href="logistic.html#example-1"><i class="fa fa-check"></i><b>4.2.4</b> Example</a></li>
+<li class="chapter" data-level="4.2.5" data-path="logistic.html"><a href="logistic.html#advantages-and-disadvantages"><i class="fa fa-check"></i><b>4.2.5</b> Advantages and Disadvantages</a></li>
+<li class="chapter" data-level="4.2.6" data-path="logistic.html"><a href="logistic.html#software"><i class="fa fa-check"></i><b>4.2.6</b> Software</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="extend-lm.html"><a href="extend-lm.html"><i class="fa fa-check"></i><b>4.3</b> GLM, GAM and more</a><ul>
+<li class="chapter" data-level="4.3.1" data-path="extend-lm.html"><a href="extend-lm.html#glm"><i class="fa fa-check"></i><b>4.3.1</b> Non-Gaussian Outcomes - GLMs</a></li>
+<li class="chapter" data-level="4.3.2" data-path="extend-lm.html"><a href="extend-lm.html#lm-interact"><i class="fa fa-check"></i><b>4.3.2</b> Interactions</a></li>
+<li class="chapter" data-level="4.3.3" data-path="extend-lm.html"><a href="extend-lm.html#gam"><i class="fa fa-check"></i><b>4.3.3</b> Nonlinear Effects - GAMs</a></li>
+<li class="chapter" data-level="4.3.4" data-path="extend-lm.html"><a href="extend-lm.html#advantages-1"><i class="fa fa-check"></i><b>4.3.4</b> Advantages</a></li>
+<li class="chapter" data-level="4.3.5" data-path="extend-lm.html"><a href="extend-lm.html#disadvantages-1"><i class="fa fa-check"></i><b>4.3.5</b> Disadvantages</a></li>
+<li class="chapter" data-level="4.3.6" data-path="extend-lm.html"><a href="extend-lm.html#software-1"><i class="fa fa-check"></i><b>4.3.6</b> Software</a></li>
+<li class="chapter" data-level="4.3.7" data-path="extend-lm.html"><a href="extend-lm.html#more-lm-extension"><i class="fa fa-check"></i><b>4.3.7</b> Further Extensions</a></li>
+</ul></li>
+<li class="chapter" data-level="4.4" data-path="tree.html"><a href="tree.html"><i class="fa fa-check"></i><b>4.4</b> Decision Tree</a><ul>
+<li class="chapter" data-level="4.4.1" data-path="tree.html"><a href="tree.html#interpretation-2"><i class="fa fa-check"></i><b>4.4.1</b> Interpretation</a></li>
+<li class="chapter" data-level="4.4.2" data-path="tree.html"><a href="tree.html#example-2"><i class="fa fa-check"></i><b>4.4.2</b> Example</a></li>
+<li class="chapter" data-level="4.4.3" data-path="tree.html"><a href="tree.html#advantages-2"><i class="fa fa-check"></i><b>4.4.3</b> Advantages</a></li>
+<li class="chapter" data-level="4.4.4" data-path="tree.html"><a href="tree.html#disadvantages-2"><i class="fa fa-check"></i><b>4.4.4</b> Disadvantages</a></li>
+<li class="chapter" data-level="4.4.5" data-path="tree.html"><a href="tree.html#software-2"><i class="fa fa-check"></i><b>4.4.5</b> Software</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="rules.html"><a href="rules.html"><i class="fa fa-check"></i><b>4.5</b> Decision Rules</a><ul>
+<li class="chapter" data-level="4.5.1" data-path="rules.html"><a href="rules.html#learn-rules-from-a-single-feature-oner"><i class="fa fa-check"></i><b>4.5.1</b> Learn Rules from a Single Feature (OneR)</a></li>
+<li class="chapter" data-level="4.5.2" data-path="rules.html"><a href="rules.html#sequential-covering"><i class="fa fa-check"></i><b>4.5.2</b> Sequential Covering</a></li>
+<li class="chapter" data-level="4.5.3" data-path="rules.html"><a href="rules.html#bayesian-rule-lists"><i class="fa fa-check"></i><b>4.5.3</b> Bayesian Rule Lists</a></li>
+<li class="chapter" data-level="4.5.4" data-path="rules.html"><a href="rules.html#advantages-3"><i class="fa fa-check"></i><b>4.5.4</b> Advantages</a></li>
+<li class="chapter" data-level="4.5.5" data-path="rules.html"><a href="rules.html#disadvantages-3"><i class="fa fa-check"></i><b>4.5.5</b> Disadvantages</a></li>
+<li class="chapter" data-level="4.5.6" data-path="rules.html"><a href="rules.html#software-and-alternatives"><i class="fa fa-check"></i><b>4.5.6</b> Software and Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="4.6" data-path="rulefit.html"><a href="rulefit.html"><i class="fa fa-check"></i><b>4.6</b> RuleFit</a><ul>
+<li class="chapter" data-level="4.6.1" data-path="rulefit.html"><a href="rulefit.html#interpretation-and-example"><i class="fa fa-check"></i><b>4.6.1</b> Interpretation and Example</a></li>
+<li class="chapter" data-level="4.6.2" data-path="rulefit.html"><a href="rulefit.html#theory-1"><i class="fa fa-check"></i><b>4.6.2</b> Theory</a></li>
+<li class="chapter" data-level="4.6.3" data-path="rulefit.html"><a href="rulefit.html#advantages-4"><i class="fa fa-check"></i><b>4.6.3</b> Advantages</a></li>
+<li class="chapter" data-level="4.6.4" data-path="rulefit.html"><a href="rulefit.html#disadvantages-4"><i class="fa fa-check"></i><b>4.6.4</b> Disadvantages</a></li>
+<li class="chapter" data-level="4.6.5" data-path="rulefit.html"><a href="rulefit.html#software-and-alternative"><i class="fa fa-check"></i><b>4.6.5</b> Software and Alternative</a></li>
+</ul></li>
+<li class="chapter" data-level="4.7" data-path="other-interpretable.html"><a href="other-interpretable.html"><i class="fa fa-check"></i><b>4.7</b> Other Interpretable Models</a><ul>
+<li class="chapter" data-level="4.7.1" data-path="other-interpretable.html"><a href="other-interpretable.html#naive-bayes-classifier"><i class="fa fa-check"></i><b>4.7.1</b> Naive Bayes Classifier</a></li>
+<li class="chapter" data-level="4.7.2" data-path="other-interpretable.html"><a href="other-interpretable.html#k-nearest-neighbors"><i class="fa fa-check"></i><b>4.7.2</b> K-Nearest Neighbors</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="agnostic.html"><a href="agnostic.html"><i class="fa fa-check"></i><b>5</b> Model-Agnostic Methods</a><ul>
+<li class="chapter" data-level="5.1" data-path="pdp.html"><a href="pdp.html"><i class="fa fa-check"></i><b>5.1</b> Partial Dependence Plot (PDP)</a><ul>
+<li class="chapter" data-level="5.1.1" data-path="pdp.html"><a href="pdp.html#examples"><i class="fa fa-check"></i><b>5.1.1</b> Examples</a></li>
+<li class="chapter" data-level="5.1.2" data-path="pdp.html"><a href="pdp.html#advantages-5"><i class="fa fa-check"></i><b>5.1.2</b> Advantages</a></li>
+<li class="chapter" data-level="5.1.3" data-path="pdp.html"><a href="pdp.html#disadvantages-5"><i class="fa fa-check"></i><b>5.1.3</b> Disadvantages</a></li>
+<li class="chapter" data-level="5.1.4" data-path="pdp.html"><a href="pdp.html#software-and-alternatives-1"><i class="fa fa-check"></i><b>5.1.4</b> Software and Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="5.2" data-path="ice.html"><a href="ice.html"><i class="fa fa-check"></i><b>5.2</b> Individual Conditional Expectation (ICE)</a><ul>
+<li class="chapter" data-level="5.2.1" data-path="ice.html"><a href="ice.html#examples-1"><i class="fa fa-check"></i><b>5.2.1</b> Examples</a></li>
+<li class="chapter" data-level="5.2.2" data-path="ice.html"><a href="ice.html#advantages-6"><i class="fa fa-check"></i><b>5.2.2</b> Advantages</a></li>
+<li class="chapter" data-level="5.2.3" data-path="ice.html"><a href="ice.html#disadvantages-6"><i class="fa fa-check"></i><b>5.2.3</b> Disadvantages</a></li>
+<li class="chapter" data-level="5.2.4" data-path="ice.html"><a href="ice.html#software-and-alternatives-2"><i class="fa fa-check"></i><b>5.2.4</b> Software and Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="ale.html"><a href="ale.html"><i class="fa fa-check"></i><b>5.3</b> Accumulated Local Effects (ALE) Plot</a><ul>
+<li class="chapter" data-level="5.3.1" data-path="ale.html"><a href="ale.html#motivation-and-intuition"><i class="fa fa-check"></i><b>5.3.1</b> Motivation and Intuition</a></li>
+<li class="chapter" data-level="5.3.2" data-path="ale.html"><a href="ale.html#theory-2"><i class="fa fa-check"></i><b>5.3.2</b> Theory</a></li>
+<li class="chapter" data-level="5.3.3" data-path="ale.html"><a href="ale.html#estimation"><i class="fa fa-check"></i><b>5.3.3</b> Estimation</a></li>
+<li class="chapter" data-level="5.3.4" data-path="ale.html"><a href="ale.html#examples-2"><i class="fa fa-check"></i><b>5.3.4</b> Examples</a></li>
+<li class="chapter" data-level="5.3.5" data-path="ale.html"><a href="ale.html#advantages-7"><i class="fa fa-check"></i><b>5.3.5</b> Advantages</a></li>
+<li class="chapter" data-level="5.3.6" data-path="ale.html"><a href="ale.html#disadvantages-7"><i class="fa fa-check"></i><b>5.3.6</b> Disadvantages</a></li>
+<li class="chapter" data-level="5.3.7" data-path="ale.html"><a href="ale.html#implementation-and-alternatives"><i class="fa fa-check"></i><b>5.3.7</b> Implementation and Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="5.4" data-path="interaction.html"><a href="interaction.html"><i class="fa fa-check"></i><b>5.4</b> Feature Interaction</a><ul>
+<li class="chapter" data-level="5.4.1" data-path="interaction.html"><a href="interaction.html#feature-interaction"><i class="fa fa-check"></i><b>5.4.1</b> Feature Interaction?</a></li>
+<li class="chapter" data-level="5.4.2" data-path="interaction.html"><a href="interaction.html#theory-friedmans-h-statistic"><i class="fa fa-check"></i><b>5.4.2</b> Theory: Friedman’s H-statistic</a></li>
+<li class="chapter" data-level="5.4.3" data-path="interaction.html"><a href="interaction.html#examples-3"><i class="fa fa-check"></i><b>5.4.3</b> Examples</a></li>
+<li class="chapter" data-level="5.4.4" data-path="interaction.html"><a href="interaction.html#advantages-8"><i class="fa fa-check"></i><b>5.4.4</b> Advantages</a></li>
+<li class="chapter" data-level="5.4.5" data-path="interaction.html"><a href="interaction.html#disadvantages-8"><i class="fa fa-check"></i><b>5.4.5</b> Disadvantages</a></li>
+<li class="chapter" data-level="5.4.6" data-path="interaction.html"><a href="interaction.html#implementations"><i class="fa fa-check"></i><b>5.4.6</b> Implementations</a></li>
+<li class="chapter" data-level="5.4.7" data-path="interaction.html"><a href="interaction.html#alternatives"><i class="fa fa-check"></i><b>5.4.7</b> Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="5.5" data-path="feature-importance.html"><a href="feature-importance.html"><i class="fa fa-check"></i><b>5.5</b> Feature Importance</a><ul>
+<li class="chapter" data-level="5.5.1" data-path="feature-importance.html"><a href="feature-importance.html#theory-3"><i class="fa fa-check"></i><b>5.5.1</b> Theory</a></li>
+<li class="chapter" data-level="5.5.2" data-path="feature-importance.html"><a href="feature-importance.html#feature-importance-data"><i class="fa fa-check"></i><b>5.5.2</b> Should I Compute Importance on Training or Test Data?</a></li>
+<li class="chapter" data-level="5.5.3" data-path="feature-importance.html"><a href="feature-importance.html#example-and-interpretation"><i class="fa fa-check"></i><b>5.5.3</b> Example and Interpretation</a></li>
+<li class="chapter" data-level="5.5.4" data-path="feature-importance.html"><a href="feature-importance.html#advantages-9"><i class="fa fa-check"></i><b>5.5.4</b> Advantages</a></li>
+<li class="chapter" data-level="5.5.5" data-path="feature-importance.html"><a href="feature-importance.html#disadvantages-9"><i class="fa fa-check"></i><b>5.5.5</b> Disadvantages</a></li>
+<li class="chapter" data-level="5.5.6" data-path="feature-importance.html"><a href="feature-importance.html#software-and-alternatives-3"><i class="fa fa-check"></i><b>5.5.6</b> Software and Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="5.6" data-path="global.html"><a href="global.html"><i class="fa fa-check"></i><b>5.6</b> Global Surrogate</a><ul>
+<li class="chapter" data-level="5.6.1" data-path="global.html"><a href="global.html#theory-4"><i class="fa fa-check"></i><b>5.6.1</b> Theory</a></li>
+<li class="chapter" data-level="5.6.2" data-path="global.html"><a href="global.html#example-4"><i class="fa fa-check"></i><b>5.6.2</b> Example</a></li>
+<li class="chapter" data-level="5.6.3" data-path="global.html"><a href="global.html#advantages-10"><i class="fa fa-check"></i><b>5.6.3</b> Advantages</a></li>
+<li class="chapter" data-level="5.6.4" data-path="global.html"><a href="global.html#disadvantages-10"><i class="fa fa-check"></i><b>5.6.4</b> Disadvantages</a></li>
+<li class="chapter" data-level="5.6.5" data-path="global.html"><a href="global.html#software-3"><i class="fa fa-check"></i><b>5.6.5</b> Software</a></li>
+</ul></li>
+<li class="chapter" data-level="5.7" data-path="lime.html"><a href="lime.html"><i class="fa fa-check"></i><b>5.7</b> Local Surrogate (LIME)</a><ul>
+<li class="chapter" data-level="5.7.1" data-path="lime.html"><a href="lime.html#lime-for-tabular-data"><i class="fa fa-check"></i><b>5.7.1</b> LIME for Tabular Data</a></li>
+<li class="chapter" data-level="5.7.2" data-path="lime.html"><a href="lime.html#lime-for-text"><i class="fa fa-check"></i><b>5.7.2</b> LIME for Text</a></li>
+<li class="chapter" data-level="5.7.3" data-path="lime.html"><a href="lime.html#images-lime"><i class="fa fa-check"></i><b>5.7.3</b> LIME for Images</a></li>
+<li class="chapter" data-level="5.7.4" data-path="lime.html"><a href="lime.html#advantages-11"><i class="fa fa-check"></i><b>5.7.4</b> Advantages</a></li>
+<li class="chapter" data-level="5.7.5" data-path="lime.html"><a href="lime.html#disadvantages-11"><i class="fa fa-check"></i><b>5.7.5</b> Disadvantages</a></li>
+</ul></li>
+<li class="chapter" data-level="5.8" data-path="shapley.html"><a href="shapley.html"><i class="fa fa-check"></i><b>5.8</b> Shapley Values</a><ul>
+<li class="chapter" data-level="5.8.1" data-path="shapley.html"><a href="shapley.html#general-idea"><i class="fa fa-check"></i><b>5.8.1</b> General Idea</a></li>
+<li class="chapter" data-level="5.8.2" data-path="shapley.html"><a href="shapley.html#examples-and-interpretation"><i class="fa fa-check"></i><b>5.8.2</b> Examples and Interpretation</a></li>
+<li class="chapter" data-level="5.8.3" data-path="shapley.html"><a href="shapley.html#the-shapley-value-in-detail"><i class="fa fa-check"></i><b>5.8.3</b> The Shapley Value in Detail</a></li>
+<li class="chapter" data-level="5.8.4" data-path="shapley.html"><a href="shapley.html#advantages-12"><i class="fa fa-check"></i><b>5.8.4</b> Advantages</a></li>
+<li class="chapter" data-level="5.8.5" data-path="shapley.html"><a href="shapley.html#disadvantages-12"><i class="fa fa-check"></i><b>5.8.5</b> Disadvantages</a></li>
+<li class="chapter" data-level="5.8.6" data-path="shapley.html"><a href="shapley.html#software-and-alternatives-4"><i class="fa fa-check"></i><b>5.8.6</b> Software and Alternatives</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="example-based.html"><a href="example-based.html"><i class="fa fa-check"></i><b>6</b> Example-Based Explanations</a><ul>
+<li class="chapter" data-level="6.1" data-path="counterfactual.html"><a href="counterfactual.html"><i class="fa fa-check"></i><b>6.1</b> Counterfactual Explanations</a><ul>
+<li class="chapter" data-level="6.1.1" data-path="counterfactual.html"><a href="counterfactual.html#generating-counterfactual-explanations"><i class="fa fa-check"></i><b>6.1.1</b> Generating Counterfactual Explanations</a></li>
+<li class="chapter" data-level="6.1.2" data-path="counterfactual.html"><a href="counterfactual.html#examples-4"><i class="fa fa-check"></i><b>6.1.2</b> Examples</a></li>
+<li class="chapter" data-level="6.1.3" data-path="counterfactual.html"><a href="counterfactual.html#advantages-13"><i class="fa fa-check"></i><b>6.1.3</b> Advantages</a></li>
+<li class="chapter" data-level="6.1.4" data-path="counterfactual.html"><a href="counterfactual.html#disadvantages-13"><i class="fa fa-check"></i><b>6.1.4</b> Disadvantages</a></li>
+<li class="chapter" data-level="6.1.5" data-path="counterfactual.html"><a href="counterfactual.html#example-software"><i class="fa fa-check"></i><b>6.1.5</b> Software and Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="6.2" data-path="adversarial.html"><a href="adversarial.html"><i class="fa fa-check"></i><b>6.2</b> Adversarial Examples</a><ul>
+<li class="chapter" data-level="6.2.1" data-path="adversarial.html"><a href="adversarial.html#methods-and-examples"><i class="fa fa-check"></i><b>6.2.1</b> Methods and Examples</a></li>
+<li class="chapter" data-level="6.2.2" data-path="adversarial.html"><a href="adversarial.html#the-cybersecurity-perspective"><i class="fa fa-check"></i><b>6.2.2</b> The Cybersecurity Perspective</a></li>
+</ul></li>
+<li class="chapter" data-level="6.3" data-path="proto.html"><a href="proto.html"><i class="fa fa-check"></i><b>6.3</b> Prototypes and Criticisms</a><ul>
+<li class="chapter" data-level="6.3.1" data-path="proto.html"><a href="proto.html#theory-5"><i class="fa fa-check"></i><b>6.3.1</b> Theory</a></li>
+<li class="chapter" data-level="6.3.2" data-path="proto.html"><a href="proto.html#examples-5"><i class="fa fa-check"></i><b>6.3.2</b> Examples</a></li>
+<li class="chapter" data-level="6.3.3" data-path="proto.html"><a href="proto.html#advantages-14"><i class="fa fa-check"></i><b>6.3.3</b> Advantages</a></li>
+<li class="chapter" data-level="6.3.4" data-path="proto.html"><a href="proto.html#disadvantages-14"><i class="fa fa-check"></i><b>6.3.4</b> Disadvantages</a></li>
+<li class="chapter" data-level="6.3.5" data-path="proto.html"><a href="proto.html#code-and-alternatives"><i class="fa fa-check"></i><b>6.3.5</b> Code and Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="6.4" data-path="influential.html"><a href="influential.html"><i class="fa fa-check"></i><b>6.4</b> Influential Instances</a><ul>
+<li class="chapter" data-level="6.4.1" data-path="influential.html"><a href="influential.html#deletion-diagnostics"><i class="fa fa-check"></i><b>6.4.1</b> Deletion Diagnostics</a></li>
+<li class="chapter" data-level="6.4.2" data-path="influential.html"><a href="influential.html#influence-functions"><i class="fa fa-check"></i><b>6.4.2</b> Influence Functions</a></li>
+<li class="chapter" data-level="6.4.3" data-path="influential.html"><a href="influential.html#advantages-of-identifying-influential-instances"><i class="fa fa-check"></i><b>6.4.3</b> Advantages of Identifying Influential Instances</a></li>
+<li class="chapter" data-level="6.4.4" data-path="influential.html"><a href="influential.html#disadvantages-of-identifying-influential-instances"><i class="fa fa-check"></i><b>6.4.4</b> Disadvantages of Identifying Influential Instances</a></li>
+<li class="chapter" data-level="6.4.5" data-path="influential.html"><a href="influential.html#software-and-alternatives-5"><i class="fa fa-check"></i><b>6.4.5</b> Software and Alternatives</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="future.html"><a href="future.html"><i class="fa fa-check"></i><b>7</b> A Look into the Crystal Ball</a><ul>
+<li class="chapter" data-level="7.1" data-path="the-future-of-machine-learning.html"><a href="the-future-of-machine-learning.html"><i class="fa fa-check"></i><b>7.1</b> The Future of Machine Learning</a></li>
+<li class="chapter" data-level="7.2" data-path="the-future-of-interpretability.html"><a href="the-future-of-interpretability.html"><i class="fa fa-check"></i><b>7.2</b> The Future of Interpretability</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="contribute.html"><a href="contribute.html"><i class="fa fa-check"></i><b>8</b> Contribute to the Book</a></li>
+<li class="chapter" data-level="9" data-path="cite.html"><a href="cite.html"><i class="fa fa-check"></i><b>9</b> Citing this Book</a></li>
+<li class="chapter" data-level="10" data-path="acknowledgements.html"><a href="acknowledgements.html"><i class="fa fa-check"></i><b>10</b> Acknowledgements</a></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="divider"></li>
+<li><a href="https://bookdown.org" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Interpretable Machine Learning</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="extend-lm" class="section level2">
+<h2><span class="header-section-number">4.3</span> GLM, GAM and more</h2>
+<p>The biggest strength but also the biggest weakness of the <a href="limo.html#limo">linear regression model</a> is that the prediction is modeled as a weighted sum of the features.
+In addition, the linear model comes with many other assumptions.
+The bad news is (well, not really news) that all those assumptions are often violated in reality:
+The outcome given the features might have a non-Gaussian distribution, the features might interact and the relationship between the features and the outcome might be nonlinear.
+The good news is that the statistics community has developed a variety of modifications that transform the linear regression model from a simple blade into a Swiss knife.</p>
+<p>This chapter is definitely not your definite guide to extending linear models.
+Rather, it serves as an overview of extensions such as Generalized Linear Models (GLMs) and Generalized Additive Models (GAMs) and gives you a little intuition.
+After reading, you should have a solid overview of how to extend linear models.
+If you want to learn more about the linear regression model first, I suggest you read the <a href="limo.html#limo">chapter on linear regression models</a>, if you have not already.</p>
+<p>Let us remember the formula of a linear regression model:</p>
+<p><span class="math display">\[y=\beta_{0}+\beta_{1}x_{1}+\ldots+\beta_{p}x_{p}+\epsilon\]</span></p>
+<p>The linear regression model assumes that the outcome y of an instance can be expressed by a weighted sum of its p features with an individual error <span class="math inline">\(\epsilon\)</span> that follows a Gaussian distribution.
+By forcing the data into this corset of a formula, we obtain a lot of model interpretability.
+The feature effects are additive, meaning no interactions, and the relationship is linear, meaning an increase of a feature by one unit can be directly translated into an increase/decrease of the predicted outcome.
+The linear model allows us to compress the relationship between a feature and the expected outcome into a single number, namely the estimated weight.</p>
+<p>But a simple weighted sum is too restrictive for many real world prediction problems.
+In this chapter we will learn about three problems of the classical linear regression model and how to solve them.
+There are many more problems with possibly violated assumptions, but we will focus on the three shown in the following figure:</p>
+<pre class="sourceCode r"><code class="sourceCode r">theme_blank =<span class="st"> </span><span class="kw">theme</span>(<span class="dt">axis.line=</span><span class="kw">element_blank</span>(),<span class="dt">axis.text.x=</span><span class="kw">element_blank</span>(),
+          <span class="dt">axis.text.y=</span><span class="kw">element_blank</span>(),<span class="dt">axis.ticks=</span><span class="kw">element_blank</span>(),
+          <span class="dt">axis.title.x=</span><span class="kw">element_blank</span>(),
+          <span class="dt">axis.title.y=</span><span class="kw">element_blank</span>(),<span class="dt">legend.position=</span><span class="st">&quot;none&quot;</span>,
+          <span class="dt">panel.background=</span><span class="kw">element_blank</span>(),<span class="dt">panel.border=</span><span class="kw">element_blank</span>(),<span class="dt">panel.grid.major=</span><span class="kw">element_blank</span>(),
+          <span class="dt">panel.grid.minor=</span><span class="kw">element_blank</span>(),<span class="dt">plot.background=</span><span class="kw">element_blank</span>())
+
+<span class="co">## For the GLM</span>
+n =<span class="st"> </span><span class="dv">10000</span>
+df =<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">x =</span> <span class="kw">c</span>(<span class="kw">rnorm</span>(n), <span class="kw">rexp</span>(n, <span class="dt">rate =</span> <span class="fl">0.5</span>)), <span class="dt">dist =</span> <span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&quot;Gaussian&quot;</span>, <span class="st">&quot;Definitely Not Gaussian&quot;</span>), <span class="dt">each =</span> n))
+df<span class="op">$</span>dist  =<span class="st"> </span><span class="kw">relevel</span>(<span class="kw">factor</span>(df<span class="op">$</span>dist), <span class="st">&quot;Gaussian&quot;</span>)
+p.glm =<span class="st"> </span><span class="kw">ggplot</span>(df) <span class="op">+</span><span class="st"> </span><span class="kw">geom_density</span>(<span class="kw">aes</span>(<span class="dt">x =</span> x)) <span class="op">+</span><span class="st"> </span><span class="kw">facet_grid</span>(. <span class="op">~</span><span class="st"> </span>dist, <span class="dt">scales =</span> <span class="st">&quot;free&quot;</span>) <span class="op">+</span><span class="st"> </span>theme_blank
+
+<span class="co"># For the interaction</span>
+df =<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">x1 =</span> <span class="kw">seq</span>(<span class="dt">from =</span> <span class="dv">-3</span>, <span class="dt">to =</span> <span class="dv">3</span>, <span class="dt">length.out =</span> n), <span class="dt">x2 =</span> <span class="kw">sample</span>(<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>), <span class="dt">size =</span> n, <span class="dt">replace =</span> <span class="ot">TRUE</span>))
+df<span class="op">$</span>y =<span class="st"> </span><span class="dv">3</span> <span class="op">+</span><span class="st"> </span><span class="dv">5</span> <span class="op">*</span><span class="st"> </span>df<span class="op">$</span>x1 <span class="op">+</span><span class="st"> </span>(<span class="dv">2</span>  <span class="op">-</span><span class="st"> </span><span class="dv">8</span> <span class="op">*</span><span class="st"> </span>df<span class="op">$</span>x1 ) <span class="op">*</span><span class="st"> </span>(df<span class="op">$</span>x2 <span class="op">==</span><span class="st"> </span><span class="dv">2</span>)
+df<span class="op">$</span>interaction =<span class="st"> &quot;Interaction&quot;</span>
+df2 =<span class="st"> </span>df
+df2<span class="op">$</span>y =<span class="st"> </span><span class="dv">3</span>  <span class="op">+</span><span class="st"> </span><span class="dv">5</span> <span class="op">*</span><span class="st"> </span>df<span class="op">$</span>x1 <span class="op">+</span><span class="st"> </span><span class="fl">0.5</span> <span class="op">*</span><span class="st"> </span>(<span class="op">-</span><span class="st"> </span><span class="dv">8</span> <span class="op">*</span><span class="st"> </span>df<span class="op">$</span>x1 ) <span class="op">+</span><span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span>(df<span class="op">$</span>x2 <span class="op">==</span><span class="st"> </span><span class="dv">2</span>)
+df2<span class="op">$</span>interaction =<span class="st"> &quot;No Interaction&quot;</span>
+
+df =<span class="st"> </span><span class="kw">rbind</span>(df, df2)
+df<span class="op">$</span>interaction  =<span class="st"> </span><span class="kw">relevel</span>(<span class="kw">factor</span>(df<span class="op">$</span>interaction), <span class="st">&quot;No Interaction&quot;</span>)
+df<span class="op">$</span>x2 =<span class="st"> </span><span class="kw">factor</span>(df<span class="op">$</span>x2)
+p.interaction =<span class="st"> </span><span class="kw">ggplot</span>(df) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> x1, <span class="dt">y =</span> y, <span class="dt">group =</span> x2, <span class="dt">lty =</span> x2)) <span class="op">+</span><span class="st"> </span><span class="kw">facet_grid</span>(. <span class="op">~</span><span class="st"> </span>interaction) <span class="op">+</span><span class="st"> </span>theme_blank
+
+
+<span class="co"># For the gam</span>
+df =<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">x  =</span> <span class="kw">seq</span>(<span class="dt">from =</span> <span class="dv">0</span>, <span class="dt">to =</span> <span class="dv">10</span>, <span class="dt">length.out =</span> <span class="dv">200</span>))
+df<span class="op">$</span>y =<span class="st"> </span><span class="dv">5</span> <span class="op">+</span><span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span>df<span class="op">$</span>x
+df<span class="op">$</span>type =<span class="st"> &quot;Linear&quot;</span>
+df2 =<span class="st"> </span>df
+df2<span class="op">$</span>y =<span class="st"> </span><span class="dv">3</span> <span class="op">+</span><span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span>df<span class="op">$</span>x <span class="op">+</span><span class="st"> </span><span class="dv">3</span> <span class="op">*</span><span class="st"> </span><span class="kw">sin</span>(df<span class="op">$</span>x)
+df2<span class="op">$</span>type =<span class="st"> &quot;Nonlinear&quot;</span>
+df =<span class="st"> </span><span class="kw">rbind</span>(df, df2)
+
+p.gam =<span class="st"> </span><span class="kw">ggplot</span>(df) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> x, <span class="dt">y =</span> y)) <span class="op">+</span><span class="st"> </span><span class="kw">facet_grid</span>(. <span class="op">~</span><span class="st"> </span>type) <span class="op">+</span><span class="st"> </span>theme_blank
+
+gridExtra<span class="op">::</span><span class="kw">grid.arrange</span>(p.glm, p.interaction, p.gam)</code></pre>
+<div class="figure"><span id="fig:three-lm-problems"></span>
+<img src="interpretable-ml_files/figure-html/three-lm-problems-1.svg" alt="Three assumptions of the linear model (left side): Gaussian distribution of the outcome given the features, additivity (= no interactions) and linear relationship. Reality usually does not adhere to those assumptions (right side): Outcomes might have non-Gaussian distributions, features might interact and the relationship might be nonlinear." width="672" />
+<p class="caption">
+FIGURE 4.8: Three assumptions of the linear model (left side): Gaussian distribution of the outcome given the features, additivity (= no interactions) and linear relationship. Reality usually does not adhere to those assumptions (right side): Outcomes might have non-Gaussian distributions, features might interact and the relationship might be nonlinear.
+</p>
+</div>
+<p>There is a solution to all these problems:</p>
+<p><strong>Problem</strong>: The target outcome y given the features does not follow a Gaussian distribution.<br />
+<strong>Example</strong>: Suppose I want to predict how many minutes I will ride my bike on a given day.
+As features I have the type of day, the weather and so on.
+If I use a linear model, it could predict negative minutes because it assumes a Gaussian distribution which does not stop at 0 minutes.
+Also if I want to predict probabilities with a linear model, I can get probabilities that are negative or greater than 1.<br />
+<strong>Solution</strong>: <a href="extend-lm.html#glm">Generalized Linear Models (GLMs)</a>.</p>
+<p><strong>Problem</strong>: The features interact.<br />
+<strong>Example</strong>: On average, light rain has a slight negative effect on my desire to go cycling.
+But in summer, during rush hour, I welcome rain, because then all the fair-weather cyclists stay at home and I have the bicycle paths for myself!
+This is an interaction between time and weather that cannot be captured by a purely additive model.<br />
+<strong>Solution</strong>: <a href="extend-lm.html#lm-interact">Adding interactions manually</a>.</p>
+<p><strong>Problem</strong>: The true relationship between the features and y is not linear.<br />
+<strong>Example</strong>: Between 0 and 25 degrees Celsius, the influence of the temperature on my desire to ride a bike could be linear, which means that an increase from 0 to 1 degree causes the same increase in cycling desire as an increase from 20 to 21.
+But at higher temperatures my motivation to cycle levels off and even decreases - I do not like to bike when it is too hot.<br />
+<strong>Solutions</strong>: <a href="extend-lm.html#gam">Generalized Additive Models (GAMs); transformation of features</a>.</p>
+<p>The solutions to these three problems are presented in this chapter.
+Many further extensions of the linear model are omitted.
+If I attempted to cover everything here, the chapter would quickly turn into a book within a book about a topic that is already covered in many other books.
+But since you are already here, I have made a little problem plus solution overview for linear model extensions, which you can find at the <a href="extend-lm.html#more-lm-extension">end of the chapter</a>.
+The name of the solution is meant to serve as a starting point for a search.</p>
+<div id="glm" class="section level3">
+<h3><span class="header-section-number">4.3.1</span> Non-Gaussian Outcomes - GLMs</h3>
+<p>The linear regression model assumes that the outcome given the input features follows a Gaussian distribution.
+This assumption excludes many cases:
+The outcome can also be a category (cancer vs. healthy), a count (number of children), the time to the occurrence of an event (time to failure of a machine) or a very skewed outcome with a few very high values (household income).
+The linear regression model can be extended to model all these types of outcomes.
+This extension is called <strong>Generalized Linear Models</strong> or <strong>GLMs</strong> for short.
+Throughout this chapter, I will use the name GLM for both the general framework and for particular models from that framework.
+The core concept of any GLM is:
+Keep the weighted sum of the features, but allow non-Gaussian outcome distributions and connect the expected mean of this distribution and the weighted sum through a possibly nonlinear function.
+For example, the logistic regression model assumes a Bernoulli distribution for the outcome and links the expected mean and the weighted sum using the logistic function.</p>
+<p>The GLM mathematically links the weighted sum of the features with the mean value of the assumed distribution using the link function g, which can be chosen flexibly depending on the type of outcome.</p>
+<p><span class="math display">\[g(E_Y(y|x))=\beta_0+\beta_1{}x_{1}+\ldots{}\beta_p{}x_{p}\]</span></p>
+<p>GLMs consist of three components:
+The link function g, the weighted sum <span class="math inline">\(X^T\beta\)</span> (sometimes called linear predictor) and a probability distribution from the exponential family that defines <span class="math inline">\(E_Y\)</span>.</p>
+<p>The exponential family is a set of distributions that can be written with the same (parameterized) formula that includes an exponent, the mean and variance of the distribution and some other parameters.
+I will not go into the mathematical details because this is a very big universe of its own that I do not want to enter.
+Wikipedia has a neat <a href="https://en.wikipedia.org/wiki/Exponential_family#Table_of_distributions">list of distributions from the exponential family</a>.
+Any distribution from this list can be chosen for your GLM.
+Based on the type of the outcome you want to predict, choose a suitable distribution.
+Is the outcome a count of something (e.g. number of children living in a household)?
+Then the Poisson distribution could be a good choice.
+Is the outcome always positive (e.g. time between two events)?
+Then the exponential distribution could be a good choice.</p>
+<p>Let us consider the classic linear model as a special case of a GLM.
+The link function for the Gaussian distribution in the classic linear model is simply the identity function.
+The Gaussian distribution is parameterized by the mean and the variance parameters.
+The mean describes the value that we expect on average and the variance describes how much the values vary around this mean.
+In the linear model, the link function links the weighted sum of the features to the mean of the Gaussian distribution.</p>
+<p>Under the GLM framework, this concept generalizes to any distribution (from the exponential family) and arbitrary link functions.
+If y is a count of something, such as the number of coffees someone drinks on a certain day, we could model it with a GLM with a Poisson distribution and the natural logarithm as the link function:</p>
+<p><span class="math display">\[ln(E_Y(y|x)=x^{T}\beta\]</span></p>
+<p>The logistic regression model is also a GLM that assumes a Bernoulli distribution and uses the logistic function as the link function.
+The mean of the binomial distribution used in logistic regression is the probability that y is 1.</p>
+<p><span class="math display">\[x^{T}\beta=ln\left(\frac{E_Y(y|x)}{1-E_Y(y|x)}\right)=ln\left(\frac{P(y=1|x)}{1-P(y=1|x)}\right)\]</span></p>
+<p>And if we solve this equation to have P(y=1) on one side, we get the logistic regression formula:</p>
+<p><span class="math display">\[P(y=1)=\frac{1}{1+exp(-x^{T}\beta)}\]</span></p>
+<p>Each distribution from the exponential family has a canonical link function that can be derived mathematically from the distribution.
+The GLM framework makes it possible to choose the link function independently of the distribution.
+How to choose the right link function?
+There is no perfect recipe.
+You take into account knowledge about the distribution of your target, but also theoretical considerations and how well the model fits your actual data.
+For some distributions the canonical link function can lead to values that are invalid for that distribution.
+In the case of the exponential distribution, the canonical link function is the negative inverse, which can lead to negative predictions that are outside the domain of the exponential distribution.
+Since you can choose any link function, the simple solution is to choose another function that respects the domain of the distribution.</p>
+<p><strong>Examples</strong></p>
+<p>I have simulated a dataset on coffee drinking behavior to highlight the need for GLMs.
+Suppose you have collected data about your daily coffee drinking behavior.
+If you do not like coffee, pretend it is about tea.
+Along with number of cups, you record your current stress level on a scale of 1 to 10, how well you slept the night before on a scale of 1 to 10 and whether you had to work on that day.
+The goal is to predict the number of coffees given the features stress, sleep and work.
+I simulated data for 200 days.
+Stress and sleep were drawn uniformly between 1 and 10 and work yes/no was drawn with a 50/50 chance (what a life!).
+For each day, the number of coffees was then drawn from a Poisson distribution, modelling the intensity <span class="math inline">\(\lambda\)</span> (which is also the expected value of the Poisson distribution) as a function of the features sleep, stress and work.
+You can guess where this story will lead:
+<em>“Hey, let us model this data with a linear model … Oh it does not work … Let us try a GLM with Poisson distribution … SURPRISE! Now it works!”.</em>
+I hope I did not spoil the story too much for you.</p>
+<p>Let us look at the distribution of the target variable, the number of coffees on a given day:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># simulate data where the normal linear model fails.</span>
+n =<span class="st"> </span><span class="dv">200</span>
+df =<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">stress  =</span> <span class="kw">runif</span>(<span class="dt">n =</span> n, <span class="dt">min =</span> <span class="dv">1</span>, <span class="dt">max =</span> <span class="dv">10</span>), 
+  <span class="dt">sleep =</span> <span class="kw">runif</span>(<span class="dt">n =</span> n, <span class="dt">min =</span> <span class="dv">1</span>, <span class="dt">max =</span> <span class="dv">10</span>), 
+  <span class="dt">work =</span> <span class="kw">sample</span>(<span class="kw">c</span>(<span class="st">&quot;YES&quot;</span>, <span class="st">&quot;NO&quot;</span>), <span class="dt">size =</span> n, <span class="dt">replace =</span> <span class="ot">TRUE</span>))
+lambda =<span class="st"> </span><span class="kw">exp</span>(<span class="dv">1</span><span class="op">*</span><span class="st"> </span>df<span class="op">$</span>stress<span class="op">/</span><span class="dv">10</span> <span class="op">-</span><span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span>(df<span class="op">$</span>sleep <span class="op">-</span><span class="st"> </span><span class="dv">5</span>)<span class="op">/</span><span class="dv">10</span>  <span class="op">-</span><span class="st"> </span><span class="dv">1</span> <span class="op">*</span><span class="st"> </span>(df<span class="op">$</span>work <span class="op">==</span><span class="st"> &quot;NO&quot;</span>))
+df<span class="op">$</span>y =<span class="st"> </span><span class="kw">rpois</span>(<span class="dt">lambda =</span> lambda, <span class="dt">n =</span> n)
+
+tab =<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">table</span>(df<span class="op">$</span>y))
+
+<span class="kw">ggplot</span>(tab) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_col</span>(<span class="kw">aes</span>(<span class="dt">x =</span> Var1, <span class="dt">y =</span> Freq), <span class="dt">fill =</span> default_color, <span class="dt">width =</span> <span class="fl">0.3</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_x_discrete</span>(<span class="st">&quot;Number of coffees on a given day&quot;</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="st">&quot;Number of days&quot;</span>)</code></pre>
+<div class="figure"><span id="fig:poisson-data"></span>
+<img src="interpretable-ml_files/figure-html/poisson-data-1.svg" alt="Simulated distribution of number of daily coffees for 200 days." width="672" />
+<p class="caption">
+FIGURE 4.9: Simulated distribution of number of daily coffees for 200 days.
+</p>
+</div>
+<p>On 76 of the 200 days you had no coffee at all and on the most extreme day you had 7.
+Let us naively use a linear model to predict the number of coffees using sleep level, stress level and work yes/no as features.
+What can go wrong when we falsely assume a Gaussian distribution?
+A wrong assumption can invalidate the estimates, especially the confidence intervals of the weights.
+A more obvious problem is that the predictions do not match the “allowed” domain of the true outcome, as the following figure shows.</p>
+<pre class="sourceCode r"><code class="sourceCode r">mod.gaus =<span class="st"> </span><span class="kw">glm</span>(y <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> df, <span class="dt">x =</span> <span class="ot">TRUE</span>)
+pred.gauss =<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">pred =</span> <span class="kw">predict</span>(mod.gaus), <span class="dt">actual =</span> df<span class="op">$</span>y)
+<span class="kw">ggplot</span>(pred.gauss) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_histogram</span>(<span class="kw">aes</span>(<span class="dt">x =</span> pred), <span class="dt">fill =</span> default_color) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="st">&quot;Predicted number of coffees&quot;</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="st">&quot;Frequency&quot;</span>)</code></pre>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<div class="figure"><span id="fig:failing-linear-model"></span>
+<img src="interpretable-ml_files/figure-html/failing-linear-model-1.svg" alt="Predicted number of coffees dependent on stress, sleep and work. The linear model predicts negative values." width="672" />
+<p class="caption">
+FIGURE 4.10: Predicted number of coffees dependent on stress, sleep and work. The linear model predicts negative values.
+</p>
+</div>
+<p>The linear model does not make sense, because it predicts negative number of coffees.
+This problem can be solved with Generalized Linear Models (GLMs).
+We can change the link function and the assumed distribution.
+One possibility is to keep the Gaussian distribution and use a link function that always leads to positive predictions such as the log-link (the inverse is the exp-function) instead of the identity function.
+Even better:
+We choose a distribution that corresponds to the data generating process and an appropriate link function.
+Since the outcome is a count, the Poisson distribution is a natural choice, along with the logarithm as link function.
+In this case, the data was even generated with the Poisson distribution, so the Poisson GLM is the perfect choice.
+The fitted Poisson GLM leads to the following distribution of predicted values:</p>
+<pre class="sourceCode r"><code class="sourceCode r">mod.pois =<span class="st"> </span><span class="kw">glm</span>(y <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> df, <span class="dt">x =</span> <span class="ot">TRUE</span>, <span class="dt">family =</span> <span class="kw">poisson</span>(<span class="dt">link =</span> <span class="st">&quot;log&quot;</span>))
+pred.pois =<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">pred =</span> <span class="kw">predict</span>(mod.pois, <span class="dt">type =</span> <span class="st">&quot;response&quot;</span>), <span class="dt">actual =</span> df<span class="op">$</span>y)
+<span class="kw">ggplot</span>(pred.pois)  <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_histogram</span>(<span class="kw">aes</span>(<span class="dt">x =</span> pred), <span class="dt">fill =</span> default_color)<span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="st">&quot;Predicted number of coffees&quot;</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="st">&quot;Frequency&quot;</span>)</code></pre>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<div class="figure"><span id="fig:linear-model-positive"></span>
+<img src="interpretable-ml_files/figure-html/linear-model-positive-1.svg" alt="Predicted number of coffees dependent on stress, sleep and work. The GLM with Poisson assumption and log link is an appropriate model for this dataset." width="672" />
+<p class="caption">
+FIGURE 4.11: Predicted number of coffees dependent on stress, sleep and work. The GLM with Poisson assumption and log link is an appropriate model for this dataset.
+</p>
+</div>
+<p>No negative amounts of coffees, looks much better now.</p>
+<p><strong>Interpretation of GLM weights</strong></p>
+<p>The assumed distribution together with the link function determines how the estimated feature weights are interpreted.
+In the coffee count example, I used a GLM with Poisson distribution and log link, which implies the following relationship between the features and the expected outcome.</p>
+<p><span class="math display">\[ln(E(\text{coffees}|\text{stress},\text{sleep},\text{work}))=\beta_0+\beta_{\text{stress}}x_{\text{stress}}+\beta_{\text{sleep}}x_{\text{sleep}}+\beta_{\text{work}}x_{\text{work}}\]</span></p>
+<p>To interpret the weights we invert the link function so that we can interpret the effect of the features on the expected outcome and not on the logarithm of the expected outcome.</p>
+<p><span class="math display">\[E(\text{coffees}|\text{stress},\text{sleep},\text{work})=exp(\beta_0+\beta_{\text{stress}}x_{\text{stress}}+\beta_{\text{sleep}}x_{\text{sleep}}+\beta_{\text{work}}x_{\text{work}})\]</span></p>
+<p>Since all the weights are in the exponential function, the effect interpretation is not additive, but multiplicative, because exp(a + b) is exp(a) times exp(b).
+The last ingredient for the interpretation is the actual weights of the toy example.
+The following table lists the estimated weights and exp(weights) together with the 95% confidence interval:</p>
+<pre class="sourceCode r"><code class="sourceCode r">cc =<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">summary</span>(mod.pois)<span class="op">$</span>coefficients)
+cc =<span class="st"> </span>cc[,<span class="kw">c</span>(<span class="st">&quot;Estimate&quot;</span>, <span class="st">&quot;Std..Error&quot;</span>)]
+<span class="kw">colnames</span>(cc) =<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;beta&quot;</span>, <span class="st">&#39;var.beta&#39;</span>)
+cc<span class="op">$</span>exp.beta =<span class="st"> </span><span class="kw">exp</span>(cc[, <span class="st">&#39;beta&#39;</span>])
+cc =<span class="st"> </span>cc[<span class="kw">c</span>(<span class="st">&quot;beta&quot;</span>, <span class="st">&quot;exp.beta&quot;</span>)]
+cc =<span class="st"> </span><span class="kw">cbind</span>(cc, <span class="kw">exp</span>(<span class="kw">confint</span>(mod.pois)))</code></pre>
+<pre><code>## Waiting for profiling to be done...</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">cc<span class="op">$</span>ci =<span class="st"> </span><span class="kw">sprintf</span>(<span class="st">&quot;%.2f [%.2f, %.2f]&quot;</span>, cc<span class="op">$</span>exp.beta, cc<span class="op">$</span><span class="st">`</span><span class="dt">2.5 %</span><span class="st">`</span>, cc<span class="op">$</span><span class="st">`</span><span class="dt">97.5 %</span><span class="st">`</span>)
+<span class="kw">kable</span>(cc[<span class="kw">c</span>(<span class="st">&quot;beta&quot;</span>, <span class="st">&quot;ci&quot;</span>)], <span class="dt">col.names =</span> <span class="kw">c</span>(<span class="st">&quot;weight&quot;</span>, <span class="st">&quot;exp(weight) [2.5%, 97.5%]&quot;</span>), <span class="dt">digits =</span> <span class="dv">2</span>)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">weight</th>
+<th align="left">exp(weight) [2.5%, 97.5%]</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>(Intercept)</td>
+<td align="right">-0.16</td>
+<td align="left">0.85 [0.54, 1.32]</td>
+</tr>
+<tr class="even">
+<td>stress</td>
+<td align="right">0.12</td>
+<td align="left">1.12 [1.07, 1.18]</td>
+</tr>
+<tr class="odd">
+<td>sleep</td>
+<td align="right">-0.15</td>
+<td align="left">0.86 [0.82, 0.90]</td>
+</tr>
+<tr class="even">
+<td>workYES</td>
+<td align="right">0.80</td>
+<td align="left">2.23 [1.72, 2.93]</td>
+</tr>
+</tbody>
+</table>
+<p>Increasing the stress level by one point multiplies the expected number of coffees by the factor 1.12.
+Increasing the sleep quality by one point multiplies the expected number of coffees by the factor 0.86.
+The predicted number of coffees on a work day is on average 2.23 times the number of coffees on a day off.
+In summary, the more stress, the less sleep and the more work, the more coffee is consumed.</p>
+<p>In this section you learned a little about Generalized Linear Models that are useful when the target does not follow a Gaussian distribution.
+Next, we look at how to integrate interactions between two features into the linear regression model.</p>
+</div>
+<div id="lm-interact" class="section level3">
+<h3><span class="header-section-number">4.3.2</span> Interactions</h3>
+<p>The linear regression model assumes that the effect of one feature is the same regardless of the values of the other features (= no interactions).
+But often there are interactions in the data.
+To predict the <a href="bike-data.html#bike-data">number of bicycles</a> rented, there may be an interaction between temperature and whether it is a working day or not.
+Perhaps, when people have to work, the temperature does not influence the number of rented bikes much, because people will ride the rented bike to work no matter what happens.
+On days off, many people ride for pleasure, but only when it is warm enough.
+When it comes to rental bicycles, you might expect an interaction between temperature and working day.</p>
+<p>How can we get the linear model to include interactions?
+Before you fit the linear model, add a column to the feature matrix that represents the interaction between the features and fit the model as usual.
+The solution is elegant in a way, since it does not require any change of the linear model, only additional columns in the data.
+In the working day and temperature example, we would add a new feature that has zeros for no-work days, otherwise it has the value of the temperature feature, assuming that working day is the reference category.
+Suppose our data looks like this:</p>
+<pre class="sourceCode r"><code class="sourceCode r">x =<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">work =</span> <span class="kw">c</span>(<span class="st">&quot;Y&quot;</span>, <span class="st">&quot;N&quot;</span>, <span class="st">&quot;N&quot;</span>, <span class="st">&quot;Y&quot;</span>), <span class="dt">temp =</span> <span class="kw">c</span>(<span class="dv">25</span>, <span class="dv">12</span>, <span class="dv">30</span>, <span class="dv">5</span>))
+knitr<span class="op">::</span><span class="kw">kable</span>(x)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">work</th>
+<th align="right">temp</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Y</td>
+<td align="right">25</td>
+</tr>
+<tr class="even">
+<td align="left">N</td>
+<td align="right">12</td>
+</tr>
+<tr class="odd">
+<td align="left">N</td>
+<td align="right">30</td>
+</tr>
+<tr class="even">
+<td align="left">Y</td>
+<td align="right">5</td>
+</tr>
+</tbody>
+</table>
+<p>The data matrix used by the linear model looks slightly different.
+The following table shows what the data prepared for the model looks like if we do not specify any interactions.
+Normally, this transformation is performed automatically by any statistical software.</p>
+<pre class="sourceCode r"><code class="sourceCode r">mod =<span class="st"> </span><span class="kw">lm</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">4</span> <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> x)
+model.tab =<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">model.matrix</span>(mod))
+<span class="kw">colnames</span>(model.tab)[<span class="dv">1</span>] =<span class="st"> &quot;Intercept&quot;</span>
+knitr<span class="op">::</span><span class="kw">kable</span>(model.tab)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">Intercept</th>
+<th align="right">workY</th>
+<th align="right">temp</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">25</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">12</td>
+</tr>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">30</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">5</td>
+</tr>
+</tbody>
+</table>
+<p>The first column is the intercept term.
+The second column encodes the categorical feature, with 0 for the reference category and 1 for the other.
+The third column contains the temperature.</p>
+<p>If we want the linear model to consider the interaction between temperature and the workingday feature, we have to add a column for the interaction:</p>
+<pre class="sourceCode r"><code class="sourceCode r">mod =<span class="st"> </span><span class="kw">lm</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">4</span> <span class="op">~</span><span class="st"> </span>work <span class="op">*</span><span class="st"> </span>temp, <span class="dt">data =</span> x)
+model.tab =<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">model.matrix</span>(mod))
+<span class="kw">colnames</span>(model.tab)[<span class="dv">1</span>] =<span class="st"> &quot;Intercept&quot;</span>
+knitr<span class="op">::</span><span class="kw">kable</span>(model.tab)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">Intercept</th>
+<th align="right">workY</th>
+<th align="right">temp</th>
+<th align="right">workY.temp</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">25</td>
+<td align="right">25</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">12</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">30</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">5</td>
+<td align="right">5</td>
+</tr>
+</tbody>
+</table>
+<p>The new column “workY.temp” captures the interaction between the features working day (work) and temperature (temp).
+This new feature column is zero for an instance if the work feature is at the reference category (“N” for no working day), otherwise it assumes the values of the instances temperature feature.
+With this type of encoding, the linear model can learn a different linear effect of temperature for both types of days.
+This is the interaction effect between the two features.
+Without an interaction term, the combined effect of a categorical and a numerical feature can be described by a line that is vertically shifted for the different categories.
+If we include the interaction, we allow the effect of the numerical features (the slope) to have a different value in each category.</p>
+<p>The interaction of two categorical features works similarly.
+We create additional features which represent combinations of categories.
+Here is some artificial data containing working day (work) and a categorical weather feature (wthr):</p>
+<pre class="sourceCode r"><code class="sourceCode r">x =<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">work =</span> <span class="kw">c</span>(<span class="st">&quot;Y&quot;</span>, <span class="st">&quot;N&quot;</span>, <span class="st">&quot;N&quot;</span>, <span class="st">&quot;Y&quot;</span>), <span class="dt">wthr =</span> <span class="kw">c</span>(<span class="st">&quot;2&quot;</span>, <span class="st">&quot;0&quot;</span>, <span class="st">&quot;1&quot;</span>, <span class="st">&quot;2&quot;</span>))
+knitr<span class="op">::</span><span class="kw">kable</span>(x)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">work</th>
+<th align="left">wthr</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Y</td>
+<td align="left">2</td>
+</tr>
+<tr class="even">
+<td align="left">N</td>
+<td align="left">0</td>
+</tr>
+<tr class="odd">
+<td align="left">N</td>
+<td align="left">1</td>
+</tr>
+<tr class="even">
+<td align="left">Y</td>
+<td align="left">2</td>
+</tr>
+</tbody>
+</table>
+<p>Next, we include interaction terms:</p>
+<pre class="sourceCode r"><code class="sourceCode r">mod =<span class="st"> </span><span class="kw">lm</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">4</span> <span class="op">~</span><span class="st"> </span>work <span class="op">*</span><span class="st"> </span>wthr, <span class="dt">data =</span> x)
+model.tab =<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">model.matrix</span>(mod))
+<span class="kw">colnames</span>(model.tab)[<span class="dv">1</span>] =<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Intercept&quot;</span>)
+knitr<span class="op">::</span><span class="kw">kable</span>(model.tab)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">Intercept</th>
+<th align="right">workY</th>
+<th align="right">wthr1</th>
+<th align="right">wthr2</th>
+<th align="right">workY.wthr1</th>
+<th align="right">workY.wthr2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">1</td>
+</tr>
+</tbody>
+</table>
+<p>The first column serves to estimate the intercept.
+The second column is the encoded work feature.
+Columns three and four are for the weather feature, which requires two columns because you need two weights to capture the effect for three categories, one of which is the reference category.
+The rest of the columns capture the interactions.
+For each category of both features (except for the reference categories), we create a new feature column that is 1 if both features have a certain category, otherwise 0.</p>
+<p>For two numerical features, the interaction column is even easier to construct:
+We simply multiply both numerical features.</p>
+<p>There are approaches to automatically detect and add interaction terms.
+One of them can be found in the <a href="rulefit.html#rulefit">RuleFit chapter</a>.
+The RuleFit algorithm first mines interaction terms and then estimates a linear regression model including interactions.</p>
+<p><strong>Example</strong></p>
+<p>Let us return to the <a href="bike-data.html#bike-data">bike rental prediction task</a> which we have already modeled in the <a href="limo.html#limo">linear model chapter</a>.
+This time, we additionally consider an interaction between the temperature and the working day feature.
+This results in the following estimated weights and confidence intervals.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(bike)
+X =<span class="st"> </span>bike[bike.features.of.interest]
+y =<span class="st"> </span>bike[,<span class="st">&#39;cnt&#39;</span>]
+dat =<span class="st"> </span><span class="kw">cbind</span>(X, y)
+
+mod =<span class="st"> </span><span class="kw">lm</span>(y <span class="op">~</span><span class="st"> </span>. <span class="op">+</span><span class="st"> </span>temp <span class="op">*</span><span class="st"> </span>workingday, <span class="dt">data =</span> dat, <span class="dt">x =</span> <span class="ot">TRUE</span>)
+lm_summary =<span class="st"> </span><span class="kw">summary</span>(mod)<span class="op">$</span>coefficients
+
+lm_summary_print =<span class="st"> </span>lm_summary
+<span class="kw">rownames</span>(lm_summary_print) =<span class="st"> </span><span class="kw">pretty_rownames</span>(<span class="kw">rownames</span>(lm_summary_print))
+
+<span class="co"># var name becomes to long otherwise</span>
+<span class="kw">rownames</span>(lm_summary_print)[<span class="kw">rownames</span>(lm_summary_print) <span class="op">==</span><span class="st"> &quot;weathersitRAIN/SNOW/STORM&quot;</span>] =<span class="st"> &quot;weathersitRAIN/...&quot;</span>
+<span class="kw">kable</span>(<span class="kw">cbind</span>(lm_summary_print[,<span class="kw">c</span>(<span class="st">&#39;Estimate&#39;</span>, <span class="st">&#39;Std. Error&#39;</span>)], <span class="kw">confint</span>(mod)), <span class="dt">digits =</span> <span class="dv">1</span>, <span class="dt">col.names =</span> <span class="kw">c</span>(<span class="st">&#39;Weight&#39;</span>, <span class="st">&#39;Std. Error&#39;</span>, <span class="st">&quot;2.5%&quot;</span>,<span class="st">&quot;97.5%&quot;</span>))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">Weight</th>
+<th align="right">Std. Error</th>
+<th align="right">2.5%</th>
+<th align="right">97.5%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>(Intercept)</td>
+<td align="right">2185.8</td>
+<td align="right">250.2</td>
+<td align="right">1694.6</td>
+<td align="right">2677.1</td>
+</tr>
+<tr class="even">
+<td>seasonSUMMER</td>
+<td align="right">893.8</td>
+<td align="right">121.8</td>
+<td align="right">654.7</td>
+<td align="right">1132.9</td>
+</tr>
+<tr class="odd">
+<td>seasonFALL</td>
+<td align="right">137.1</td>
+<td align="right">161.0</td>
+<td align="right">-179.0</td>
+<td align="right">453.2</td>
+</tr>
+<tr class="even">
+<td>seasonWINTER</td>
+<td align="right">426.5</td>
+<td align="right">110.3</td>
+<td align="right">209.9</td>
+<td align="right">643.2</td>
+</tr>
+<tr class="odd">
+<td>holidayHOLIDAY</td>
+<td align="right">-674.4</td>
+<td align="right">202.5</td>
+<td align="right">-1071.9</td>
+<td align="right">-276.9</td>
+</tr>
+<tr class="even">
+<td>workingdayWORKING DAY</td>
+<td align="right">451.9</td>
+<td align="right">141.7</td>
+<td align="right">173.7</td>
+<td align="right">730.1</td>
+</tr>
+<tr class="odd">
+<td>weathersitMISTY</td>
+<td align="right">-382.1</td>
+<td align="right">87.2</td>
+<td align="right">-553.3</td>
+<td align="right">-211.0</td>
+</tr>
+<tr class="even">
+<td>weathersitRAIN/…</td>
+<td align="right">-1898.2</td>
+<td align="right">222.7</td>
+<td align="right">-2335.4</td>
+<td align="right">-1461.0</td>
+</tr>
+<tr class="odd">
+<td>temp</td>
+<td align="right">125.4</td>
+<td align="right">8.9</td>
+<td align="right">108.0</td>
+<td align="right">142.9</td>
+</tr>
+<tr class="even">
+<td>hum</td>
+<td align="right">-17.5</td>
+<td align="right">3.2</td>
+<td align="right">-23.7</td>
+<td align="right">-11.3</td>
+</tr>
+<tr class="odd">
+<td>windspeed</td>
+<td align="right">-42.1</td>
+<td align="right">6.9</td>
+<td align="right">-55.5</td>
+<td align="right">-28.6</td>
+</tr>
+<tr class="even">
+<td>days_since_2011</td>
+<td align="right">4.9</td>
+<td align="right">0.2</td>
+<td align="right">4.6</td>
+<td align="right">5.3</td>
+</tr>
+<tr class="odd">
+<td>workingdayWORKING DAY:temp</td>
+<td align="right">-21.8</td>
+<td align="right">8.1</td>
+<td align="right">-37.7</td>
+<td align="right">-5.9</td>
+</tr>
+</tbody>
+</table>
+<p>The additional interaction effect is negative (-21.8) and differs significantly from zero, as shown by the 95% confidence interval, which does not include zero.
+By the way, the data are not iid, because days that are close to each other are not independent from each other.
+Confidence intervals might be misleading, just take it with a grain of salt.
+The interaction term changes the interpretation of the weights of the involved features.
+Does the temperature have a negative effect given it is a working day?
+The answer is no, even if the table suggests it to an untrained user.
+We cannot interpret the “workingdayWORKING DAY:temp” interaction weight in isolation, since the interpretation would be:
+“While leaving all other feature values unchanged, increasing the interaction effect of temperature for working day decreases the predicted number of bikes.”
+But the interaction effect only adds to the main effect of the temperature.
+Suppose it is a working day and we want to know what would happen if the temperature were 1 degree warmer today.
+Then we need to sum both the weights for “temp” and “workingdayWORKING DAY:temp” to determine how much the estimate increases.</p>
+<p>It is easier to understand the interaction visually.
+By introducing an interaction term between a categorical and a numerical feature, we get two slopes for the temperature instead of one.
+The temperature slope for days on which people do not have to work (‘NO WORKING DAY’) can be read directly from the table (125.4).
+The temperature slope for days on which people have to work (‘WORKING DAY’) is the sum of both temperature weights (125.4 -21.8 = 103.6).
+The intercept of the ‘NO WORKING DAY’-line at temperature = 0 is determined by the intercept term of the linear model (2185.8).
+The intercept of the ‘WORKING DAY’-line at temperature = 0 is determined by the intercept term + the effect of working day (2185.8 + 451.9 = 2637.7).</p>
+<pre class="sourceCode r"><code class="sourceCode r">interactions<span class="op">::</span><span class="kw">interact_plot</span>(mod, <span class="dt">pred =</span> <span class="st">&quot;temp&quot;</span>, <span class="dt">modx =</span> <span class="st">&quot;workingday&quot;</span>)</code></pre>
+<div class="figure"><span id="fig:interaction-plot"></span>
+<img src="interpretable-ml_files/figure-html/interaction-plot-1.svg" alt="The effect (including interaction) of temperature and working day on the predicted number of bikes for a linear model. Effectively, we get two slopes for the temperature, one for each category of the working day feature." width="672" />
+<p class="caption">
+FIGURE 4.12: The effect (including interaction) of temperature and working day on the predicted number of bikes for a linear model. Effectively, we get two slopes for the temperature, one for each category of the working day feature.
+</p>
+</div>
+</div>
+<div id="gam" class="section level3">
+<h3><span class="header-section-number">4.3.3</span> Nonlinear Effects - GAMs</h3>
+<p><strong>The world is not linear.</strong>
+Linearity in linear models means that no matter what value an instance has in a particular feature, increasing the value by one unit always has the same effect on the predicted outcome.
+Is it reasonable to assume that increasing the temperature by one degree at 10 degrees Celsius has the same effect on the number of rental bikes as increasing the temperature when it already has 40 degrees?
+Intuitively, one expects that increasing the temperature from 10 to 11 degrees Celsius has a positive effect on bicycle rentals and from 40 to 41 a negative effect, which is also the case, as you will see, in many examples throughout the book.
+The temperature feature has a linear, positive effect on the number of rental bikes, but at some point it flattens out and even has a negative effect at high temperatures.
+The linear model does not care, it will dutifully find the best linear plane (by minimizing the Euclidean distance).</p>
+<p>You can model nonlinear relationships using one of the following techniques:</p>
+<ul>
+<li>Simple transformation of the feature (e.g. logarithm)</li>
+<li>Categorization of the feature</li>
+<li>Generalized Additive Models (GAMs)</li>
+</ul>
+<p>Before I go into the details of each method, let us start with an example that illustrates all three of them.
+I took the <a href="bike-data.html#bike-data">bike rental dataset</a> and trained a linear model with only the temperature feature to predict the number of rental bikes.
+The following figure shows the estimated slope with: the standard linear model, a linear model with transformed temperature (logarithm), a linear model with temperature treated as categorical feature and using regression splines (GAM).</p>
+<pre class="sourceCode r"><code class="sourceCode r">mod.simpel =<span class="st"> </span><span class="kw">lm</span>(cnt <span class="op">~</span><span class="st"> </span>temp, <span class="dt">data =</span> bike)
+bike.plt =<span class="st"> </span>bike
+bike.plt<span class="op">$</span>pred.lm =<span class="st"> </span><span class="kw">predict</span>(mod.simpel)
+
+bike.plt<span class="op">$</span>log.temp =<span class="st"> </span><span class="kw">log</span>(bike<span class="op">$</span>temp <span class="op">+</span><span class="st"> </span><span class="dv">10</span>)
+mod.simpel =<span class="st"> </span><span class="kw">lm</span>(cnt <span class="op">~</span><span class="st"> </span>log.temp, <span class="dt">data =</span> bike.plt)
+bike.plt<span class="op">$</span>pred.sqrt =<span class="st"> </span><span class="kw">predict</span>(mod.simpel)
+
+bike.plt<span class="op">$</span>cat.temp =<span class="st"> </span><span class="kw">cut</span>(bike<span class="op">$</span>temp, <span class="dt">breaks =</span> <span class="kw">seq</span>(<span class="dt">from =</span> <span class="kw">min</span>(bike<span class="op">$</span>temp), <span class="dt">to =</span> <span class="kw">max</span>(bike<span class="op">$</span>temp), <span class="dt">length.out =</span> <span class="dv">10</span>), <span class="dt">include.lowest =</span> <span class="ot">TRUE</span>)
+mod.simpel =<span class="st"> </span><span class="kw">lm</span>(cnt <span class="op">~</span><span class="st"> </span>cat.temp, <span class="dt">data =</span> bike.plt)
+bike.plt<span class="op">$</span>pred.cat =<span class="st"> </span><span class="kw">predict</span>(mod.simpel)
+
+<span class="kw">library</span>(mgcv)</code></pre>
+<pre><code>## Loading required package: nlme</code></pre>
+<pre><code>## This is mgcv 1.8-28. For overview type &#39;help(&quot;mgcv-package&quot;)&#39;.</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">mod.gam =<span class="st"> </span><span class="kw">gam</span>(cnt <span class="op">~</span><span class="st"> </span><span class="kw">s</span>(temp), <span class="dt">data =</span> bike)
+bike.plt<span class="op">$</span>pred.gam =<span class="st"> </span><span class="kw">predict</span>(mod.gam)
+
+
+bike.plt =<span class="st"> </span>data.table<span class="op">::</span><span class="kw">melt</span>(bike.plt[<span class="kw">c</span>(<span class="st">&quot;pred.lm&quot;</span>, <span class="st">&quot;pred.sqrt&quot;</span>, <span class="st">&quot;pred.cat&quot;</span>, <span class="st">&quot;pred.gam&quot;</span>)])</code></pre>
+<pre><code>## No id variables; using all as measure variables</code></pre>
+<pre><code>## Warning: attributes are not identical across measure variables; they will
+## be dropped</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">bike.plt<span class="op">$</span>temp =<span class="st"> </span><span class="kw">rep</span>(bike<span class="op">$</span>temp, <span class="dt">times =</span> <span class="dv">4</span>)
+bike.plt<span class="op">$</span>cnt =<span class="st"> </span><span class="kw">rep</span>(bike<span class="op">$</span>cnt, <span class="dt">times =</span> <span class="dv">4</span>)
+
+model.type =<span class="st"> </span><span class="kw">c</span>(<span class="dt">pred.lm =</span> <span class="st">&quot;Linear model&quot;</span>, 
+  <span class="dt">pred.sqrt =</span> <span class="st">&quot;Linear model with log(temp + 10)&quot;</span>, 
+  <span class="dt">pred.cat =</span> <span class="st">&quot;Linear model with categorized temp&quot;</span>, 
+  <span class="dt">pred.gam =</span> <span class="st">&quot;GAM&quot;</span>)
+
+<span class="kw">ggplot</span>(bike.plt) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">x =</span> temp, <span class="dt">y =</span> cnt), <span class="dt">size =</span> <span class="dv">1</span> , <span class="dt">alpha =</span> <span class="fl">0.3</span>)  <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> temp, <span class="dt">y =</span> value), <span class="dt">size =</span> <span class="fl">1.2</span>, <span class="dt">color =</span> <span class="st">&quot;blue&quot;</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">facet_wrap</span>(<span class="st">&quot;variable&quot;</span>, <span class="dt">labeller =</span> <span class="kw">labeller</span>(<span class="dt">variable =</span> model.type)) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="st">&quot;Temperature (temp)&quot;</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="st">&quot;(Predicted) Number of rented bikes&quot;</span>)</code></pre>
+<div class="figure"><span id="fig:nonlinear-effects"></span>
+<img src="interpretable-ml_files/figure-html/nonlinear-effects-1.svg" alt="Predicting the number of rented bicycles using only the temperature feature. A linear model (top left) does not fit the data well. One solution is to transform the feature with e.g. the logarithm (top right), categorize it (bottom left), which is usually a bad decision, or use Generalized Additive Models that can automatically fit a smooth curve for temperature (bottom right)." width="672" />
+<p class="caption">
+FIGURE 4.13: Predicting the number of rented bicycles using only the temperature feature. A linear model (top left) does not fit the data well. One solution is to transform the feature with e.g. the logarithm (top right), categorize it (bottom left), which is usually a bad decision, or use Generalized Additive Models that can automatically fit a smooth curve for temperature (bottom right).
+</p>
+</div>
+<p><strong>Feature transformation</strong></p>
+<p>Often the logarithm of the feature is used as a transformation.
+Using the logarithm indicates that every 10-fold temperature increase has the same linear effect on the number of bikes, so changing from 1 degree Celsius to 10 degrees Celsius has the same effect as changing from 0.1 to 1 (sounds wrong).
+Other examples for feature transformations are the square root, the square function and the exponential function.
+Using a feature transformation means that you replace the column of this feature in the data with a function of the feature, such as the logarithm, and fit the linear model as usual.
+Some statistical programs also allow you to specify transformations in the call of the linear model.
+You can be creative when you transform the feature.
+The interpretation of the feature changes according to the selected transformation.
+If you use a log transformation, the interpretation in a linear model becomes:
+“If the logarithm of the feature is increased by one, the prediction is increased by the corresponding weight.”
+When you use a GLM with a link function that is not the identity function, then the interpretation gets more complicated, because you have to incorporate both transformations into the interpretation (except when they cancel each other out, like log and exp, then the interpretation gets easier).</p>
+<p><strong>Feature categorization</strong></p>
+<p>Another possibility to achieve a nonlinear effect is to discretize the feature; turn it into a categorical feature.
+For example, you could cut the temperature feature into 20 intervals with the levels [-10, -5), [-5, 0), … and so on.
+When you use the categorized temperature instead of the continuous temperature, the linear model would estimate a step function because each level gets its own estimate.
+The problem with this approach is that it needs more data, it is more likely to overfit and it is unclear how to discretize the feature meaningfully (equidistant intervals or quantiles? how many intervals?).
+I would only use discretization if there is a very strong case for it.
+For example, to make the model comparable to another study.</p>
+<p><strong>Generalized Additive Models (GAMs)</strong></p>
+<p>Why not ‘simply’ allow the (generalized) linear model to learn nonlinear relationships?
+That is the motivation behind GAMs.
+GAMs relax the restriction that the relationship must be a simple weighted sum, and instead assume that the outcome can be modeled by a sum of arbitrary functions of each feature.
+Mathematically, the relationship in a GAM looks like this:</p>
+<p><span class="math display">\[g(E_Y(y|x))=\beta_0+f_1(x_{1})+f_2(x_{2})+\ldots+f_p(x_{p})\]</span></p>
+<p>The formula is similar to the GLM formula with the difference that the linear term <span class="math inline">\(\beta_j{}x_{j}\)</span> is replaced by a more flexible function <span class="math inline">\(f_j(x_{j})\)</span>.
+The core of a GAM is still a sum of feature effects, but you have the option to allow nonlinear relationships between some features and the output.
+Linear effects are also covered by the framework, because for features to be handled linearly, you can limit their <span class="math inline">\(f_j(x_{j})\)</span> only to take the form of <span class="math inline">\(x_{j}\beta_j\)</span>.</p>
+<p>The big question is how to learn nonlinear functions.
+The answer is called “splines” or “spline functions”.
+Splines are functions that can be combined in order to approximate arbitrary functions.
+A bit like stacking Lego bricks to build something more complex.
+There is a confusing number of ways to define these spline functions.
+If you are interested in learning more about all the ways to define splines, I wish you good luck on your journey.
+I am not going to go into details here, I am just going to build an intuition.
+What personally helped me the most for understanding splines was to visualize the individual spline functions and to look into how the data matrix is modified.
+For example, to model the temperature with splines, we remove the temperature feature from the data and replace it with, say, 4 columns, each representing a spline function.
+Usually you would have more spline functions, I only reduced the number for illustration purposes.
+The value for each instance of these new spline features depends on the instances’ temperature values.
+Together with all linear effects, the GAM then also estimates these spline weights.
+GAMs also introduce a penalty term for the weights to keep them close to zero.
+This effectively reduces the flexibility of the splines and reduces overfitting.
+A smoothness parameter that is commonly used to control the flexibility of the curve is then tuned via cross-validation.
+Ignoring the penalty term, nonlinear modeling with splines is fancy feature engineering.</p>
+<p>In the example where we are predicting the number of bicycles with a GAM using only the temperature, the model feature matrix looks like this:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># fit GAM again with less splines</span>
+mod.gam =<span class="st"> </span><span class="kw">gam</span>(cnt <span class="op">~</span><span class="st"> </span><span class="kw">s</span>(temp, <span class="dt">k =</span> <span class="dv">5</span>), <span class="dt">data =</span> bike)
+<span class="kw">kable</span>(<span class="kw">head</span>(<span class="kw">model.matrix</span>(mod.gam)), <span class="dt">digits =</span> <span class="dv">2</span>)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">(Intercept)</th>
+<th align="right">s(temp).1</th>
+<th align="right">s(temp).2</th>
+<th align="right">s(temp).3</th>
+<th align="right">s(temp).4</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">0.93</td>
+<td align="right">-0.14</td>
+<td align="right">0.21</td>
+<td align="right">-0.83</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">0.83</td>
+<td align="right">-0.27</td>
+<td align="right">0.27</td>
+<td align="right">-0.72</td>
+</tr>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">1.32</td>
+<td align="right">0.71</td>
+<td align="right">-0.39</td>
+<td align="right">-1.63</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">1.32</td>
+<td align="right">0.70</td>
+<td align="right">-0.38</td>
+<td align="right">-1.61</td>
+</tr>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">1.29</td>
+<td align="right">0.58</td>
+<td align="right">-0.26</td>
+<td align="right">-1.47</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">1.32</td>
+<td align="right">0.68</td>
+<td align="right">-0.36</td>
+<td align="right">-1.59</td>
+</tr>
+</tbody>
+</table>
+<p>Each row represents an individual instance from the data (one day).
+Each spline column contains the value of the spline function at the particular temperature values.
+The following figure shows how these spline functions look like:</p>
+<pre class="sourceCode r"><code class="sourceCode r">mm =<span class="st"> </span><span class="kw">model.matrix</span>(mod.gam)
+mm2 =<span class="st"> </span>data.table<span class="op">::</span><span class="kw">melt</span>(mm)
+mm2 =<span class="st"> </span>mm2[mm2<span class="op">$</span>Var2 <span class="op">!=</span><span class="st"> &quot;(Intercept)&quot;</span>,]
+
+<span class="kw">ggplot</span>(mm2) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> <span class="kw">rep</span>(bike<span class="op">$</span>temp, <span class="dt">times =</span> <span class="dv">4</span>), <span class="dt">y =</span> value)) <span class="op">+</span><span class="st"> </span><span class="kw">facet_wrap</span>(<span class="st">&quot;Var2&quot;</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="st">&quot;Temperature&quot;</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="st">&quot;Value of spline feature&quot;</span>)</code></pre>
+<div class="figure"><span id="fig:splines"></span>
+<img src="interpretable-ml_files/figure-html/splines-1.svg" alt="To smoothly model the temperature effect, we use 4 spline functions. Each temperature value is mapped to (here) 4 spline values. If an instance has a temperature of 30 °C, the value for the first spline feature is -1, for the second 0.7, for the third -0.8 and for the 4th 1.7." width="672" />
+<p class="caption">
+FIGURE 4.14: To smoothly model the temperature effect, we use 4 spline functions. Each temperature value is mapped to (here) 4 spline values. If an instance has a temperature of 30 °C, the value for the first spline feature is -1, for the second 0.7, for the third -0.8 and for the 4th 1.7.
+</p>
+</div>
+<p>The GAM assigns weights to each temperature spline feature:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">kable</span>(<span class="kw">coef</span>(mod.gam), <span class="dt">digits =</span> <span class="dv">2</span>, <span class="dt">col.names =</span> <span class="st">&quot;weight&quot;</span>)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">weight</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>(Intercept)</td>
+<td align="right">4504.35</td>
+</tr>
+<tr class="even">
+<td>s(temp).1</td>
+<td align="right">-989.34</td>
+</tr>
+<tr class="odd">
+<td>s(temp).2</td>
+<td align="right">740.08</td>
+</tr>
+<tr class="even">
+<td>s(temp).3</td>
+<td align="right">2309.84</td>
+</tr>
+<tr class="odd">
+<td>s(temp).4</td>
+<td align="right">558.27</td>
+</tr>
+</tbody>
+</table>
+<p>And the actual curve, which results from the sum of the spline functions weighted with the estimated weights, looks like this:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(mod.gam)</code></pre>
+<div class="figure"><span id="fig:splines-curve"></span>
+<img src="interpretable-ml_files/figure-html/splines-curve-1.svg" alt="GAM feature effect of the temperature for predicting the number of rented bikes (temperature used as the only feature)." width="672" />
+<p class="caption">
+FIGURE 4.15: GAM feature effect of the temperature for predicting the number of rented bikes (temperature used as the only feature).
+</p>
+</div>
+<p>The interpretation of smooth effects requires a visual check of the fitted curve.
+Splines are usually centered around the mean prediction, so a point on the curve is the difference to the mean prediction.
+For example, at 0 degrees Celsius, the predicted number of bicycles is 3000 lower than the average prediction.</p>
+</div>
+<div id="advantages-1" class="section level3">
+<h3><span class="header-section-number">4.3.4</span> Advantages</h3>
+<p>All these extensions of the linear model are a bit of a universe in themselves.
+Whatever problems you face with linear models, <strong>you will probably find an extension that fixes it</strong>.</p>
+<p>Most methods have been used for decades.
+For example, GAMs are almost 30 years old.
+Many researchers and practitioners from industry are very <strong>experienced</strong> with linear models and the methods are <strong>accepted in many communities as status quo for modeling</strong>.</p>
+<p>In addition to making predictions, you can use the models to <strong>do inference</strong>, draw conclusions about the data – given the model assumptions are not violated.
+You get confidence intervals for weights, significance tests, prediction intervals and much more.</p>
+<p>Statistical software usually has really good interfaces to fit GLMs, GAMs and more special linear models.</p>
+<p>The opacity of many machine learning models comes from 1) a lack of sparseness, which means that many features are used, 2) features that are treated in a nonlinear fashion, which means you need more than a single weight to describe the effect, and 3) the modeling of interactions between the features.
+Assuming that linear models are highly interpretable but often underfit reality, the extensions described in this chapter offer a good way to achieve a <strong>smooth transition to more flexible models</strong>, while preserving some of the interpretability.</p>
+</div>
+<div id="disadvantages-1" class="section level3">
+<h3><span class="header-section-number">4.3.5</span> Disadvantages</h3>
+<p>As advantage I have said that linear models live in their own universe.
+The sheer <strong>number of ways you can extend the simple linear model is overwhelming</strong>, not just for beginners.
+Actually, there are multiple parallel universes, because many communities of researchers and practitioners have their own names for methods that do more or less the same thing, which can be very confusing.</p>
+<p>Most modifications of the linear model make the model <strong>less interpretable</strong>.
+Any link function (in a GLM) that is not the identity function complicates the interpretation;
+interactions also complicate the interpretation;
+nonlinear feature effects are either less intuitive (like the log transformation) or can no longer be summarized by a single number (e.g. spline functions).</p>
+<p>GLMs, GAMs and so on <strong>rely on assumptions</strong> about the data generating process.
+If those are violated, the interpretation of the weights is no longer valid.</p>
+<p>The performance of tree-based ensembles like the random forest or gradient tree boosting is in many cases better than the most sophisticated linear models.
+This is partly my own experience and partly observations from the winning models on platforms like kaggle.com.</p>
+</div>
+<div id="software-1" class="section level3">
+<h3><span class="header-section-number">4.3.6</span> Software</h3>
+<p>All examples in this chapter were created using the R language.
+For GAMs, the <code>gam</code> package was used, but there are many others.
+R has an incredible number of packages to extend linear regression models.
+Unsurpassed by any other analytics language, R is home to every conceivable extension of the linear regression model extension.
+You will find implementations of e.g. GAMs in Python (such as <a href="https://github.com/dswah/pyGAM">pyGAM</a>), but theses implementation are not as mature.</p>
+</div>
+<div id="more-lm-extension" class="section level3">
+<h3><span class="header-section-number">4.3.7</span> Further Extensions</h3>
+<p>As promised, here is a list of problems you might encounter with linear models, along with the name of a solution for this problem that you can copy and paste into your favorite search engine.</p>
+<p>My data violates the assumption of being independent and identically distributed (iid).<br />
+For example, repeated measurements on the same patient.<br />
+Search for <strong>mixed models</strong> or <strong>generalized estimating equations</strong>.</p>
+<p>My model has heteroscedastic errors.<br />
+For example, when predicting the value of a house, the model errors are usually higher in expensive houses, which violates the homoscedasticity of the linear model.<br />
+Search for <strong>robust regression</strong>.</p>
+<p>I have outliers that strongly influence my model.<br />
+Search for <strong>robust regression</strong>.</p>
+<p>I want to predict the time until an event occurs.<br />
+Time-to-event data usually comes with censored measurements, which means that for some instances there was not enough time to observe the event.
+For example, a company wants to predict the failure of its ice machines, but only has data for two years.
+Some machines are still intact after two years, but might fail later.<br />
+Search for <strong>parametric survival models</strong>, <strong>cox regression</strong>, <strong>survival analysis</strong>.</p>
+<p>My outcome to predict is a category.<br />
+If the outcome has two categories use a <a href="logistic.html#logistic">logistic regression model</a>, which models the probability for the categories.<br />
+If you have more categories, search for <strong>multinomial regression</strong>.<br />
+Logistic regression and multinomial regression are both GLMs.</p>
+<p>I want to predict ordered categories.<br />
+For example school grades.<br />
+Search for <strong>proportional odds model</strong>.</p>
+<p>My outcome is a count (like number of children in a family).<br />
+Search for <strong>Poisson regression</strong>.<br />
+The Poisson model is also a GLM.
+You might also have the problem that the count value of 0 is very frequent.<br />
+Search for <strong>zero-inflated Poisson regression</strong>, <strong>hurdle model</strong>.</p>
+<p>I am not sure what features need to be included in the model to draw correct causal conclusions.<br />
+For example, I want to know the effect of a drug on the blood pressure.
+The drug has a direct effect on some blood value and this blood value affects the outcome.
+Should I include the blood value into the regression model?<br />
+Search for <strong>causal inference</strong>, <strong>mediation analysis</strong>.</p>
+<p>I have missing data.<br />
+Search for <strong>multiple imputation</strong>.</p>
+<p>I want to integrate prior knowledge into my models.<br />
+Search for <strong>Bayesian inference</strong>.</p>
+<p>I am feeling a bit down lately.<br />
+Search for <strong>“Amazon Alexa Gone Wild!!! Full version from beginning to end”</strong>.</p>
+
+<!--{pagebreak}-->
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="logistic.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="tree.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": true,
+"facebook": true,
+"twitter": true,
+"google": false,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/christophM/interpretable-ml-book/edit/master/04.4-interpretable-lm-extensions.Rmd",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:" && /^https?:/.test(src))
+      src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

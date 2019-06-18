@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>5.7 Local Surrogate (LIME) | Interpretable Machine Learning</title>
+  <meta name="description" content="Machine learning algorithms usually operate as black boxes and it is unclear how they derived a certain decision. This book is a guide for practitioners to make machine learning decisions interpretable." />
+  <meta name="generator" content="bookdown 0.11 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="5.7 Local Surrogate (LIME) | Interpretable Machine Learning" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="Machine learning algorithms usually operate as black boxes and it is unclear how they derived a certain decision. This book is a guide for practitioners to make machine learning decisions interpretable." />
+  <meta name="github-repo" content="christophM/interpretable-ml-book" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="5.7 Local Surrogate (LIME) | Interpretable Machine Learning" />
+  
+  <meta name="twitter:description" content="Machine learning algorithms usually operate as black boxes and it is unclear how they derived a certain decision. This book is a guide for practitioners to make machine learning decisions interpretable." />
+  
+
+<meta name="author" content="Christoph Molnar" />
+
+
+<meta name="date" content="2019-06-17" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="global.html">
+<link rel="next" href="shapley.html">
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-110543840-1', 'https://christophm.github.io/interpretable-ml-book/', {
+  'anonymizeIp': true
+  , 'storage': 'none'
+  , 'clientId': window.localStorage.getItem('ga_clientId')
+});
+ga(function(tracker) {
+  window.localStorage.setItem('ga_clientId', tracker.get('clientId'));
+});
+ga('send', 'pageview');
+</script>
+
+<link rel="stylesheet" type="text/css" href="css/cookieconsent.min.css" />
+<script src="javascript/cookieconsent.min.js"></script>
+<script>
+window.addEventListener("load", function(){
+window.cookieconsent.initialise({
+  "palette": {
+    "popup": {
+      "background": "#000"
+    },
+    "button": {
+      "background": "#f1d600"
+    }
+  },
+  "position": "bottom-right",
+  "content": {
+    "message": "This website uses cookies for Google Analytics so that I know how many people are reading the book and which chapters are the most popular. The book website doesn't collect any personal data."
+  }
+})});
+</script>
+
+
+<style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<link rel="stylesheet" href="css/style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Interpretable machine learning</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Preface</a></li>
+<li class="chapter" data-level="1" data-path="intro.html"><a href="intro.html"><i class="fa fa-check"></i><b>1</b> Introduction</a><ul>
+<li class="chapter" data-level="1.1" data-path="storytime.html"><a href="storytime.html"><i class="fa fa-check"></i><b>1.1</b> Story Time</a><ul>
+<li class="chapter" data-level="" data-path="storytime.html"><a href="storytime.html#lightning-never-strikes-twice"><i class="fa fa-check"></i>Lightning Never Strikes Twice</a></li>
+<li class="chapter" data-level="" data-path="storytime.html"><a href="storytime.html#trust-fall"><i class="fa fa-check"></i>Trust Fall</a></li>
+<li class="chapter" data-level="" data-path="storytime.html"><a href="storytime.html#fermis-paperclips"><i class="fa fa-check"></i>Fermi’s Paperclips</a></li>
+</ul></li>
+<li class="chapter" data-level="1.2" data-path="what-is-machine-learning.html"><a href="what-is-machine-learning.html"><i class="fa fa-check"></i><b>1.2</b> What Is Machine Learning?</a></li>
+<li class="chapter" data-level="1.3" data-path="terminology.html"><a href="terminology.html"><i class="fa fa-check"></i><b>1.3</b> Terminology</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="interpretability.html"><a href="interpretability.html"><i class="fa fa-check"></i><b>2</b> Interpretability</a><ul>
+<li class="chapter" data-level="2.1" data-path="interpretability-importance.html"><a href="interpretability-importance.html"><i class="fa fa-check"></i><b>2.1</b> Importance of Interpretability</a></li>
+<li class="chapter" data-level="2.2" data-path="taxonomy-of-interpretability-methods.html"><a href="taxonomy-of-interpretability-methods.html"><i class="fa fa-check"></i><b>2.2</b> Taxonomy of Interpretability Methods</a></li>
+<li class="chapter" data-level="2.3" data-path="scope-of-interpretability.html"><a href="scope-of-interpretability.html"><i class="fa fa-check"></i><b>2.3</b> Scope of Interpretability</a><ul>
+<li class="chapter" data-level="2.3.1" data-path="scope-of-interpretability.html"><a href="scope-of-interpretability.html#algorithm-transparency"><i class="fa fa-check"></i><b>2.3.1</b> Algorithm Transparency</a></li>
+<li class="chapter" data-level="2.3.2" data-path="scope-of-interpretability.html"><a href="scope-of-interpretability.html#global-holistic-model-interpretability"><i class="fa fa-check"></i><b>2.3.2</b> Global, Holistic Model Interpretability</a></li>
+<li class="chapter" data-level="2.3.3" data-path="scope-of-interpretability.html"><a href="scope-of-interpretability.html#global-model-interpretability-on-a-modular-level"><i class="fa fa-check"></i><b>2.3.3</b> Global Model Interpretability on a Modular Level</a></li>
+<li class="chapter" data-level="2.3.4" data-path="scope-of-interpretability.html"><a href="scope-of-interpretability.html#local-interpretability-for-a-single-prediction"><i class="fa fa-check"></i><b>2.3.4</b> Local Interpretability for a Single Prediction</a></li>
+<li class="chapter" data-level="2.3.5" data-path="scope-of-interpretability.html"><a href="scope-of-interpretability.html#local-interpretability-for-a-group-of-predictions"><i class="fa fa-check"></i><b>2.3.5</b> Local Interpretability for a Group of Predictions</a></li>
+</ul></li>
+<li class="chapter" data-level="2.4" data-path="evaluation-of-interpretability.html"><a href="evaluation-of-interpretability.html"><i class="fa fa-check"></i><b>2.4</b> Evaluation of Interpretability</a></li>
+<li class="chapter" data-level="2.5" data-path="properties.html"><a href="properties.html"><i class="fa fa-check"></i><b>2.5</b> Properties of Explanations</a></li>
+<li class="chapter" data-level="2.6" data-path="explanation.html"><a href="explanation.html"><i class="fa fa-check"></i><b>2.6</b> Human-friendly Explanations</a><ul>
+<li class="chapter" data-level="2.6.1" data-path="explanation.html"><a href="explanation.html#what-is-an-explanation"><i class="fa fa-check"></i><b>2.6.1</b> What Is an Explanation?</a></li>
+<li class="chapter" data-level="2.6.2" data-path="explanation.html"><a href="explanation.html#good-explanation"><i class="fa fa-check"></i><b>2.6.2</b> What Is a Good Explanation?</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="data.html"><a href="data.html"><i class="fa fa-check"></i><b>3</b> Datasets</a><ul>
+<li class="chapter" data-level="3.1" data-path="bike-data.html"><a href="bike-data.html"><i class="fa fa-check"></i><b>3.1</b> Bike Rentals (Regression)</a></li>
+<li class="chapter" data-level="3.2" data-path="spam-data.html"><a href="spam-data.html"><i class="fa fa-check"></i><b>3.2</b> YouTube Spam Comments (Text Classification)</a></li>
+<li class="chapter" data-level="3.3" data-path="cervical.html"><a href="cervical.html"><i class="fa fa-check"></i><b>3.3</b> Risk Factors for Cervical Cancer (Classification)</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="simple.html"><a href="simple.html"><i class="fa fa-check"></i><b>4</b> Interpretable Models</a><ul>
+<li class="chapter" data-level="4.1" data-path="limo.html"><a href="limo.html"><i class="fa fa-check"></i><b>4.1</b> Linear Regression</a><ul>
+<li class="chapter" data-level="4.1.1" data-path="limo.html"><a href="limo.html#interpretation"><i class="fa fa-check"></i><b>4.1.1</b> Interpretation</a></li>
+<li class="chapter" data-level="4.1.2" data-path="limo.html"><a href="limo.html#example"><i class="fa fa-check"></i><b>4.1.2</b> Example</a></li>
+<li class="chapter" data-level="4.1.3" data-path="limo.html"><a href="limo.html#visual-interpretation"><i class="fa fa-check"></i><b>4.1.3</b> Visual Interpretation</a></li>
+<li class="chapter" data-level="4.1.4" data-path="limo.html"><a href="limo.html#explain-individual-predictions"><i class="fa fa-check"></i><b>4.1.4</b> Explain Individual Predictions</a></li>
+<li class="chapter" data-level="4.1.5" data-path="limo.html"><a href="limo.html#cat-code"><i class="fa fa-check"></i><b>4.1.5</b> Encoding of Categorical Features</a></li>
+<li class="chapter" data-level="4.1.6" data-path="limo.html"><a href="limo.html#do-linear-models-create-good-explanations"><i class="fa fa-check"></i><b>4.1.6</b> Do Linear Models Create Good Explanations?</a></li>
+<li class="chapter" data-level="4.1.7" data-path="limo.html"><a href="limo.html#sparse-linear"><i class="fa fa-check"></i><b>4.1.7</b> Sparse Linear Models</a></li>
+<li class="chapter" data-level="4.1.8" data-path="limo.html"><a href="limo.html#advantages"><i class="fa fa-check"></i><b>4.1.8</b> Advantages</a></li>
+<li class="chapter" data-level="4.1.9" data-path="limo.html"><a href="limo.html#disadvantages"><i class="fa fa-check"></i><b>4.1.9</b> Disadvantages</a></li>
+</ul></li>
+<li class="chapter" data-level="4.2" data-path="logistic.html"><a href="logistic.html"><i class="fa fa-check"></i><b>4.2</b> Logistic Regression</a><ul>
+<li class="chapter" data-level="4.2.1" data-path="logistic.html"><a href="logistic.html#what-is-wrong-with-linear-regression-for-classification"><i class="fa fa-check"></i><b>4.2.1</b> What is Wrong with Linear Regression for Classification?</a></li>
+<li class="chapter" data-level="4.2.2" data-path="logistic.html"><a href="logistic.html#theory"><i class="fa fa-check"></i><b>4.2.2</b> Theory</a></li>
+<li class="chapter" data-level="4.2.3" data-path="logistic.html"><a href="logistic.html#interpretation-1"><i class="fa fa-check"></i><b>4.2.3</b> Interpretation</a></li>
+<li class="chapter" data-level="4.2.4" data-path="logistic.html"><a href="logistic.html#example-1"><i class="fa fa-check"></i><b>4.2.4</b> Example</a></li>
+<li class="chapter" data-level="4.2.5" data-path="logistic.html"><a href="logistic.html#advantages-and-disadvantages"><i class="fa fa-check"></i><b>4.2.5</b> Advantages and Disadvantages</a></li>
+<li class="chapter" data-level="4.2.6" data-path="logistic.html"><a href="logistic.html#software"><i class="fa fa-check"></i><b>4.2.6</b> Software</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="extend-lm.html"><a href="extend-lm.html"><i class="fa fa-check"></i><b>4.3</b> GLM, GAM and more</a><ul>
+<li class="chapter" data-level="4.3.1" data-path="extend-lm.html"><a href="extend-lm.html#glm"><i class="fa fa-check"></i><b>4.3.1</b> Non-Gaussian Outcomes - GLMs</a></li>
+<li class="chapter" data-level="4.3.2" data-path="extend-lm.html"><a href="extend-lm.html#lm-interact"><i class="fa fa-check"></i><b>4.3.2</b> Interactions</a></li>
+<li class="chapter" data-level="4.3.3" data-path="extend-lm.html"><a href="extend-lm.html#gam"><i class="fa fa-check"></i><b>4.3.3</b> Nonlinear Effects - GAMs</a></li>
+<li class="chapter" data-level="4.3.4" data-path="extend-lm.html"><a href="extend-lm.html#advantages-1"><i class="fa fa-check"></i><b>4.3.4</b> Advantages</a></li>
+<li class="chapter" data-level="4.3.5" data-path="extend-lm.html"><a href="extend-lm.html#disadvantages-1"><i class="fa fa-check"></i><b>4.3.5</b> Disadvantages</a></li>
+<li class="chapter" data-level="4.3.6" data-path="extend-lm.html"><a href="extend-lm.html#software-1"><i class="fa fa-check"></i><b>4.3.6</b> Software</a></li>
+<li class="chapter" data-level="4.3.7" data-path="extend-lm.html"><a href="extend-lm.html#more-lm-extension"><i class="fa fa-check"></i><b>4.3.7</b> Further Extensions</a></li>
+</ul></li>
+<li class="chapter" data-level="4.4" data-path="tree.html"><a href="tree.html"><i class="fa fa-check"></i><b>4.4</b> Decision Tree</a><ul>
+<li class="chapter" data-level="4.4.1" data-path="tree.html"><a href="tree.html#interpretation-2"><i class="fa fa-check"></i><b>4.4.1</b> Interpretation</a></li>
+<li class="chapter" data-level="4.4.2" data-path="tree.html"><a href="tree.html#example-2"><i class="fa fa-check"></i><b>4.4.2</b> Example</a></li>
+<li class="chapter" data-level="4.4.3" data-path="tree.html"><a href="tree.html#advantages-2"><i class="fa fa-check"></i><b>4.4.3</b> Advantages</a></li>
+<li class="chapter" data-level="4.4.4" data-path="tree.html"><a href="tree.html#disadvantages-2"><i class="fa fa-check"></i><b>4.4.4</b> Disadvantages</a></li>
+<li class="chapter" data-level="4.4.5" data-path="tree.html"><a href="tree.html#software-2"><i class="fa fa-check"></i><b>4.4.5</b> Software</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="rules.html"><a href="rules.html"><i class="fa fa-check"></i><b>4.5</b> Decision Rules</a><ul>
+<li class="chapter" data-level="4.5.1" data-path="rules.html"><a href="rules.html#learn-rules-from-a-single-feature-oner"><i class="fa fa-check"></i><b>4.5.1</b> Learn Rules from a Single Feature (OneR)</a></li>
+<li class="chapter" data-level="4.5.2" data-path="rules.html"><a href="rules.html#sequential-covering"><i class="fa fa-check"></i><b>4.5.2</b> Sequential Covering</a></li>
+<li class="chapter" data-level="4.5.3" data-path="rules.html"><a href="rules.html#bayesian-rule-lists"><i class="fa fa-check"></i><b>4.5.3</b> Bayesian Rule Lists</a></li>
+<li class="chapter" data-level="4.5.4" data-path="rules.html"><a href="rules.html#advantages-3"><i class="fa fa-check"></i><b>4.5.4</b> Advantages</a></li>
+<li class="chapter" data-level="4.5.5" data-path="rules.html"><a href="rules.html#disadvantages-3"><i class="fa fa-check"></i><b>4.5.5</b> Disadvantages</a></li>
+<li class="chapter" data-level="4.5.6" data-path="rules.html"><a href="rules.html#software-and-alternatives"><i class="fa fa-check"></i><b>4.5.6</b> Software and Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="4.6" data-path="rulefit.html"><a href="rulefit.html"><i class="fa fa-check"></i><b>4.6</b> RuleFit</a><ul>
+<li class="chapter" data-level="4.6.1" data-path="rulefit.html"><a href="rulefit.html#interpretation-and-example"><i class="fa fa-check"></i><b>4.6.1</b> Interpretation and Example</a></li>
+<li class="chapter" data-level="4.6.2" data-path="rulefit.html"><a href="rulefit.html#theory-1"><i class="fa fa-check"></i><b>4.6.2</b> Theory</a></li>
+<li class="chapter" data-level="4.6.3" data-path="rulefit.html"><a href="rulefit.html#advantages-4"><i class="fa fa-check"></i><b>4.6.3</b> Advantages</a></li>
+<li class="chapter" data-level="4.6.4" data-path="rulefit.html"><a href="rulefit.html#disadvantages-4"><i class="fa fa-check"></i><b>4.6.4</b> Disadvantages</a></li>
+<li class="chapter" data-level="4.6.5" data-path="rulefit.html"><a href="rulefit.html#software-and-alternative"><i class="fa fa-check"></i><b>4.6.5</b> Software and Alternative</a></li>
+</ul></li>
+<li class="chapter" data-level="4.7" data-path="other-interpretable.html"><a href="other-interpretable.html"><i class="fa fa-check"></i><b>4.7</b> Other Interpretable Models</a><ul>
+<li class="chapter" data-level="4.7.1" data-path="other-interpretable.html"><a href="other-interpretable.html#naive-bayes-classifier"><i class="fa fa-check"></i><b>4.7.1</b> Naive Bayes Classifier</a></li>
+<li class="chapter" data-level="4.7.2" data-path="other-interpretable.html"><a href="other-interpretable.html#k-nearest-neighbors"><i class="fa fa-check"></i><b>4.7.2</b> K-Nearest Neighbors</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="agnostic.html"><a href="agnostic.html"><i class="fa fa-check"></i><b>5</b> Model-Agnostic Methods</a><ul>
+<li class="chapter" data-level="5.1" data-path="pdp.html"><a href="pdp.html"><i class="fa fa-check"></i><b>5.1</b> Partial Dependence Plot (PDP)</a><ul>
+<li class="chapter" data-level="5.1.1" data-path="pdp.html"><a href="pdp.html#examples"><i class="fa fa-check"></i><b>5.1.1</b> Examples</a></li>
+<li class="chapter" data-level="5.1.2" data-path="pdp.html"><a href="pdp.html#advantages-5"><i class="fa fa-check"></i><b>5.1.2</b> Advantages</a></li>
+<li class="chapter" data-level="5.1.3" data-path="pdp.html"><a href="pdp.html#disadvantages-5"><i class="fa fa-check"></i><b>5.1.3</b> Disadvantages</a></li>
+<li class="chapter" data-level="5.1.4" data-path="pdp.html"><a href="pdp.html#software-and-alternatives-1"><i class="fa fa-check"></i><b>5.1.4</b> Software and Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="5.2" data-path="ice.html"><a href="ice.html"><i class="fa fa-check"></i><b>5.2</b> Individual Conditional Expectation (ICE)</a><ul>
+<li class="chapter" data-level="5.2.1" data-path="ice.html"><a href="ice.html#examples-1"><i class="fa fa-check"></i><b>5.2.1</b> Examples</a></li>
+<li class="chapter" data-level="5.2.2" data-path="ice.html"><a href="ice.html#advantages-6"><i class="fa fa-check"></i><b>5.2.2</b> Advantages</a></li>
+<li class="chapter" data-level="5.2.3" data-path="ice.html"><a href="ice.html#disadvantages-6"><i class="fa fa-check"></i><b>5.2.3</b> Disadvantages</a></li>
+<li class="chapter" data-level="5.2.4" data-path="ice.html"><a href="ice.html#software-and-alternatives-2"><i class="fa fa-check"></i><b>5.2.4</b> Software and Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="ale.html"><a href="ale.html"><i class="fa fa-check"></i><b>5.3</b> Accumulated Local Effects (ALE) Plot</a><ul>
+<li class="chapter" data-level="5.3.1" data-path="ale.html"><a href="ale.html#motivation-and-intuition"><i class="fa fa-check"></i><b>5.3.1</b> Motivation and Intuition</a></li>
+<li class="chapter" data-level="5.3.2" data-path="ale.html"><a href="ale.html#theory-2"><i class="fa fa-check"></i><b>5.3.2</b> Theory</a></li>
+<li class="chapter" data-level="5.3.3" data-path="ale.html"><a href="ale.html#estimation"><i class="fa fa-check"></i><b>5.3.3</b> Estimation</a></li>
+<li class="chapter" data-level="5.3.4" data-path="ale.html"><a href="ale.html#examples-2"><i class="fa fa-check"></i><b>5.3.4</b> Examples</a></li>
+<li class="chapter" data-level="5.3.5" data-path="ale.html"><a href="ale.html#advantages-7"><i class="fa fa-check"></i><b>5.3.5</b> Advantages</a></li>
+<li class="chapter" data-level="5.3.6" data-path="ale.html"><a href="ale.html#disadvantages-7"><i class="fa fa-check"></i><b>5.3.6</b> Disadvantages</a></li>
+<li class="chapter" data-level="5.3.7" data-path="ale.html"><a href="ale.html#implementation-and-alternatives"><i class="fa fa-check"></i><b>5.3.7</b> Implementation and Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="5.4" data-path="interaction.html"><a href="interaction.html"><i class="fa fa-check"></i><b>5.4</b> Feature Interaction</a><ul>
+<li class="chapter" data-level="5.4.1" data-path="interaction.html"><a href="interaction.html#feature-interaction"><i class="fa fa-check"></i><b>5.4.1</b> Feature Interaction?</a></li>
+<li class="chapter" data-level="5.4.2" data-path="interaction.html"><a href="interaction.html#theory-friedmans-h-statistic"><i class="fa fa-check"></i><b>5.4.2</b> Theory: Friedman’s H-statistic</a></li>
+<li class="chapter" data-level="5.4.3" data-path="interaction.html"><a href="interaction.html#examples-3"><i class="fa fa-check"></i><b>5.4.3</b> Examples</a></li>
+<li class="chapter" data-level="5.4.4" data-path="interaction.html"><a href="interaction.html#advantages-8"><i class="fa fa-check"></i><b>5.4.4</b> Advantages</a></li>
+<li class="chapter" data-level="5.4.5" data-path="interaction.html"><a href="interaction.html#disadvantages-8"><i class="fa fa-check"></i><b>5.4.5</b> Disadvantages</a></li>
+<li class="chapter" data-level="5.4.6" data-path="interaction.html"><a href="interaction.html#implementations"><i class="fa fa-check"></i><b>5.4.6</b> Implementations</a></li>
+<li class="chapter" data-level="5.4.7" data-path="interaction.html"><a href="interaction.html#alternatives"><i class="fa fa-check"></i><b>5.4.7</b> Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="5.5" data-path="feature-importance.html"><a href="feature-importance.html"><i class="fa fa-check"></i><b>5.5</b> Feature Importance</a><ul>
+<li class="chapter" data-level="5.5.1" data-path="feature-importance.html"><a href="feature-importance.html#theory-3"><i class="fa fa-check"></i><b>5.5.1</b> Theory</a></li>
+<li class="chapter" data-level="5.5.2" data-path="feature-importance.html"><a href="feature-importance.html#feature-importance-data"><i class="fa fa-check"></i><b>5.5.2</b> Should I Compute Importance on Training or Test Data?</a></li>
+<li class="chapter" data-level="5.5.3" data-path="feature-importance.html"><a href="feature-importance.html#example-and-interpretation"><i class="fa fa-check"></i><b>5.5.3</b> Example and Interpretation</a></li>
+<li class="chapter" data-level="5.5.4" data-path="feature-importance.html"><a href="feature-importance.html#advantages-9"><i class="fa fa-check"></i><b>5.5.4</b> Advantages</a></li>
+<li class="chapter" data-level="5.5.5" data-path="feature-importance.html"><a href="feature-importance.html#disadvantages-9"><i class="fa fa-check"></i><b>5.5.5</b> Disadvantages</a></li>
+<li class="chapter" data-level="5.5.6" data-path="feature-importance.html"><a href="feature-importance.html#software-and-alternatives-3"><i class="fa fa-check"></i><b>5.5.6</b> Software and Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="5.6" data-path="global.html"><a href="global.html"><i class="fa fa-check"></i><b>5.6</b> Global Surrogate</a><ul>
+<li class="chapter" data-level="5.6.1" data-path="global.html"><a href="global.html#theory-4"><i class="fa fa-check"></i><b>5.6.1</b> Theory</a></li>
+<li class="chapter" data-level="5.6.2" data-path="global.html"><a href="global.html#example-4"><i class="fa fa-check"></i><b>5.6.2</b> Example</a></li>
+<li class="chapter" data-level="5.6.3" data-path="global.html"><a href="global.html#advantages-10"><i class="fa fa-check"></i><b>5.6.3</b> Advantages</a></li>
+<li class="chapter" data-level="5.6.4" data-path="global.html"><a href="global.html#disadvantages-10"><i class="fa fa-check"></i><b>5.6.4</b> Disadvantages</a></li>
+<li class="chapter" data-level="5.6.5" data-path="global.html"><a href="global.html#software-3"><i class="fa fa-check"></i><b>5.6.5</b> Software</a></li>
+</ul></li>
+<li class="chapter" data-level="5.7" data-path="lime.html"><a href="lime.html"><i class="fa fa-check"></i><b>5.7</b> Local Surrogate (LIME)</a><ul>
+<li class="chapter" data-level="5.7.1" data-path="lime.html"><a href="lime.html#lime-for-tabular-data"><i class="fa fa-check"></i><b>5.7.1</b> LIME for Tabular Data</a></li>
+<li class="chapter" data-level="5.7.2" data-path="lime.html"><a href="lime.html#lime-for-text"><i class="fa fa-check"></i><b>5.7.2</b> LIME for Text</a></li>
+<li class="chapter" data-level="5.7.3" data-path="lime.html"><a href="lime.html#images-lime"><i class="fa fa-check"></i><b>5.7.3</b> LIME for Images</a></li>
+<li class="chapter" data-level="5.7.4" data-path="lime.html"><a href="lime.html#advantages-11"><i class="fa fa-check"></i><b>5.7.4</b> Advantages</a></li>
+<li class="chapter" data-level="5.7.5" data-path="lime.html"><a href="lime.html#disadvantages-11"><i class="fa fa-check"></i><b>5.7.5</b> Disadvantages</a></li>
+</ul></li>
+<li class="chapter" data-level="5.8" data-path="shapley.html"><a href="shapley.html"><i class="fa fa-check"></i><b>5.8</b> Shapley Values</a><ul>
+<li class="chapter" data-level="5.8.1" data-path="shapley.html"><a href="shapley.html#general-idea"><i class="fa fa-check"></i><b>5.8.1</b> General Idea</a></li>
+<li class="chapter" data-level="5.8.2" data-path="shapley.html"><a href="shapley.html#examples-and-interpretation"><i class="fa fa-check"></i><b>5.8.2</b> Examples and Interpretation</a></li>
+<li class="chapter" data-level="5.8.3" data-path="shapley.html"><a href="shapley.html#the-shapley-value-in-detail"><i class="fa fa-check"></i><b>5.8.3</b> The Shapley Value in Detail</a></li>
+<li class="chapter" data-level="5.8.4" data-path="shapley.html"><a href="shapley.html#advantages-12"><i class="fa fa-check"></i><b>5.8.4</b> Advantages</a></li>
+<li class="chapter" data-level="5.8.5" data-path="shapley.html"><a href="shapley.html#disadvantages-12"><i class="fa fa-check"></i><b>5.8.5</b> Disadvantages</a></li>
+<li class="chapter" data-level="5.8.6" data-path="shapley.html"><a href="shapley.html#software-and-alternatives-4"><i class="fa fa-check"></i><b>5.8.6</b> Software and Alternatives</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="example-based.html"><a href="example-based.html"><i class="fa fa-check"></i><b>6</b> Example-Based Explanations</a><ul>
+<li class="chapter" data-level="6.1" data-path="counterfactual.html"><a href="counterfactual.html"><i class="fa fa-check"></i><b>6.1</b> Counterfactual Explanations</a><ul>
+<li class="chapter" data-level="6.1.1" data-path="counterfactual.html"><a href="counterfactual.html#generating-counterfactual-explanations"><i class="fa fa-check"></i><b>6.1.1</b> Generating Counterfactual Explanations</a></li>
+<li class="chapter" data-level="6.1.2" data-path="counterfactual.html"><a href="counterfactual.html#examples-4"><i class="fa fa-check"></i><b>6.1.2</b> Examples</a></li>
+<li class="chapter" data-level="6.1.3" data-path="counterfactual.html"><a href="counterfactual.html#advantages-13"><i class="fa fa-check"></i><b>6.1.3</b> Advantages</a></li>
+<li class="chapter" data-level="6.1.4" data-path="counterfactual.html"><a href="counterfactual.html#disadvantages-13"><i class="fa fa-check"></i><b>6.1.4</b> Disadvantages</a></li>
+<li class="chapter" data-level="6.1.5" data-path="counterfactual.html"><a href="counterfactual.html#example-software"><i class="fa fa-check"></i><b>6.1.5</b> Software and Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="6.2" data-path="adversarial.html"><a href="adversarial.html"><i class="fa fa-check"></i><b>6.2</b> Adversarial Examples</a><ul>
+<li class="chapter" data-level="6.2.1" data-path="adversarial.html"><a href="adversarial.html#methods-and-examples"><i class="fa fa-check"></i><b>6.2.1</b> Methods and Examples</a></li>
+<li class="chapter" data-level="6.2.2" data-path="adversarial.html"><a href="adversarial.html#the-cybersecurity-perspective"><i class="fa fa-check"></i><b>6.2.2</b> The Cybersecurity Perspective</a></li>
+</ul></li>
+<li class="chapter" data-level="6.3" data-path="proto.html"><a href="proto.html"><i class="fa fa-check"></i><b>6.3</b> Prototypes and Criticisms</a><ul>
+<li class="chapter" data-level="6.3.1" data-path="proto.html"><a href="proto.html#theory-5"><i class="fa fa-check"></i><b>6.3.1</b> Theory</a></li>
+<li class="chapter" data-level="6.3.2" data-path="proto.html"><a href="proto.html#examples-5"><i class="fa fa-check"></i><b>6.3.2</b> Examples</a></li>
+<li class="chapter" data-level="6.3.3" data-path="proto.html"><a href="proto.html#advantages-14"><i class="fa fa-check"></i><b>6.3.3</b> Advantages</a></li>
+<li class="chapter" data-level="6.3.4" data-path="proto.html"><a href="proto.html#disadvantages-14"><i class="fa fa-check"></i><b>6.3.4</b> Disadvantages</a></li>
+<li class="chapter" data-level="6.3.5" data-path="proto.html"><a href="proto.html#code-and-alternatives"><i class="fa fa-check"></i><b>6.3.5</b> Code and Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="6.4" data-path="influential.html"><a href="influential.html"><i class="fa fa-check"></i><b>6.4</b> Influential Instances</a><ul>
+<li class="chapter" data-level="6.4.1" data-path="influential.html"><a href="influential.html#deletion-diagnostics"><i class="fa fa-check"></i><b>6.4.1</b> Deletion Diagnostics</a></li>
+<li class="chapter" data-level="6.4.2" data-path="influential.html"><a href="influential.html#influence-functions"><i class="fa fa-check"></i><b>6.4.2</b> Influence Functions</a></li>
+<li class="chapter" data-level="6.4.3" data-path="influential.html"><a href="influential.html#advantages-of-identifying-influential-instances"><i class="fa fa-check"></i><b>6.4.3</b> Advantages of Identifying Influential Instances</a></li>
+<li class="chapter" data-level="6.4.4" data-path="influential.html"><a href="influential.html#disadvantages-of-identifying-influential-instances"><i class="fa fa-check"></i><b>6.4.4</b> Disadvantages of Identifying Influential Instances</a></li>
+<li class="chapter" data-level="6.4.5" data-path="influential.html"><a href="influential.html#software-and-alternatives-5"><i class="fa fa-check"></i><b>6.4.5</b> Software and Alternatives</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="future.html"><a href="future.html"><i class="fa fa-check"></i><b>7</b> A Look into the Crystal Ball</a><ul>
+<li class="chapter" data-level="7.1" data-path="the-future-of-machine-learning.html"><a href="the-future-of-machine-learning.html"><i class="fa fa-check"></i><b>7.1</b> The Future of Machine Learning</a></li>
+<li class="chapter" data-level="7.2" data-path="the-future-of-interpretability.html"><a href="the-future-of-interpretability.html"><i class="fa fa-check"></i><b>7.2</b> The Future of Interpretability</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="contribute.html"><a href="contribute.html"><i class="fa fa-check"></i><b>8</b> Contribute to the Book</a></li>
+<li class="chapter" data-level="9" data-path="cite.html"><a href="cite.html"><i class="fa fa-check"></i><b>9</b> Citing this Book</a></li>
+<li class="chapter" data-level="10" data-path="acknowledgements.html"><a href="acknowledgements.html"><i class="fa fa-check"></i><b>10</b> Acknowledgements</a></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="divider"></li>
+<li><a href="https://bookdown.org" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Interpretable Machine Learning</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="lime" class="section level2">
+<h2><span class="header-section-number">5.7</span> Local Surrogate (LIME)</h2>
+<p>Local surrogate models are interpretable models that are used to explain individual predictions of black box machine learning models.
+Local interpretable model-agnostic explanations (LIME)<a href="#fn37" class="footnote-ref" id="fnref37"><sup>37</sup></a> is a paper in which the authors propose a concrete implementation of local surrogate models.
+Surrogate models are trained to approximate the predictions of the underlying black box model.
+Instead of training a global surrogate model, LIME focuses on training local surrogate models to explain individual predictions.</p>
+<p>The idea is quite intuitive.
+First, forget about the training data and imagine you only have the black box model where you can input data points and get the predictions of the model.
+You can probe the box as often as you want.
+Your goal is to understand why the machine learning model made a certain prediction.
+LIME tests what happens to the predictions when you give variations of your data into the machine learning model.
+LIME generates a new dataset consisting of permuted samples and the corresponding predictions of the black box model.
+On this new dataset LIME then trains an interpretable model, which is weighted by the proximity of the sampled instances to the instance of interest.
+The interpretable model can be anything from the <a href="simple.html#simple">interpretable models chapter</a>, for example <a href="limo.html#lasso">Lasso</a> or a <a href="tree.html#tree">decision tree</a>.
+The learned model should be a good approximation of the machine learning model predictions locally, but it does not have to be a good global approximation.
+This kind of accuracy is also called local fidelity.</p>
+<p>Mathematically, local surrogate models with interpretability constraint can be expressed as follows:</p>
+<p><span class="math display">\[\text{explanation}(x)=\arg\min_{g\in{}G}L(f,g,\pi_x)+\Omega(g)\]</span></p>
+<p>The explanation model for instance x is the model g (e.g. linear regression model) that minimizes loss L (e.g. mean squared error), which measures how close the explanation is to the prediction of the original model f (e.g. an xgboost model), while the model complexity <span class="math inline">\(\Omega(g)\)</span> is kept low (e.g. prefer fewer features).
+G is the family of possible explanations, for example all possible linear regression models.
+The proximity measure <span class="math inline">\(\pi_x\)</span> defines how large the neighborhood around instance x is that we consider for the explanation.
+In practice, LIME only optimizes the loss part.
+The user has to determine the complexity, e.g. by selecting the maximum number of features that the linear regression model may use.</p>
+<p>The recipe for training local surrogate models:</p>
+<ul>
+<li>Select your instance of interest for which you want to have an explanation of its black box prediction.</li>
+<li>Perturb your dataset and get the black box predictions for these new points.</li>
+<li>Weight the new samples according to their proximity to the instance of interest.</li>
+<li>Train a weighted, interpretable model on the dataset with the variations.</li>
+<li>Explain the prediction by interpreting the local model.</li>
+</ul>
+<p>In the current implementations in <a href="https://github.com/thomasp85/lime">R</a> and <a href="https://github.com/marcotcr/lime">Python</a>, for example, linear regression can be chosen as interpretable surrogate model.
+In advance, you have to select K, the number of features you want to have in your interpretable model.
+The lower K, the easier it is to interpret the model.
+A higher K potentially produces models with higher fidelity.
+There are several methods for training models with exactly K features.
+A good choice is <a href="limo.html#lasso">Lasso</a>.
+A Lasso model with a high regularization parameter <span class="math inline">\(\lambda\)</span> yields a model without any feature.
+By retraining the Lasso models with slowly decreasing <span class="math inline">\(\lambda\)</span>, one after the other, the features get weight estimates that differ from zero.
+If there are K features in the model, you have reached the desired number of features.
+Other strategies are forward or backward selection of features.
+This means you either start with the full model (= containing all features) or with a model with only the intercept and then test which feature would bring the biggest improvement when added or removed, until a model with K features is reached.</p>
+<p>How do you get the variations of the data?
+This depends on the type of data, which can be either text, image or tabular data.
+For text and images, the solution is to turn single words or super-pixels on or off.
+In the case of tabular data, LIME creates new samples by perturbing each feature individually, drawing from a normal distribution with mean and standard deviation taken from the feature.</p>
+<div id="lime-for-tabular-data" class="section level3">
+<h3><span class="header-section-number">5.7.1</span> LIME for Tabular Data</h3>
+<p>Tabular data is data that comes in tables, with each row representing an instance and each column a feature.
+LIME samples are not taken around the instance of interest, but from the training data’s mass center, which is problematic.
+But it increases the probability that the result for some of the sample points predictions differ from the data point of interest and that LIME can learn at least some explanation.</p>
+<p>It is best to visually explain how sampling and local model training works:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co">## Creating dataset ###########################################################</span>
+<span class="kw">library</span>(<span class="st">&quot;dplyr&quot;</span>)
+<span class="kw">library</span>(<span class="st">&quot;ggplot2&quot;</span>)
+
+<span class="co"># Define range of set</span>
+lower_x1 =<span class="st"> </span><span class="dv">-2</span>
+upper_x1 =<span class="st"> </span><span class="dv">2</span>
+lower_x2 =<span class="st"> </span><span class="dv">-2</span>
+upper_x2 =<span class="st"> </span><span class="dv">1</span>
+
+<span class="co"># Size of the training set for the black box classifier</span>
+n_training  =<span class="st"> </span><span class="dv">20000</span>
+<span class="co"># Size for the grid to plot the decision boundaries</span>
+n_grid =<span class="st"> </span><span class="dv">100</span>
+<span class="co"># Number of samples for LIME explanations</span>
+n_sample =<span class="st"> </span><span class="dv">500</span>
+
+
+<span class="co"># Simulate y ~ x1 + x2</span>
+<span class="kw">set.seed</span>(<span class="dv">1</span>)
+x1 =<span class="st"> </span><span class="kw">runif</span>(n_training, <span class="dt">min =</span> lower_x1, <span class="dt">max =</span> upper_x1)
+x2 =<span class="st"> </span><span class="kw">runif</span>(n_training, <span class="dt">min =</span> lower_x2, <span class="dt">max =</span> upper_x2)
+y =<span class="st"> </span><span class="kw">get_y</span>(x1, x2)
+<span class="co"># Add noise</span>
+y_noisy =<span class="st"> </span><span class="kw">get_y</span>(x1, x2, <span class="dt">noise_prob =</span> <span class="fl">0.01</span>)
+lime_training_df =<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">x1=</span>x1, <span class="dt">x2=</span>x2, <span class="dt">y=</span><span class="kw">as.factor</span>(y), <span class="dt">y_noisy=</span><span class="kw">as.factor</span>(y_noisy))
+
+<span class="co"># For scaling later on</span>
+x_means =<span class="st"> </span><span class="kw">c</span>(<span class="kw">mean</span>(x1), <span class="kw">mean</span>(x2))
+x_sd =<span class="st"> </span><span class="kw">c</span>(<span class="kw">sd</span>(x1), <span class="kw">sd</span>(x2))
+
+
+<span class="co"># Learn model</span>
+rf =<span class="st"> </span>randomForest<span class="op">::</span><span class="kw">randomForest</span>(y_noisy <span class="op">~</span><span class="st"> </span>x1 <span class="op">+</span><span class="st"> </span>x2, <span class="dt">data =</span> lime_training_df, <span class="dt">ntree=</span><span class="dv">100</span>)
+lime_training_df<span class="op">$</span>predicted =<span class="st"> </span><span class="kw">predict</span>(rf, lime_training_df)
+
+
+<span class="co"># The decision boundaries</span>
+grid_x1 =<span class="st"> </span><span class="kw">seq</span>(<span class="dt">from=</span>lower_x1, <span class="dt">to=</span>upper_x1, <span class="dt">length.out=</span>n_grid)
+grid_x2 =<span class="st"> </span><span class="kw">seq</span>(<span class="dt">from=</span>lower_x2, <span class="dt">to=</span>upper_x2, <span class="dt">length.out=</span>n_grid)
+grid_df =<span class="st"> </span><span class="kw">expand.grid</span>(<span class="dt">x1 =</span> grid_x1, <span class="dt">x2 =</span> grid_x2)
+grid_df<span class="op">$</span>predicted =<span class="st"> </span><span class="kw">as.numeric</span>(<span class="kw">as.character</span>(<span class="kw">predict</span>(rf, <span class="dt">newdata =</span> grid_df)))
+
+
+<span class="co"># The observation to be explained</span>
+explain_x1 =<span class="st"> </span><span class="dv">1</span>
+explain_x2 =<span class="st"> </span><span class="fl">-0.5</span>
+explain_y_model =<span class="st"> </span><span class="kw">predict</span>(rf, <span class="dt">newdata =</span> <span class="kw">data.frame</span>(<span class="dt">x1=</span>explain_x1, <span class="dt">x2=</span>explain_x2))
+df_explain =<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">x1=</span>explain_x1, <span class="dt">x2=</span>explain_x2, <span class="dt">y_predicted=</span>explain_y_model)
+
+point_explain =<span class="st"> </span><span class="kw">c</span>(explain_x1, explain_x2)
+point_explain_scaled =<span class="st"> </span>(point_explain <span class="op">-</span><span class="st"> </span>x_means) <span class="op">/</span><span class="st"> </span>x_sd
+
+<span class="co"># Drawing the samples for the LIME explanations</span>
+x1_sample =<span class="st"> </span><span class="kw">rnorm</span>(n_sample, x_means[<span class="dv">1</span>], x_sd[<span class="dv">1</span>])
+x2_sample =<span class="st"> </span><span class="kw">rnorm</span>(n_sample, x_means[<span class="dv">2</span>], x_sd[<span class="dv">2</span>])
+df_sample =<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">x1 =</span> x1_sample, <span class="dt">x2 =</span> x2_sample)
+<span class="co"># Scale the samples</span>
+points_sample =<span class="st"> </span><span class="kw">apply</span>(df_sample, <span class="dv">1</span>, <span class="cf">function</span>(x){
+  (x <span class="op">-</span><span class="st"> </span>x_means) <span class="op">/</span><span class="st"> </span>x_sd
+}) <span class="op">%&gt;%</span><span class="st"> </span>t
+
+
+
+<span class="co"># Add weights to the samples</span>
+kernel_width =<span class="st"> </span><span class="kw">sqrt</span>(<span class="kw">dim</span>(df_sample)[<span class="dv">2</span>]) <span class="op">*</span><span class="st"> </span><span class="fl">0.15</span>
+distances =<span class="st"> </span><span class="kw">get_distances</span>(point_explain_scaled, 
+  <span class="dt">points_sample =</span> points_sample)
+
+df_sample<span class="op">$</span>weights =<span class="st"> </span><span class="kw">kernel</span>(distances, <span class="dt">kernel_width=</span>kernel_width)
+
+df_sample<span class="op">$</span>predicted =<span class="st"> </span><span class="kw">predict</span>(rf, <span class="dt">newdata =</span> df_sample)
+
+
+<span class="co"># Trees</span>
+<span class="co"># mod = rpart(predicted ~ x1 + x2, data = df_sample,  weights = df_sample$weights)</span>
+<span class="co"># grid_df$explained = predict(mod, newdata = grid_df, type=&#39;prob&#39;)[,2]</span>
+
+<span class="co"># Logistic regression model</span>
+mod =<span class="st"> </span><span class="kw">glm</span>(predicted <span class="op">~</span><span class="st"> </span>x1 <span class="op">+</span><span class="st"> </span>x2, <span class="dt">data =</span> df_sample,  <span class="dt">weights =</span> df_sample<span class="op">$</span>weights, <span class="dt">family=</span><span class="st">&#39;binomial&#39;</span>)</code></pre>
+<pre><code>## Warning in eval(family$initialize): non-integer #successes in a binomial
+## glm!</code></pre>
+<pre><code>## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">grid_df<span class="op">$</span>explained =<span class="st"> </span><span class="kw">predict</span>(mod, <span class="dt">newdata =</span> grid_df, <span class="dt">type=</span><span class="st">&#39;response&#39;</span>)
+
+<span class="co"># logistic decision boundary</span>
+coefs =<span class="st"> </span><span class="kw">coefficients</span>(mod)
+logistic_boundary_x1 =<span class="st"> </span>grid_x1
+logistic_boundary_x2 =<span class="st"> </span><span class="op">-</span><span class="st">  </span>(<span class="dv">1</span><span class="op">/</span>coefs[<span class="st">&#39;x2&#39;</span>]) <span class="op">*</span><span class="st"> </span>(coefs[<span class="st">&#39;(Intercept)&#39;</span>] <span class="op">+</span><span class="st"> </span>coefs[<span class="st">&#39;x1&#39;</span>] <span class="op">*</span><span class="st"> </span>grid_x1) 
+logistic_boundary_df =<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">x1 =</span> logistic_boundary_x1, <span class="dt">x2 =</span> logistic_boundary_x2)  
+logistic_boundary_df =<span class="st"> </span><span class="kw">filter</span>(logistic_boundary_df, x2 <span class="op">&lt;=</span><span class="st"> </span>upper_x2, x2 <span class="op">&gt;=</span><span class="st"> </span>lower_x2)
+
+
+<span class="co"># Create a smaller grid for visualization of local model boundaries</span>
+x1_steps =<span class="st"> </span><span class="kw">unique</span>(grid_df<span class="op">$</span>x1)[<span class="kw">seq</span>(<span class="dt">from=</span><span class="dv">1</span>, <span class="dt">to=</span>n_grid, <span class="dt">length.out =</span> <span class="dv">20</span>)]
+x2_steps =<span class="st"> </span><span class="kw">unique</span>(grid_df<span class="op">$</span>x2)[<span class="kw">seq</span>(<span class="dt">from=</span><span class="dv">1</span>, <span class="dt">to=</span>n_grid, <span class="dt">length.out =</span> <span class="dv">20</span>)]
+grid_df_small =<span class="st"> </span>grid_df[grid_df<span class="op">$</span>x1 <span class="op">%in%</span><span class="st"> </span>x1_steps <span class="op">&amp;</span><span class="st"> </span>grid_df<span class="op">$</span>x2 <span class="op">%in%</span><span class="st"> </span>x2_steps,]
+grid_df_small<span class="op">$</span>explained_class =<span class="st"> </span><span class="kw">round</span>(grid_df_small<span class="op">$</span>explained)
+
+colors =<span class="st"> </span><span class="kw">c</span>(<span class="st">&#39;#132B43&#39;</span>, <span class="st">&#39;#56B1F7&#39;</span>)
+<span class="co"># Data with some noise</span>
+p_data =<span class="st"> </span><span class="kw">ggplot</span>(lime_training_df) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">x=</span>x1,<span class="dt">y=</span>x2,<span class="dt">fill=</span>y_noisy, <span class="dt">color=</span>y_noisy), <span class="dt">alpha =</span><span class="fl">0.3</span>, <span class="dt">shape=</span><span class="dv">21</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_fill_manual</span>(<span class="dt">values =</span> colors) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_color_manual</span>(<span class="dt">values =</span> colors) <span class="op">+</span>
+<span class="st">  </span><span class="kw">my_theme</span>(<span class="dt">legend.position =</span> <span class="st">&#39;none&#39;</span>)
+
+<span class="co"># The decision boundaries of the learned black box classifier</span>
+p_boundaries =<span class="st"> </span><span class="kw">ggplot</span>(grid_df) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_raster</span>(<span class="kw">aes</span>(<span class="dt">x=</span>x1,<span class="dt">y=</span>x2,<span class="dt">fill=</span>predicted), <span class="dt">alpha =</span> <span class="fl">0.3</span>, <span class="dt">interpolate=</span><span class="ot">TRUE</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">my_theme</span>(<span class="dt">legend.position=</span><span class="st">&#39;none&#39;</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">ggtitle</span>(<span class="st">&#39;A&#39;</span>)
+
+
+<span class="co"># Drawing some samples</span>
+p_samples =<span class="st"> </span>p_boundaries <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">data =</span> df_sample, <span class="kw">aes</span>(<span class="dt">x=</span>x1, <span class="dt">y=</span>x2)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">limits =</span> <span class="kw">c</span>(<span class="op">-</span><span class="dv">2</span>, <span class="dv">2</span>)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="dt">limits =</span> <span class="kw">c</span>(<span class="op">-</span><span class="dv">2</span>, <span class="dv">1</span>))
+<span class="co"># The point to be explained</span>
+p_explain =<span class="st"> </span>p_samples <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">data =</span> df_explain, <span class="kw">aes</span>(<span class="dt">x=</span>x1,<span class="dt">y=</span>x2), <span class="dt">fill =</span> <span class="st">&#39;yellow&#39;</span>, <span class="dt">shape =</span> <span class="dv">21</span>, <span class="dt">size=</span><span class="dv">4</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">ggtitle</span>(<span class="st">&#39;B&#39;</span>)
+
+p_weighted =<span class="st"> </span>p_boundaries <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">data =</span> df_sample, <span class="kw">aes</span>(<span class="dt">x=</span>x1, <span class="dt">y=</span>x2, <span class="dt">size=</span>weights)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">limits =</span> <span class="kw">c</span>(<span class="op">-</span><span class="dv">2</span>, <span class="dv">2</span>)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="dt">limits =</span> <span class="kw">c</span>(<span class="op">-</span><span class="dv">2</span>, <span class="dv">1</span>)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">data =</span> df_explain, <span class="kw">aes</span>(<span class="dt">x=</span>x1,<span class="dt">y=</span>x2), <span class="dt">fill =</span> <span class="st">&#39;yellow&#39;</span>, <span class="dt">shape =</span> <span class="dv">21</span>, <span class="dt">size=</span><span class="dv">4</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">ggtitle</span>(<span class="st">&#39;C&#39;</span>)
+
+p_boundaries_lime =<span class="st"> </span><span class="kw">ggplot</span>(grid_df)  <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_raster</span>(<span class="kw">aes</span>(<span class="dt">x=</span>x1,<span class="dt">y=</span>x2,<span class="dt">fill=</span>predicted), <span class="dt">alpha =</span> <span class="fl">0.3</span>, <span class="dt">interpolate=</span><span class="ot">TRUE</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">x=</span>x1, <span class="dt">y=</span>x2, <span class="dt">color=</span>explained), <span class="dt">size =</span> <span class="dv">2</span>, <span class="dt">data =</span> grid_df_small[grid_df_small<span class="op">$</span>explained_class<span class="op">==</span><span class="dv">1</span>,], <span class="dt">shape=</span><span class="dv">3</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">x=</span>x1, <span class="dt">y=</span>x2, <span class="dt">color=</span>explained), <span class="dt">size =</span> <span class="dv">2</span>, <span class="dt">data =</span> grid_df_small[grid_df_small<span class="op">$</span>explained_class<span class="op">==</span><span class="dv">0</span>,], <span class="dt">shape=</span><span class="dv">95</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">data =</span> df_explain, <span class="kw">aes</span>(<span class="dt">x=</span>x1,<span class="dt">y=</span>x2), <span class="dt">fill =</span> <span class="st">&#39;yellow&#39;</span>, <span class="dt">shape =</span> <span class="dv">21</span>, <span class="dt">size=</span><span class="dv">4</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x=</span>x1, <span class="dt">y=</span>x2), <span class="dt">data =</span>logistic_boundary_df, <span class="dt">color =</span> <span class="st">&#39;white&#39;</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">my_theme</span>(<span class="dt">legend.position=</span><span class="st">&#39;none&#39;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">&#39;D&#39;</span>)
+
+
+gridExtra<span class="op">::</span><span class="kw">grid.arrange</span>(p_boundaries, p_explain, p_weighted, p_boundaries_lime, <span class="dt">ncol=</span><span class="dv">2</span>)</code></pre>
+<pre><code>## Warning: Removed 83 rows containing missing values (geom_point).</code></pre>
+<pre><code>## Warning: Removed 83 rows containing missing values (geom_point).</code></pre>
+<div class="figure"><span id="fig:lime-fitting"></span>
+<img src="interpretable-ml_files/figure-html/lime-fitting-1.svg" alt="LIME algorithm for tabular data. A) Random forest predictions given features x1 and x2. Predicted classes: 1 (dark) or 0 (light). B) Instance of interest (big dot) and data sampled from a normal distribution (small dots). C) Assign higher weight to points near the instance of interest. D) Signs of the grid show the classifications of the locally learned model from the weighted samples. The white line marks the decision boundary (P(class=1) = 0.5)." width="864" />
+<p class="caption">
+FIGURE 5.33: LIME algorithm for tabular data. A) Random forest predictions given features x1 and x2. Predicted classes: 1 (dark) or 0 (light). B) Instance of interest (big dot) and data sampled from a normal distribution (small dots). C) Assign higher weight to points near the instance of interest. D) Signs of the grid show the classifications of the locally learned model from the weighted samples. The white line marks the decision boundary (P(class=1) = 0.5).
+</p>
+</div>
+<p>As always, the devil is in the detail.
+Defining a meaningful neighborhood around a point is difficult.
+LIME currently uses an exponential smoothing kernel to define the neighborhood.
+A smoothing kernel is a function that takes two data instances and returns a proximity measure.
+The kernel width determines how large the neighborhood is:
+A small kernel width means that an instance must be very close to influence the local model, a larger kernel width means that instances that are farther away also influence the model.
+If you look at <a href="https://github.com/marcotcr/lime/tree/ce2db6f20f47c3330beb107bb17fd25840ca4606">LIME’s Python implementation (file lime/lime_tabular.py)</a> you will see that it uses an exponential smoothing kernel (on the normalized data) and the kernel width is 0.75 times the square root of the number of columns of the training data.
+It looks like an innocent line of code, but it is like an elephant sitting in your living room next to the good porcelain you got from your grandparents.
+The big problem is that we do not have a good way to find the best kernel or width.
+And where does the 0.75 even come from?
+In certain scenarios, you can easily turn your explanation around by changing the kernel width, as shown in the following figure:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">42</span>)
+df =<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">x =</span> <span class="kw">rnorm</span>(<span class="dv">200</span>, <span class="dt">mean =</span> <span class="dv">0</span>, <span class="dt">sd =</span> <span class="dv">3</span>))
+df<span class="op">$</span>x[df<span class="op">$</span>x <span class="op">&lt;</span><span class="st"> </span><span class="dv">-5</span>] =<span class="st"> </span><span class="dv">-5</span>
+df<span class="op">$</span>y =<span class="st"> </span>(df<span class="op">$</span>x <span class="op">+</span><span class="st"> </span><span class="dv">2</span>)<span class="op">^</span><span class="dv">2</span>
+df<span class="op">$</span>y[df<span class="op">$</span>x <span class="op">&gt;</span><span class="st"> </span><span class="dv">1</span>] =<span class="st"> </span><span class="op">-</span>df<span class="op">$</span>x[df<span class="op">$</span>x <span class="op">&gt;</span><span class="st"> </span><span class="dv">1</span>] <span class="op">+</span><span class="st"> </span><span class="dv">10</span> <span class="op">+</span><span class="st"> </span><span class="op">-</span><span class="st"> </span><span class="fl">0.05</span> <span class="op">*</span><span class="st"> </span>df<span class="op">$</span>x[df<span class="op">$</span>x <span class="op">&gt;</span><span class="st"> </span><span class="dv">1</span>]<span class="op">^</span><span class="dv">2</span>
+<span class="co">#df$y = df$y + rnorm(nrow(df), sd = 0.05)</span>
+explain.p =<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">x =</span> <span class="fl">1.6</span>, <span class="dt">y =</span> <span class="fl">8.5</span>)
+
+w1 =<span class="st"> </span><span class="kw">kernel</span>(<span class="kw">get_distances</span>(<span class="kw">data.frame</span>(<span class="dt">x =</span> explain.p<span class="op">$</span>x), df), <span class="fl">0.1</span>)
+w2 =<span class="st"> </span><span class="kw">kernel</span>(<span class="kw">get_distances</span>(<span class="kw">data.frame</span>(<span class="dt">x =</span> explain.p<span class="op">$</span>x), df), <span class="fl">0.75</span>)
+w3 =<span class="st"> </span><span class="kw">kernel</span>(<span class="kw">get_distances</span>(<span class="kw">data.frame</span>(<span class="dt">x =</span> explain.p<span class="op">$</span>x), df), <span class="dv">2</span>)
+
+lm<span class="fl">.1</span> =<span class="st"> </span><span class="kw">lm</span>(y <span class="op">~</span><span class="st"> </span>x, <span class="dt">data =</span> df, <span class="dt">weights =</span> w1)
+lm<span class="fl">.2</span> =<span class="st"> </span><span class="kw">lm</span>(y <span class="op">~</span><span class="st"> </span>x, <span class="dt">data =</span> df, <span class="dt">weights =</span> w2)
+lm<span class="fl">.3</span> =<span class="st"> </span><span class="kw">lm</span>(y <span class="op">~</span><span class="st"> </span>x, <span class="dt">data =</span> df, <span class="dt">weights =</span> w3)
+df.all =<span class="st"> </span><span class="kw">rbind</span>(df, df, df)
+
+df.all<span class="op">$</span>lime =<span class="st"> </span><span class="kw">c</span>(<span class="kw">predict</span>(lm<span class="fl">.1</span>), <span class="kw">predict</span>(lm<span class="fl">.2</span>), <span class="kw">predict</span>(lm<span class="fl">.3</span>))
+df.all<span class="op">$</span>width =<span class="st"> </span><span class="kw">factor</span>(<span class="kw">c</span>(<span class="kw">rep</span>(<span class="kw">c</span>(<span class="fl">0.1</span>, <span class="fl">0.75</span>, <span class="dv">2</span>), <span class="dt">each =</span> <span class="kw">nrow</span>(df))))
+
+
+<span class="kw">ggplot</span>(df.all, <span class="kw">aes</span>(<span class="dt">x =</span> x, <span class="dt">y =</span> y)) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_line</span>(<span class="dt">size =</span> <span class="fl">2.5</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_rug</span>(<span class="dt">sides =</span> <span class="st">&quot;b&quot;</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> x, <span class="dt">y =</span> lime, <span class="dt">group =</span> width, <span class="dt">color =</span> width, <span class="dt">linetype =</span> width)) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">data =</span> explain.p, <span class="kw">aes</span>(<span class="dt">x =</span> x, <span class="dt">y =</span> y), <span class="dt">size =</span> <span class="dv">12</span>, <span class="dt">shape =</span> <span class="st">&quot;x&quot;</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span>viridis<span class="op">::</span><span class="kw">scale_color_viridis</span>(<span class="st">&quot;Kernel width&quot;</span>, <span class="dt">discrete =</span> <span class="ot">TRUE</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_linetype</span>(<span class="st">&quot;Kernel width&quot;</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="st">&quot;Black Box prediction&quot;</span>)</code></pre>
+<div class="figure"><span id="fig:lime-fail"></span>
+<img src="interpretable-ml_files/figure-html/lime-fail-1.svg" alt="Explanation of the prediction of instance x = 1.6. The predictions of the black box model depending on a single feature is shown as a thick line and the distribution of the data is shown with rugs. Three local surrogate models with different kernel widths are computed. The resulting linear regression model depends on the kernel width: Does the feature have a negative, positive or no effect for x = 1.6?" width="672" />
+<p class="caption">
+FIGURE 5.34: Explanation of the prediction of instance x = 1.6. The predictions of the black box model depending on a single feature is shown as a thick line and the distribution of the data is shown with rugs. Three local surrogate models with different kernel widths are computed. The resulting linear regression model depends on the kernel width: Does the feature have a negative, positive or no effect for x = 1.6?
+</p>
+</div>
+<p>The example shows only one feature.
+It gets worse in high-dimensional feature spaces.
+It is also very unclear whether the distance measure should treat all features equally.
+Is a distance unit for feature x1 identical to one unit for feature x2?
+Distance measures are quite arbitrary and distances in different dimensions (aka features) might not be comparable at all.</p>
+<div id="example-5" class="section level4">
+<h4><span class="header-section-number">5.7.1.1</span> Example</h4>
+<p>Let us look at a concrete example.
+We go back to the <a href="bike-data.html#bike-data">bike rental data</a> and turn the prediction problem into a classification:
+After taking into account the trend that the bicycle rental has become more popular over time, we want to know on a certain day whether the number of bicycles rented will be above or below the trend line.
+You can also interpret “above” as being above the average number of bicycles, but adjusted for the trend.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(<span class="st">&quot;bike&quot;</span>)
+ntree =<span class="st"> </span><span class="dv">100</span>
+bike.train.resid =<span class="st"> </span><span class="kw">factor</span>(<span class="kw">resid</span>(<span class="kw">lm</span>(cnt <span class="op">~</span><span class="st"> </span>days_since_<span class="dv">2011</span>, <span class="dt">data =</span> bike)) <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, <span class="dt">levels =</span> <span class="kw">c</span>(<span class="ot">FALSE</span>, <span class="ot">TRUE</span>), <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&#39;below&#39;</span>, <span class="st">&#39;above&#39;</span>))
+bike.train.x =<span class="st"> </span>bike[<span class="kw">names</span>(bike) <span class="op">!=</span><span class="st"> &#39;cnt&#39;</span>]
+
+model &lt;-<span class="st"> </span>caret<span class="op">::</span><span class="kw">train</span>(bike.train.x,
+  bike.train.resid,
+  <span class="dt">method =</span> <span class="st">&#39;rf&#39;</span>, <span class="dt">ntree=</span>ntree, <span class="dt">maximise =</span> <span class="ot">FALSE</span>)</code></pre>
+<pre><code>## Loading required package: lattice</code></pre>
+<pre><code>## 
+## Attaching package: &#39;caret&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:mlr&#39;:
+## 
+##     train</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">n_features_lime =<span class="st"> </span><span class="dv">2</span></code></pre>
+<p>First we train a random forest with 100 trees on the classification task.
+On what day will the number of rental bikes be above the trend-free average, based on weather and calendar information?</p>
+<p>The explanations are created with 2 features.
+The results of the sparse local linear models trained for two instances with different predicted classes:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(<span class="st">&quot;iml&quot;</span>)
+<span class="kw">library</span>(<span class="st">&quot;gridExtra&quot;</span>)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;gridExtra&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:dplyr&#39;:
+## 
+##     combine</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">instance_indices =<span class="st"> </span><span class="kw">c</span>(<span class="dv">295</span>, <span class="dv">8</span>)
+<span class="kw">set.seed</span>(<span class="dv">44</span>)
+bike.train.x<span class="op">$</span>temp =<span class="st"> </span><span class="kw">round</span>(bike.train.x<span class="op">$</span>temp, <span class="dv">2</span>)
+pred =<span class="st"> </span>Predictor<span class="op">$</span><span class="kw">new</span>(model, <span class="dt">data =</span> bike.train.x, <span class="dt">class =</span> <span class="st">&quot;above&quot;</span>, <span class="dt">type =</span> <span class="st">&quot;prob&quot;</span>)
+lim1 =<span class="st"> </span>LocalModel<span class="op">$</span><span class="kw">new</span>(pred, <span class="dt">x.interest =</span> bike.train.x[instance_indices[<span class="dv">1</span>],], <span class="dt">k =</span> n_features_lime)</code></pre>
+<pre><code>## Loading required package: gower</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">lim2=<span class="st"> </span>LocalModel<span class="op">$</span><span class="kw">new</span>(pred, <span class="dt">x.interest =</span> bike.train.x[instance_indices[<span class="dv">2</span>],], <span class="dt">k =</span> n_features_lime)
+wlim =<span class="st"> </span><span class="kw">c</span>(<span class="kw">min</span>(<span class="kw">c</span>(lim1<span class="op">$</span>results<span class="op">$</span>effect, lim2<span class="op">$</span>results<span class="op">$</span>effect)), <span class="kw">max</span>(<span class="kw">c</span>(lim1<span class="op">$</span>results<span class="op">$</span>effect, lim2<span class="op">$</span>results<span class="op">$</span>effect)))
+a =<span class="st"> </span><span class="kw">plot</span>(lim1) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="dt">limit =</span> wlim) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_hline</span>(<span class="kw">aes</span>(<span class="dt">yintercept=</span><span class="dv">0</span>))   <span class="op">+</span>
+<span class="st">  </span><span class="kw">theme</span>(<span class="dt">axis.title.y=</span><span class="kw">element_blank</span>(),
+        <span class="dt">axis.ticks.y=</span><span class="kw">element_blank</span>())
+b =<span class="st"> </span><span class="kw">plot</span>(lim2) <span class="op">+</span>
+<span class="st">    </span><span class="kw">scale_y_continuous</span>(<span class="dt">limit =</span> wlim) <span class="op">+</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">geom_hline</span>(<span class="kw">aes</span>(<span class="dt">yintercept=</span><span class="dv">0</span>)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">theme</span>(<span class="dt">axis.title.y=</span><span class="kw">element_blank</span>(),
+        <span class="dt">axis.ticks.y=</span><span class="kw">element_blank</span>())
+<span class="kw">grid.arrange</span>(a, b, <span class="dt">ncol =</span> <span class="dv">1</span>)</code></pre>
+<div class="figure"><span id="fig:lime-tabular-example-explain-plot-1"></span>
+<img src="interpretable-ml_files/figure-html/lime-tabular-example-explain-plot-1-1.svg" alt="LIME explanations for two instances of the bike rental dataset. Warmer temperature and good weather situation have a positive effect on the prediction. The x-axis shows the feature effect: The weight times the actual feature value." width="672" />
+<p class="caption">
+FIGURE 5.35: LIME explanations for two instances of the bike rental dataset. Warmer temperature and good weather situation have a positive effect on the prediction. The x-axis shows the feature effect: The weight times the actual feature value.
+</p>
+</div>
+<p>From the figure it becomes clear that it is easier to interpret categorical features than numerical features.
+One solution is to categorize the numerical features into bins.</p>
+</div>
+</div>
+<div id="lime-for-text" class="section level3">
+<h3><span class="header-section-number">5.7.2</span> LIME for Text</h3>
+<p>LIME for text differs from LIME for tabular data.
+Variations of the data are generated differently:
+Starting from the original text, new texts are created by randomly removing words from the original text.
+The dataset is represented with binary features for each word.
+A feature is 1 if the corresponding word is included and 0 if it has been removed.</p>
+<div id="example-6" class="section level4">
+<h4><span class="header-section-number">5.7.2.1</span> Example</h4>
+<p>In this example we classify <a href="spam-data.html#spam-data">YouTube comments</a> as spam or normal.</p>
+<p>The black box model is a deep decision tree trained on the document word matrix.
+Each comment is one document (= one row) and each column is the number of occurrences of a given word.
+Short decision trees are easy to understand, but in this case the tree is very deep.
+Also in place of this tree there could have been a recurrent neural network or a support vector machine trained on word embeddings (abstract vectors).
+Let us look at the two comments of this dataset and the corresponding classes (1 for spam, 0 for normal comment):</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(<span class="st">&quot;ycomments&quot;</span>)
+example_indices =<span class="st"> </span><span class="kw">c</span>(<span class="dv">267</span>, <span class="dv">173</span>)
+texts =<span class="st"> </span>ycomments<span class="op">$</span>CONTENT[example_indices]</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">kable</span>(ycomments[example_indices, <span class="kw">c</span>(<span class="st">&#39;CONTENT&#39;</span>, <span class="st">&#39;CLASS&#39;</span>)])</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="left">CONTENT</th>
+<th align="right">CLASS</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>267</td>
+<td align="left">PSY is a good guy</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td>173</td>
+<td align="left">For Christmas Song visit my channel! ;)</td>
+<td align="right">1</td>
+</tr>
+</tbody>
+</table>
+<p>The next step is to create some variations of the datasets used in a local model.
+For example, some variations of one of the comments:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(<span class="st">&quot;tm&quot;</span>)</code></pre>
+<pre><code>## Loading required package: NLP</code></pre>
+<pre><code>## 
+## Attaching package: &#39;NLP&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:ggplot2&#39;:
+## 
+##     annotate</code></pre>
+<pre><code>## 
+## Attaching package: &#39;tm&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:arules&#39;:
+## 
+##     inspect</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">labeledTerms =<span class="st"> </span><span class="kw">prepare_data</span>(ycomments<span class="op">$</span>CONTENT)
+labeledTerms<span class="op">$</span>class =<span class="st"> </span><span class="kw">factor</span>(ycomments<span class="op">$</span>CLASS, <span class="dt">levels =</span> <span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&#39;no spam&#39;</span>, <span class="st">&#39;spam&#39;</span>))
+labeledTerms2 =<span class="st"> </span><span class="kw">prepare_data</span>(ycomments, <span class="dt">trained_corpus =</span> labeledTerms)
+
+rp =<span class="st"> </span>rpart<span class="op">::</span><span class="kw">rpart</span>(class <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> labeledTerms)
+predict_fun =<span class="st"> </span><span class="kw">get_predict_fun</span>(rp, labeledTerms)
+tokenized =<span class="st"> </span><span class="kw">tokenize</span>(texts[<span class="dv">2</span>])
+<span class="kw">set.seed</span>(<span class="dv">2</span>)
+variations =<span class="st"> </span><span class="kw">create_variations</span>(texts[<span class="dv">2</span>], predict_fun, <span class="dt">prob=</span><span class="fl">0.7</span>, <span class="dt">n_variations =</span> <span class="dv">5</span>, <span class="dt">class=</span><span class="st">&#39;spam&#39;</span>)
+<span class="kw">colnames</span>(variations) =<span class="st"> </span><span class="kw">c</span>(tokenized, <span class="st">&#39;prob&#39;</span>, <span class="st">&#39;weight&#39;</span>)
+example_sentence =<span class="st"> </span><span class="kw">paste</span>(<span class="kw">colnames</span>(variations)[variations[<span class="dv">2</span>, ] <span class="op">==</span><span class="st"> </span><span class="dv">1</span>], <span class="dt">collapse =</span> <span class="st">&#39; &#39;</span>)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">kable</span>(variations)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">For</th>
+<th align="right">Christmas</th>
+<th align="right">Song</th>
+<th align="right">visit</th>
+<th align="right">my</th>
+<th align="right">channel!</th>
+<th align="right">;)</th>
+<th align="right">prob</th>
+<th align="right">weight</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0.17</td>
+<td align="right">0.57</td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0.17</td>
+<td align="right">0.71</td>
+</tr>
+<tr class="odd">
+<td>4</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">0.99</td>
+<td align="right">0.71</td>
+</tr>
+<tr class="even">
+<td>5</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">0.99</td>
+<td align="right">0.86</td>
+</tr>
+<tr class="odd">
+<td>6</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0.17</td>
+<td align="right">0.57</td>
+</tr>
+</tbody>
+</table>
+<p>Each column corresponds to one word in the sentence.
+Each row is a variation, 1 means that the word is part of this variation and 0 means that the word has been removed.
+The corresponding sentence for one of the variations is “<code>Christmas Song visit my ;)</code>”.
+The “prob” column shows the predicted probability of spam for each of the sentence variations.
+The “weight” column shows the proximity of the variation to the original sentence, calculated as 1 minus the proportion of words that were removed, for example if 1 out of 7 words was removed, the proximity is 1 - 1/7 = 0.86.</p>
+<p>Here are the two sentences (one spam, one no spam) with their estimated local weights found by the LIME algorithm:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">42</span>)
+ycomments.predict =<span class="st"> </span><span class="kw">get.ycomments.classifier</span>(ycomments)
+explanations  =<span class="st"> </span>data.table<span class="op">::</span><span class="kw">rbindlist</span>(<span class="kw">lapply</span>(<span class="kw">seq_along</span>(texts), <span class="cf">function</span>(i) {
+  <span class="kw">explain_text</span>(texts[i], ycomments.predict, <span class="dt">class=</span><span class="st">&#39;spam&#39;</span>, <span class="dt">case=</span>i, <span class="dt">prob =</span> <span class="fl">0.5</span>)
+})
+)</code></pre>
+<pre><code>## Warning in eval(family$initialize): non-integer #successes in a binomial
+## glm!
+
+## Warning in eval(family$initialize): non-integer #successes in a binomial
+## glm!</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">explanations =<span class="st"> </span><span class="kw">data.frame</span>(explanations)
+<span class="kw">kable</span>(explanations[<span class="kw">c</span>(<span class="st">&quot;case&quot;</span>, <span class="st">&quot;label_prob&quot;</span>, <span class="st">&quot;feature&quot;</span>, <span class="st">&quot;feature_weight&quot;</span>)])</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">case</th>
+<th align="right">label_prob</th>
+<th align="left">feature</th>
+<th align="right">feature_weight</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">0.1701170</td>
+<td align="left">good</td>
+<td align="right">0.000000</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">0.1701170</td>
+<td align="left">a</td>
+<td align="right">0.000000</td>
+</tr>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">0.1701170</td>
+<td align="left">is</td>
+<td align="right">0.000000</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="right">0.9939024</td>
+<td align="left">channel!</td>
+<td align="right">6.180747</td>
+</tr>
+<tr class="odd">
+<td align="right">2</td>
+<td align="right">0.9939024</td>
+<td align="left">For</td>
+<td align="right">0.000000</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="right">0.9939024</td>
+<td align="left">;)</td>
+<td align="right">0.000000</td>
+</tr>
+</tbody>
+</table>
+<p>The word “channel” indicates a high probability of spam.
+For the non-spam comment no non-zero weight was estimated, because no matter which word is removed, the predicted class remains the same.</p>
+</div>
+</div>
+<div id="images-lime" class="section level3">
+<h3><span class="header-section-number">5.7.3</span> LIME for Images</h3>
+<p><em>This section was written by Verena Haunschmid.</em></p>
+<p>LIME for images works differently than LIME for tabular data and text.
+Intuitively, it would not make much sense to perturb individual pixels, since many more than one pixel contribute to one class.
+Randomly changing individual pixels would probably not change the predictions by much.
+Therefore, variations of the images are created by segmenting the image into “superpixels” and turning superpixels off or on.
+Superpixels are interconnected pixels with similar colors and can be turned off by replacing each pixel with a user-defined color such as gray.
+The user can also specify a probability for turning off a superpixel in each permutation.</p>
+<div id="example-7" class="section level4">
+<h4><span class="header-section-number">5.7.3.1</span> Example</h4>
+<p>Since the computation of image explanations is rather slow, the <a href="https://github.com/thomasp85/lime">lime R package</a> contains a precomputed example which we will also use to show the output of the method.
+The explanations can be displayed directly on the image samples.
+Since we can have several predicted labels per image (sorted by probability), we can explain the top <code>n_labels</code>.
+For the following image the top 3 predictions were <em>electric guitar</em>; <em>acoustic guitar</em>; and <em>Labrador</em>.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Having trouble to install imagemick in version 6.8.8 or higher on TravisCI, </span>
+<span class="co"># which would be required for this code. So running only locally and added the</span>
+<span class="co"># image manually.</span>
+<span class="co"># For running locally, set eval = TRUE and make sure lime is installed.</span>
+<span class="kw">library</span>(<span class="st">&quot;lime&quot;</span>)
+explanation &lt;-<span class="st"> </span><span class="kw">.load_image_example</span>()
+<span class="kw">plot_image_explanation</span>(explanation)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">knitr<span class="op">::</span><span class="kw">include_graphics</span>(<span class="st">&quot;images/lime-images-package-example-1.png&quot;</span>)</code></pre>
+<div class="figure"><span id="fig:lime-images-package-example-include"></span>
+<img src="images/lime-images-package-example-1.png" alt="LIME explanations for the top 3 classes for image classification made by Google's Inception neural network. The example is taken from the LIME paper (Ribeiro et. al., 2016)." width="500" />
+<p class="caption">
+FIGURE 5.36: LIME explanations for the top 3 classes for image classification made by Google’s Inception neural network. The example is taken from the LIME paper (Ribeiro et. al., 2016).
+</p>
+</div>
+<p>The prediction and explanation in the first case are very reasonable.
+The first prediction of <em>electric guitar</em> is of course wrong, but the explanation shows us that the neural network still behaved reasonably because the image part identified suggests that this could be an electric guitar.</p>
+</div>
+</div>
+<div id="advantages-11" class="section level3">
+<h3><span class="header-section-number">5.7.4</span> Advantages</h3>
+<p>Even if you <strong>replace the underlying machine learning model</strong>, you can still use the same local, interpretable model for explanation.
+Suppose the people looking at the explanations understand decision trees best.
+Because you use local surrogate models, you use decision trees as explanations without actually having to use a decision tree to make the predictions.
+For example, you can use a SVM.
+And if it turns out that an xgboost model works better, you can replace the SVM and still use as decision tree to explain the predictions.</p>
+<p>Local surrogate models benefit from the literature and experience of training and interpreting interpretable models.</p>
+<p>When using Lasso or short trees, the resulting <strong>explanations are short (= selective) and possibly contrastive</strong>.
+Therefore, they make <a href="explanation.html#explanation">human-friendly explanations</a>.
+This is why I see LIME more in applications where the recipient of the explanation is a lay person or someone with very little time.
+It is not sufficient for complete attributions, so I do not see LIME in compliance scenarios where you might be legally required to fully explain a prediction.
+Also for debugging machine learning models, it is useful to have all the reasons instead of a few.</p>
+<p>LIME is one of the few methods that <strong>works for tabular data, text and images</strong>.</p>
+<p>The <strong>fidelity measure</strong> (how well the interpretable model approximates the black box predictions) gives us a good idea of how reliable the interpretable model is in explaining the black box predictions in the neighborhood of the data instance of interest.</p>
+<p>LIME is implemented in Python (<a href="https://github.com/marcotcr/lime">lime</a> and <a href="https://github.com/datascienceinc/Skater">Skater</a>) and R (<a href="https://cran.r-project.org/web/packages/lime/index.html">lime package</a> and <a href="https://cran.r-project.org/web/packages/iml/index.html">iml package</a>) and is <strong>very easy to use</strong>.</p>
+<p>The explanations created with local surrogate models <strong>can use other features than the original model</strong>.
+This can be a big advantage over other methods, especially if the original features cannot bet interpreted.
+A text classifier can rely on abstract word embeddings as features, but the explanation can be based on the presence or absence of words in a sentence.
+A regression model can rely on a non-interpretable transformation of some attributes, but the explanations can be created with the original attributes.</p>
+</div>
+<div id="disadvantages-11" class="section level3">
+<h3><span class="header-section-number">5.7.5</span> Disadvantages</h3>
+<p>The correct definition of the neighborhood is a very big, unsolved problem when using LIME with tabular data.
+In my opinion it is the biggest problem with LIME and the reason why I would recommend to use LIME only with great care.
+For each application you have to try different kernel settings and see for yourself if the explanations make sense.
+Unfortunately, this is the best advice I can give to find good kernel widths.</p>
+<p>Sampling could be improved in the current implementation of LIME.
+Data points are sampled from a Gaussian distribution, ignoring the correlation between features.
+This can lead to unlikely data points which can then be used to learn local explanation models.</p>
+<p>The complexity of the explanation model has to be defined in advance.
+This is just a small complaint, because in the end the user always has to define the compromise between fidelity and sparsity.</p>
+<p>Another really big problem is the instability of the explanations.
+In an article <a href="#fn38" class="footnote-ref" id="fnref38"><sup>38</sup></a> the authors showed that the explanations of two very close points varied greatly in a simulated setting.
+Also, in my experience, if you repeat the sampling process, then the explantions that come out can be different.
+Instability means that it is difficult to trust the explanations, and you should be very critical.</p>
+<p>Conclusion:
+Local surrogate models, with LIME as a concrete implementation, are very promising.
+But the method is still in development phase and many problems need to be solved before it can be safely applied.</p>
+
+<!--{pagebreak}-->
+</div>
+</div>
+<div class="footnotes">
+<hr />
+<ol start="37">
+<li id="fn37"><p>Ribeiro, Marco Tulio, Sameer Singh, and Carlos Guestrin. “Why should I trust you?: Explaining the predictions of any classifier.” Proceedings of the 22nd ACM SIGKDD international conference on knowledge discovery and data mining. ACM (2016).<a href="lime.html#fnref37" class="footnote-back">↩</a></p></li>
+<li id="fn38"><p>Alvarez-Melis, David, and Tommi S. Jaakkola. “On the robustness of interpretability methods.” arXiv preprint arXiv:1806.08049 (2018).<a href="lime.html#fnref38" class="footnote-back">↩</a></p></li>
+</ol>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="global.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="shapley.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": true,
+"facebook": true,
+"twitter": true,
+"google": false,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/christophM/interpretable-ml-book/edit/master/05.8-agnostic-lime.Rmd",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:" && /^https?:/.test(src))
+      src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
