@@ -1,0 +1,5 @@
+RSuiteVersion: 0.36.252
+RVersion: 3.6
+Project: interpretable_ml-rsuite
+Repositories: MRAN[2019-06-14]
+Artifacts: config_templ.txt
